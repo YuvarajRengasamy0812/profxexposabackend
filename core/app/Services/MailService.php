@@ -27,17 +27,16 @@ class MailService
     //     $this->senderEmail  = 'info@profxmedia.com';
     // }
 
-        public function __construct()
+    public function __construct()
     {
-        $settings=settings();
         $this->client = new Client([
             'base_uri' => 'https://api.brevo.com/v3/',
             'timeout' => 10.0,
         ]);
 
         $this->apiKey       = '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';
-        $this->senderName   = 'PROFX Summit';
-        $this->senderEmail  = 'info@profxmedia.com';
+        $this->senderName   = \config('mail.from.name') ?: 'PROFX Summit';
+        $this->senderEmail  = \config('mail.from.address') ?: 'info@profxmedia.com';
     }
 
     /**
@@ -87,7 +86,6 @@ class MailService
 
        public function sendBulkEmail($emails, $subject, $templateFile, $data)
     {
-        $settings = settings();
         $template = empty($templateFile) ? 'emails.template' : $templateFile;
         $htmlContent = view($template, $data)->render();
 
@@ -105,8 +103,8 @@ class MailService
 
         $payload = [
             'sender' => [
-                'name' => $settings['sender_name'],
-                'email' => $settings['sender_email_address'],
+                'name' => $this->senderName,
+                'email' => $this->senderEmail,
             ],
             'to' => [
                 [

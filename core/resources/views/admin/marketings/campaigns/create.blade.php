@@ -123,9 +123,9 @@
                                 <div class="flex-grow-1 border-top"></div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold fs-13">Upload CSV</label>
-                                <input type="file" class="form-control" id="csv_file" accept=".csv,text/csv" style="border-radius:9px;">
-                                <div class="form-text">First column must be the email address. Parsed emails will be added above.</div>
+                                <label class="form-label fw-semibold fs-13">Upload CSV / Excel</label>
+                                <input type="file" class="form-control" id="csv_file" accept=".csv,.xlsx,.xls" style="border-radius:9px;">
+                                <div class="form-text">First column must be the email address.</div>
                             </div>
                             <div>
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="previewExternalBtn" style="border-radius:8px;">
@@ -406,42 +406,6 @@ $('#previewExternalBtn').on('click', function () {
     const emails = parseEmails($('#external_emails').val());
     $('#externalCount').text(emails.length > 0 ? `${emails.length} valid email(s)` : 'No valid emails found');
     updateSummary();
-});
-
-$('#csv_file').on('change', function () {
-    const file = this.files && this.files[0];
-    if (!file) return;
-
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext !== 'csv') {
-        toast('warning', 'Please upload a CSV file');
-        $(this).val('');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function (event) {
-        const fromCsv = [];
-        String(event.target.result || '').split(/\r?\n/).forEach(row => {
-            const firstCol = row.split(',')[0] || '';
-            const email = parseEmails(firstCol)[0];
-            if (email && !fromCsv.includes(email)) fromCsv.push(email);
-        });
-
-        if (!fromCsv.length) {
-            $('#externalCount').text('No valid emails found in CSV');
-            updateSummary();
-            return;
-        }
-
-        const existing = parseEmails($('#external_emails').val());
-        const merged = [...new Set([...existing, ...fromCsv])];
-        $('#external_emails').val(merged.join('\n'));
-        $('#externalCount').text(`${merged.length} valid email(s)`);
-        toast('success', `${fromCsv.length} email(s) loaded from CSV`);
-        updateSummary();
-    };
-    reader.readAsText(file);
 });
 
 function parseEmails(raw) {

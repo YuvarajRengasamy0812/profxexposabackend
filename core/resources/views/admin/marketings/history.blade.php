@@ -1,4 +1,4 @@
-@extends('layouts.admin.admin')
+@extends('dashboard.layouts.master')
 
 @section('styles')
 <link href="/admin_assets/assets/css/marketing.css" rel="stylesheet">

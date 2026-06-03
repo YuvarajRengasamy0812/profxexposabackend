@@ -1,4 +1,4 @@
-@extends('layouts.admin.admin')
+@extends('dashboard.layouts.master')
 
 @section('styles')
 <link href="/admin_assets/assets/css/marketing.css" rel="stylesheet">
@@ -183,8 +183,6 @@
                                         <td class="text-center">
                                             @if($r->status === 'sent')
                                                 <span class="mkt-badge mkt-badge-sent">Sent</span>
-                                            @elseif($r->status === 'pending')
-                                                <span class="mkt-badge mkt-badge-scheduled">Pending</span>
                                             @else
                                                 <span class="mkt-badge mkt-badge-failed">Failed</span>
                                             @endif

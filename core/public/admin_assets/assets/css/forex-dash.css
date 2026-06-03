@@ -1,0 +1,227 @@
+/* ============================================
+   Forex Dashboard Styles — prefix: forex-dash-
+   ============================================ */
+
+/* ── Section heading ── */
+.forex-dash-section {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #adb5bd;
+    margin-bottom: 0.65rem;
+    margin-top: 0.25rem;
+    padding-left: 2px;
+}
+
+/* ── Stat card ── */
+.forex-dash-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: #fff;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+    height: 100%;
+}
+
+.forex-dash-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    transform: translateY(-2px);
+}
+
+/* ── Card inner layout ── */
+.forex-dash-card .forex-dash-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.forex-dash-card .forex-dash-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6c757d;
+    line-height: 1.3;
+}
+
+.forex-dash-card .forex-dash-value {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #2d3748;
+    line-height: 1.2;
+    margin-bottom: 6px;
+    word-break: break-all;
+}
+
+.forex-dash-card .forex-dash-sub {
+    font-size: 0.73rem;
+    color: #868e96;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1px;
+}
+
+.forex-dash-card .forex-dash-sub span {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* ── Icon badge ── */
+.forex-dash-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.forex-dash-icon-primary  { background: rgba(var(--primary-rgb),0.12); color: var(--primary-color); }
+.forex-dash-icon-success  { background: rgba(40,167,69,0.12);  color: #28a745; }
+.forex-dash-icon-danger   { background: rgba(220,53,69,0.12);  color: #dc3545; }
+.forex-dash-icon-warning  { background: rgba(255,193,7,0.15);  color: #d97706; }
+.forex-dash-icon-info     { background: rgba(23,162,184,0.12); color: #17a2b8; }
+.forex-dash-icon-teal     { background: rgba(32,201,151,0.12); color: #20c997; }
+.forex-dash-icon-purple   { background: rgba(102,16,242,0.10); color: #6f42c1; }
+.forex-dash-icon-orange   { background: rgba(253,126,20,0.12); color: #fd7e14; }
+.forex-dash-icon-dark     { background: rgba(52,58,64,0.10);   color: #343a40; }
+
+/* ── Alert / pending big cards ── */
+.forex-dash-alert-card {
+    border-radius: 14px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 100%;
+}
+
+.forex-dash-alert-card .forex-dash-alert-num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.forex-dash-alert-card .forex-dash-alert-label {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.88);
+    margin-top: 2px;
+}
+
+.forex-dash-alert-card .forex-dash-alert-icon {
+    font-size: 2.2rem;
+    color: rgba(255,255,255,0.35);
+}
+
+/* ── Accounts-type mini table ── */
+.forex-dash-acctype-table {
+    width: 100%;
+    font-size: 0.78rem;
+    border-collapse: collapse;
+}
+
+.forex-dash-acctype-table th {
+    font-weight: 600;
+    color: #6c757d;
+    border-bottom: 1px solid #e9ecef;
+    padding: 4px 6px;
+    text-align: left;
+}
+
+.forex-dash-acctype-table td {
+    padding: 4px 6px;
+    color: #343a40;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.forex-dash-acctype-table tr:last-child td { border-bottom: none; }
+
+/* ── Table card ── */
+.forex-dash-table-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.forex-dash-table-card .forex-dash-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.1rem;
+    background: #fff;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.forex-dash-table-card .forex-dash-table-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #343a40;
+    margin: 0;
+}
+
+.forex-dash-table-card .table thead th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    white-space: nowrap;
+    padding: 10px 12px;
+}
+
+.forex-dash-table-card .table tbody td {
+    font-size: 0.82rem;
+    vertical-align: middle;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f3f5;
+    color: #343a40;
+}
+
+.forex-dash-table-card .table tbody tr:last-child td { border-bottom: none; }
+.forex-dash-table-card .table tbody tr:hover { background: #f8f9fa; }
+
+/* ── Status badges ── */
+.forex-dash-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.forex-dash-badge-success { background: rgba(40,167,69,0.12);  color: #28a745; }
+.forex-dash-badge-danger  { background: rgba(220,53,69,0.12);  color: #dc3545; }
+.forex-dash-badge-warning { background: rgba(255,193,7,0.15);  color: #d97706; }
+.forex-dash-badge-pending { background: rgba(var(--primary-rgb),0.10); color: var(--primary-color); }
+
+/* ── User cell ── */
+.forex-dash-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.forex-dash-user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.forex-dash-user-name  { font-size: 0.82rem; font-weight: 600; color: #343a40; line-height: 1.2; }
+.forex-dash-user-email { font-size: 0.71rem; color: #868e96; line-height: 1.2; }
+
+/* ── Responsive ── */
+@media (max-width: 576px) {
+    .forex-dash-card .forex-dash-value { font-size: 1.15rem; }
+    .forex-dash-icon { width: 32px; height: 32px; font-size: 1rem; border-radius: 8px; }
+    .forex-dash-alert-card .forex-dash-alert-num { font-size: 1.6rem; }
+}
