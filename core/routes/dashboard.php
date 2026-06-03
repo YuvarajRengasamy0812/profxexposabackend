@@ -8,6 +8,9 @@ use App\Http\Controllers\Dashboard\WebmasterBannersController;
 use App\Http\Controllers\Dashboard\WebmasterSectionsController;
 use App\Http\Controllers\Dashboard\SettingsController;
 use App\Http\Controllers\Dashboard\BannersController;
+use App\Http\Controllers\Dashboard\EmailsController;
+use App\Http\Controllers\Dashboard\EmailTemplateController;
+
 use App\Http\Controllers\Dashboard\CategoriesController;
 use App\Http\Controllers\Dashboard\TopicsController;
 use App\Http\Controllers\Dashboard\ContactsController;
@@ -334,3 +337,13 @@ Route::prefix('marketing')->group(function () {
     Route::get('/history', [MarketingController::class, 'history'])->name('marketingCampaignsHistory');
     Route::get('/get-clients', [MarketingController::class, 'getClients'])->name('marketingCampaignsGetClients');
 });
+
+
+Route::get('/bulk-email-send', [EmailsController::class, 'emails'])->name('bulk-email-send');
+Route::post('/bulk-email-send', [EmailsController::class, 'bulkEmailSend'])->name('bulk-email-send.send');
+Route::post('/import-emails', [EmailsController::class, 'importEmails'])->name('import-emails');
+Route::post('/bulk-email-import-send', [EmailsController::class, 'bulkEmailImportSend'])->name('bulk-email-import-send');
+Route::get('/email-templates', [EmailTemplateController::class, 'index'])->name('email-templates');
+Route::post('/email-templates/store', [EmailTemplateController::class, 'store'])->name('email-templates.store');
+Route::get('/email-templates/{id}', [EmailTemplateController::class, 'show'])->whereNumber('id')->name('email-templates.show');
+Route::delete('/delete-template/{id}', [EmailTemplateController::class, 'destroy'])->name('email-templates.destroy');

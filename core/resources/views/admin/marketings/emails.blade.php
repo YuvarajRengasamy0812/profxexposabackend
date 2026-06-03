@@ -151,6 +151,10 @@
 
 @section('scripts')
     <script>
+    const bulkEmailSendUrl = @json(route('bulk-email-send.send'));
+    const importEmailsUrl = @json(route('import-emails'));
+    const bulkEmailImportSendUrl = @json(route('bulk-email-import-send'));
+
     // $("#ibModal").modal();
     function dTSelection() {
         if (window.dTtable) {
@@ -372,7 +376,7 @@
         });
 
         $.ajax({
-            url: "/admin/bulk-email-send",
+            url: bulkEmailSendUrl,
             type: "POST",
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content'),
@@ -430,7 +434,7 @@
             formData.append("email_file", file);
             
             $.ajax({
-                url: "/admin/import-emails",
+                url: importEmailsUrl,
                 type: "POST",
                 data: formData,
                 contentType: false,
@@ -492,7 +496,7 @@
             });
 
             $.ajax({
-                url: "/admin/bulk-email-import-send",
+                url: bulkEmailImportSendUrl,
                 type: "POST",
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),

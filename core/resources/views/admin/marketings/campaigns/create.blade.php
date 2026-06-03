@@ -47,7 +47,7 @@
                                     @endforeach
                                 </select>
                                 <div class="form-text">
-                                    <a href="/admin/email-templates" target="_blank" class="text-primary">
+                                    <a href="{{ route('email-templates') }}" target="_blank" class="text-primary">
                                         <i class="fe fe-external-link me-1"></i>Manage Templates
                                     </a>
                                 </div>
@@ -209,7 +209,7 @@
                         <button type="button" class="btn btn-primary fw-semibold w-100 mb-3" id="sendCampaignBtn" style="border-radius:10px; padding:10px 0;">
                             <i class="fe fe-send me-2"></i><span id="sendBtnLabel">Send Campaign</span>
                         </button>
-                        <a href="/admin/marketing/campaigns" class="btn btn-outline-secondary w-100" style="border-radius:10px; padding:10px 0;">
+                        <a href="{{ route('marketingCampaigns') }}" class="btn btn-outline-secondary w-100" style="border-radius:10px; padding:10px 0;">
                             <i class="fe fe-x me-1"></i> Cancel
                         </a>
                     </div>
@@ -276,6 +276,9 @@
 @section('scripts')
 <script>
 const csrfToken = $('meta[name="csrf-token"]').attr('content');
+const marketingCampaignsUrl = @json(route('marketingCampaigns'));
+const marketingCampaignsStoreUrl = @json(route('marketingCampaignsStore'));
+const marketingCampaignsGetClientsUrl = @json(route('marketingCampaignsGetClients'));
 let selectedClientIds = [];
 let allLoadedClients  = [];
 
@@ -330,7 +333,7 @@ $('#openPickerBtn').on('click', function () {
 
 function loadClients(search) {
     $('#clientTableBody').html('<tr><td colspan="3" class="text-center text-muted py-4">Loading...</td></tr>');
-    $.get('/admin/marketing/get_clients', { search }, function (res) {
+    $.get(marketingCampaignsGetClientsUrl, { search }, function (res) {
         allLoadedClients = res.data;
         renderClientTable(allLoadedClients);
     });
@@ -448,7 +451,7 @@ $('#sendCampaignBtn').on('click', function () {
 
         Swal.fire({ title: mode === 'schedule' ? 'Saving...' : 'Sending...', text: 'Please wait', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
 
-        $.post('/admin/marketing/campaigns/store', {
+        $.post(marketingCampaignsStoreUrl, {
             _token:          csrfToken,
             campaign_name:   name,
             template_id:     templateId,
@@ -465,7 +468,7 @@ $('#sendCampaignBtn').on('click', function () {
                     title: mode === 'schedule' ? 'Campaign Scheduled!' : 'Campaign Sent!',
                     text: mode === 'schedule' ? `Scheduled for ${schedAt}` : `${res.count} email(s) sent successfully.`,
                     confirmButtonColor: '#ffbe00',
-                }).then(() => window.location.href = '/admin/marketing/campaigns/' + res.campaign_id);
+                }).then(() => window.location.href = marketingCampaignsUrl + '/' + res.campaign_id);
             } else {
                 Swal.fire({ icon: 'error', title: 'Failed', text: res.message || 'Something went wrong' });
             }

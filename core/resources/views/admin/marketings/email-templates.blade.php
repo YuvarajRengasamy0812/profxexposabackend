@@ -1,435 +1,530 @@
 @extends('dashboard.layouts.master')
-<link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.css" rel="stylesheet">
-@section('content')
+
+@section('title', 'Email Templates')
+
+@push('after-styles')
+    <link href="{{ asset('assets/dashboard/js/summernote/dist/summernote.css') }}" rel="stylesheet">
     <style>
-        tr.inactive {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            opacity: 0.6;
-        }
-        .modal-body {
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-        
-        .note-editor.note-frame {
-            height: 300px !important;
-            display: flex;
-            flex-direction: column;
+        .template-hero {
+            background: linear-gradient(135deg, #1f2937 0%, #ffbe00 100%);
+            border-radius: 8px;
+            color: #fff;
+            padding: 22px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .note-editor .note-editable {
-            flex: 1;
-            overflow-y: auto !important;
-            max-height: 100% !important;
+        .template-page .gap-2,
+        .template-modal .gap-2 {
+            gap: .5rem;
+        }
+
+        .template-page .gap-3,
+        .template-modal .gap-3 {
+            gap: .75rem;
+        }
+
+        .template-page .me-1,
+        .template-modal .me-1 {
+            margin-right: .25rem;
+        }
+
+        .template-page .me-2,
+        .template-modal .me-2 {
+            margin-right: .5rem;
+        }
+
+        .template-page .ps-4 {
+            padding-left: 1.5rem;
+        }
+
+        .template-page .fw-semibold,
+        .template-modal .fw-semibold {
+            font-weight: 600;
+        }
+
+        .template-page .fs-12 {
+            font-size: .75rem;
+        }
+
+        .template-page .fs-13 {
+            font-size: .8125rem;
+        }
+
+        .template-hero:after {
+            content: "";
+            position: absolute;
+            right: -80px;
+            top: -90px;
+            width: 230px;
+            height: 230px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .16);
+        }
+
+        .template-hero-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .template-hero-sub {
+            opacity: .86;
+            font-size: .88rem;
+        }
+
+        .template-stat {
+            background: #fff;
+            border: 1px solid #edf0f4;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, .05);
+        }
+
+        .template-stat-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff7dc;
+            color: #b77900;
+            font-size: 1.05rem;
+        }
+
+        .template-table-card {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .template-table th {
+            font-size: .78rem;
+            color: #475569;
+            border-top: 0;
+        }
+
+        .template-table td {
+            vertical-align: middle;
+        }
+
+        .template-actions .btn {
+            width: 34px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+        }
+
+        .template-status {
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: .72rem;
+            font-weight: 700;
+        }
+
+        .template-status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .template-status.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .template-modal .modal-content {
+            border-radius: 8px;
+            border: 0;
+            overflow: hidden;
+        }
+
+        .template-modal .modal-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #edf0f4;
+        }
+
+        .template-modal .note-editor.note-frame {
+            border-radius: 8px;
+            border-color: #d8dde6;
+        }
+
+        .template-modal .note-editable {
+            min-height: 320px;
+            font-size: 14px;
+        }
+
+        .template-preview-frame {
+            width: 100%;
+            height: 560px;
+            border: 0;
+            background: #fff;
         }
     </style>
-    <div class="modal fade" id="addTemplateModal" tabindex="-1" aria-labelledby="addTemplateModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title" id="emailTemplateModelLabel">Add Template</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+@endpush
+
+@section('content')
+<div class="main-content app-content template-page">
+    <div class="container-fluid">
+        <div class="page-header">
+            <h1 class="page-title">Email Templates</h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('adminHome') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Email Templates</li>
+            </ol>
+        </div>
+
+        <div class="template-hero">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3" style="position:relative;z-index:1;">
+                <div>
+                    <div class="template-hero-title"><i class="fe fe-file-text me-2"></i>Email Template Builder</div>
+                    <div class="template-hero-sub">Create reusable HTML templates for mail campaigns.</div>
                 </div>
-                <form method="post" id="emailTemplateForm">
-                    @csrf
-                    <input type="hidden" name="id" id="template_id">
-                    <input type="hidden" name="emailTemplate_update" value="1">
-                    <div class="modal-body">
-                        <div class="row gy-2">
-                            <div class="row">
-                                <div class="col-6">
-                                    <label for="input-label" class="form-label">Name</label>
-                                    <input type="text" class="form-control" id="template_name" name="name" required>
-                                </div>
-                                <div class="col-6">
-                                    <label for="input-file" class="form-label">Status</label>
-                                    <select class="form-select" required name="is_active">
-                                        <option value="" selected disabled hidden></option>
-                                        <option value="1">Active</option>
-                                        <option value="0">Inactive</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label for="input-file" class="form-label">Template</label>
-                                <textarea id="summernote" name="template"></textarea>
-                            </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('marketingCampaigns') }}" class="btn btn-sm" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:7px;">
+                        <i class="fe fe-send me-1"></i> Campaigns
+                    </a>
+                    <button type="button" class="btn btn-sm js-create-template" style="background:#fff;color:#b77900;font-weight:700;border-radius:7px;">
+                        <i class="fe fe-plus me-1"></i> New Template
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="template-stat">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <span class="template-stat-icon"><i class="fe fe-layers"></i></span>
+                        <div>
+                            <div class="h5 mb-0">{{ $stats['total'] ?? 0 }}</div>
+                            <div class="text-muted fs-12">Total Templates</div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="template-stat">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <span class="template-stat-icon"><i class="fe fe-check-circle"></i></span>
+                        <div>
+                            <div class="h5 mb-0">{{ $stats['active'] ?? 0 }}</div>
+                            <div class="text-muted fs-12">Active</div>
+                        </div>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="previewTemplateModal" tabindex="-1">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title">Preview Template</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-0">
-                    <iframe id="templatePreviewFrame" style="width:100%; height:500px; border:0;"></iframe>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="template-stat">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <span class="template-stat-icon"><i class="fe fe-slash"></i></span>
+                        <div>
+                            <div class="h5 mb-0">{{ $stats['inactive'] ?? 0 }}</div>
+                            <div class="text-muted fs-12">Inactive</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="main-content app-content">
-        <div class="container-fluid">
-            <div class="page-header">
-                <h1 class="page-title">Email Template</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Email Templates</li>
-                </ol>
-            </div>
-            <div class="d-flex justify-content-end mb-3">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTemplateModal">
-                    Add Template
+
+        <div class="card template-table-card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-semibold"><i class="fe fe-list me-2 text-primary"></i>Templates</h6>
+                <button type="button" class="btn btn-primary btn-sm js-create-template" style="border-radius:7px;">
+                    <i class="fe fe-plus me-1"></i> Add Template
                 </button>
             </div>
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card custom-card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="tableEmailtemplates" class="ajaxDataTable table table-bordered text-nowrap w-100">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table template-table table-hover mb-0 text-nowrap">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">#</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($templates as $template)
+                                <tr>
+                                    <td class="ps-4 text-muted fs-12">{{ $template->id }}</td>
+                                    <td>
+                                        <div class="fw-semibold">{{ $template->name }}</div>
+                                        <div class="text-muted fs-12">Template ID: {{ $template->id }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="template-status {{ $template->is_active ? 'active' : 'inactive' }}">
+                                            {{ $template->is_active ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted fs-12">
+                                        {{ $template->created_at ? date('d M Y, H:i', strtotime($template->created_at)) : '-' }}
+                                    </td>
+                                    <td class="text-center template-actions">
+                                        <button type="button" class="btn btn-sm btn-outline-primary js-view-template" data-id="{{ $template->id }}" title="Preview">
+                                            <i class="fe fe-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary js-edit-template" data-id="{{ $template->id }}" title="Edit">
+                                            <i class="fe fe-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger js-delete-template" data-id="{{ $template->id }}" title="Delete">
+                                            <i class="fe fe-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <i class="fe fe-file-text text-muted" style="font-size:2.4rem;opacity:.4;"></i>
+                                        <div class="fw-semibold mt-2 mb-1">No email templates yet</div>
+                                        <div class="text-muted fs-13 mb-3">Create your first template to use it in campaigns.</div>
+                                        <button type="button" class="btn btn-primary btn-sm js-create-template" style="border-radius:7px;">
+                                            <i class="fe fe-plus me-1"></i> Create Template
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.js"></script>
+</div>
+
+<div class="modal fade template-modal" id="templateModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <form method="post" id="templateForm">
+                @csrf
+                <input type="hidden" name="id" id="template_id">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="templateModalTitle">Add Template</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label fw-semibold">Template Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="template_name" name="name" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
+                            <select class="form-control" id="template_status" name="is_active" required>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Template HTML <span class="text-danger">*</span></label>
+                        <textarea id="template_editor" name="template"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="templateSubmitBtn">
+                        <i class="fe fe-save me-1"></i> Save Template
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade template-modal" id="templatePreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Template Preview</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="templatePreviewFrame" class="template-preview-frame"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('after-scripts')
+    <script src="{{ asset('assets/dashboard/js/summernote/dist/summernote.js') }}"></script>
     <script>
-        $(document).ready(function () {
-            $('#summernote').summernote({
-                height: 300,
-                maxHeight: 300,
-                codeviewFilter: false,
-                codeviewIframeFilter: false,
-                disableDragAndDrop: true, // ✅ IMPORTANT
+        (function ($) {
+            const storeUrl = @json(route('email-templates.store'));
+            const showUrl = @json(route('email-templates.show', ['id' => '__ID__']));
+            const deleteUrl = @json(route('email-templates.destroy', ['id' => '__ID__']));
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                toolbar: [
-                    ['view', ['codeview']]
-                ],
-
-                callbacks: {
-                    onInit: function () {
-                        let editor = $('.note-editable');
-
-                        // Disable typing
-                        editor.attr('contenteditable', false);
-
-                        // Disable drag & drop (editor level)
-                        editor.on('dragenter dragover dragleave drop', function (e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            return false;
-                        });
-
-                        // Disable paste
-                        editor.on('paste', function (e) {
-                            e.preventDefault();
-                            return false;
-                        });
-                    },
-
-                    // Block image upload completely
-                    onImageUpload: function () {
-                        return false;
-                    },
-
-                    // Extra safety: block drop from Summernote API
-                    onDrop: function (e) {
-                        e.preventDefault();
-                        return false;
-                    },
-
-                    onChange: function (contents) {
-                        let clean = contents.replace(/<p>(\s|&nbsp;|<br>)*<\/p>/gi, '').trim();
-
-                        if (!clean) {
-                            $('#summernote').summernote('code', '');
-                        }
-                    }
+            function notify(type, title, text) {
+                if (window.Swal && Swal.fire) {
+                    Swal.fire({ icon: type, title: title, text: text || '' });
+                    return;
                 }
-            });
 
-            // 🔒 GLOBAL fallback (prevents browser-level drop)
-            $(document).on('drop dragover', function (e) {
-                e.preventDefault();
-            });
-        });
+                if (window.swal) {
+                    swal(title, text || '', type);
+                    return;
+                }
 
-        $('#addTemplateModal').on('hidden.bs.modal', function () {
-            $("#template_id").val('');
-            $("#template_name").val('');
-            $("#addTemplateModal input:not([name='_token']),#addTemplateModal select").val("").trigger("change");
-            $("#emailTemplateModelLabel").text('Add Template');
-            $('#summernote').summernote('reset');
-            $("#submitBtn").text("Submit");
-        });
-
-        $('#addTemplateModal').on('shown.bs.modal', function () {
-            if($("#template_id").val() == "")
-            {
-                $("#template_id").val('');
-                $("#template_name").val('');
-                $("#addTemplateModal input:not([name='_token']),#addTemplateModal select").val("").trigger("change");
-                $("#emailTemplateModelLabel").text('Add Template');
-                $('#summernote').summernote('reset');
-                $("#submitBtn").text("Submit");
+                alert(title + (text ? '\n' + text : ''));
             }
-        });
-        $(document).ready(function() {
-            window.dTtable = $('#tableEmailtemplates').DataTable({
-                // order: [[0, "desc"]],
-                "ajax": {
-                    "url": "/admin/ajax",
-                    "type": "GET",
-                    data: {
-                        action: 'getEmailTemplate',
-                    },
-                },
-                columns: [{
-                        data: 'id',
-                        name: 'id'
-                    },
-                    {
-                        data: 'name',
-                        name: 'name'
-                    },
-                    {
-                        data: 'is_active',
-                        name: 'is_active',
-                        render: function (data, type, row) {
-                            return `
-                                <span class="badge ${row.is_active == 1 ? 'bg-success' : 'bg-danger'}">
-                                    ${row.is_active == 1 ? 'Active' : 'Inactive'}
-                                </span>
-                            `;
-                        }
-                    },
-                    {
-                        data: null,
-                        orderable: false,
-                        searchable: false,
-                        render: function (row) {
-                            return `
-                            <span class="view-template" style="cursor:pointer;" data-modal-label="Email template" data-id="${row.id}" data-enc="' + row_data.enc_id +
-                            '"><span class="badge text-danger" data-bs-toggle="tooltip" title="View Template"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg></span></span>
 
-                            <span class="edit-template" style="cursor:pointer;" data-modal-label="Edit Email template" data-id="${row.id}" data-enc="' + row_data.enc +
-                                '"><span class="badge text-danger" data-bs-toggle="tooltip" title="Edit template"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit text-secondary"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></span></span>
-                            
-                            <span class="delete-template" style="cursor:pointer;"data-id="${row.id}">
-                                <span class="badge text-danger"
-                                    data-bs-toggle="tooltip"
-                                    title="Delete template">
-                                    
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        width="16" height="16"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-trash text-danger">
-                                        
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M4 7h16"/>
-                                        <path d="M10 11v6"/>
-                                        <path d="M14 11v6"/>
-                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/>
-                                        <path d="M9 7v-3h6v3"/>
-                                    </svg>
-                                    
-                                </span>
-                            </span>  
-                            `;
+            function confirmDelete(callback) {
+                if (window.Swal && Swal.fire) {
+                    Swal.fire({
+                        title: 'Delete template?',
+                        text: 'This template will be removed permanently.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Delete'
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            callback();
                         }
-                    }
-                ],
-                "createdRow": function(row, data, dataIndex) {
-                    if (data.is_active == 0) {
-                        $(row).addClass('inactive');
-                    }
-                }
-            });
-        });
-
-        $("#emailTemplateForm").submit(function(e) {
-            e.preventDefault();
-            $('#summernote').summernote('code', $('#summernote').summernote('code'));
-            $.ajax({
-                url: "/admin/api/ajax",
-                type: "POST",
-                data: $(this).serialize(),
-                success: function(data) {
-                    if (data.status == "true" || data.trim() == "true") {
-                        swal.fire({
-                            icon: "success",
-                            title: data.message ?? "Email Template Successfully Updated"
-                        }).then((val) => {
-                            location.reload();
-                        });
-                    } else {
-                        swal.fire({
-                            icon: "error",
-                            title: "Error:",
-                            text: data.error
-                        })
-                    }
-                },
-                error: function(xhr) {
-                    const response = JSON.parse(xhr.responseText);
-                    swal.fire({
-                        icon: "error",
-                        title: "Error:",
-                        text: response.error
                     });
+                    return;
                 }
-            });
-        });
 
-        $(document).on("click", ".edit-template", function (e) {
-            e.preventDefault();
+                if (confirm('Delete this template?')) {
+                    callback();
+                }
+            }
 
-            let id = $(this).data("id");
-            
-            let modalLabel = $(this).data("modal-label");
+            function resetForm() {
+                $('#templateForm')[0].reset();
+                $('#template_id').val('');
+                $('#template_status').val('1');
+                $('#template_editor').summernote('code', '');
+                $('#templateModalTitle').text('Add Template');
+                $('#templateSubmitBtn').html('<i class="fe fe-save me-1"></i> Save Template');
+            }
 
-            $.ajax({
-                url: "/admin/api/ajax",
-                type: "GET",
-                data: {
-                    get_emailtemplate: true,
-                    id: id
-                },
-                success: function(data) {
-                    if (data == "false") {
-                        swal.fire({
-                            icon: "error",
-                            title: "Something went wrong",
-                            text: "Please try again later or contact support.",
+            function openEditor(template) {
+                resetForm();
+
+                if (template) {
+                    $('#template_id').val(template.id);
+                    $('#template_name').val(template.name);
+                    $('#template_status').val(String(template.is_active));
+                    $('#template_editor').summernote('code', template.template || '');
+                    $('#templateModalTitle').text('Edit Template');
+                    $('#templateSubmitBtn').html('<i class="fe fe-save me-1"></i> Update Template');
+                }
+
+                $('#templateModal').modal('show');
+            }
+
+            function writePreview(html) {
+                const iframe = document.getElementById('templatePreviewFrame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(html || '');
+                doc.close();
+                $('#templatePreviewModal').modal('show');
+            }
+
+            $(function () {
+                $('#template_editor').summernote({
+                    height: 360,
+                    dialogsInBody: true,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['fontsize', ['fontsize']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link', 'table', 'hr']],
+                        ['view', ['fullscreen', 'codeview']]
+                    ]
+                });
+
+                $('.js-create-template').on('click', function () {
+                    openEditor(null);
+                });
+
+                $('.js-edit-template, .js-view-template').on('click', function () {
+                    const id = $(this).data('id');
+                    const isPreview = $(this).hasClass('js-view-template');
+
+                    $.get(showUrl.replace('__ID__', id))
+                        .done(function (template) {
+                            if (isPreview) {
+                                writePreview(template.template);
+                            } else {
+                                openEditor(template);
+                            }
+                        })
+                        .fail(function (xhr) {
+                            notify('error', 'Unable to load template', xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Please try again.');
                         });
-                    } else {
-                        $("#emailTemplateForm #template_id").val(data.id);
-                        $("#emailTemplateForm #template_name").val(data.name);
-                        $("#emailTemplateForm #summernote").summernote("code", data.template);
-                        $("#emailTemplateForm [name='is_active']").val(data.is_active).trigger("change");
-                        $("#emailTemplateModelLabel").text(modalLabel);
-                        $("#submitBtn").text("Update");
-                        $("#addTemplateModal").modal("show");
-                    }
-                }
-            });
-        });
+                });
 
-        $('#addTemplateModal').on('hidden.bs.modal', function () {
-            $("#template_id").val('');
-            $("#template_name").val('');
-            $("#is_active").val('');
-            $('#summernote').summernote('code', '');
-            $('#summernote').summernote('reset');
-        });
+                $('#templateForm').on('submit', function (e) {
+                    e.preventDefault();
 
-        $(document).on("click", ".view-template", function () {
-            let id = $(this).data("id");
+                    const html = $('#template_editor').summernote('code');
+                    const clean = html.replace(/<p>(\s|&nbsp;|<br>)*<\/p>/gi, '').trim();
 
-            $.ajax({
-                url: "/admin/api/ajax",
-                type: "GET",
-                data: {
-                    get_emailtemplate: true,
-                    id: id
-                },
-                success: function (data) {
-
-                    if (data == "false") {
-                        swal.fire("Error", "Unable to load template", "error");
+                    if (!clean) {
+                        notify('warning', 'Template content required', 'Please add email template HTML before saving.');
                         return;
                     }
 
-                    // Inject HTML into iframe
-                    let iframe = document.getElementById("templatePreviewFrame");
-                    let doc = iframe.contentDocument || iframe.contentWindow.document;
+                    $('#template_editor').val(html);
+                    $('#templateSubmitBtn').prop('disabled', true).text('Saving...');
 
-                    doc.open();
-                    doc.write(data.template); // 👈 your HTML template
-                    doc.close();
-
-                    $("#previewTemplateModal").modal("show");
-                }
-            });
-        });
-
-        $(document).on('click', '.delete-template', function () {
-            let id = $(this).data('id');
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                        $.ajax({
-                                url: '/admin/delete-template/' + id,
-                                type: 'DELETE',
-                                data: {
-                                    _method: 'DELETE',
-                                    _token: $('meta[name="csrf-token"]').attr('content')
-                                },
-                                success: function (data) {
-                                    if (data.status == "true" || data.trim() == "true") {
-                                        Swal.fire(
-                                            'Deleted!',
-                                            'Your template has been deleted.',
-                                            'success'
-                                        ).then(() => {
-                                            location.reload();
-                                        });
-                                    } else {
-                                        Swal.fire({
-                                            icon: "error",
-                                            title: "Error",
-                                            text: data.error ?? 'Something went wrong'
-                                        });
-                                    }
-                                },
-                                error: function (xhr) {
-                                    Swal.fire({
-                                        icon: "error",
-                                        title: "Error",
-                                        text: xhr.responseJSON?.error ?? 'Server error'
-                            });
-                        }
+                    $.ajax({
+                        url: storeUrl,
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        headers: { 'X-CSRF-TOKEN': csrfToken }
+                    }).done(function (response) {
+                        notify('success', response.message || 'Email template saved');
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 700);
+                    }).fail(function (xhr) {
+                        const message = xhr.responseJSON && xhr.responseJSON.message
+                            ? xhr.responseJSON.message
+                            : 'Unable to save template.';
+                        notify('error', 'Save failed', message);
+                    }).always(function () {
+                        $('#templateSubmitBtn').prop('disabled', false).html('<i class="fe fe-save me-1"></i> Save Template');
                     });
+                });
 
-                }
+                $('.js-delete-template').on('click', function () {
+                    const id = $(this).data('id');
+
+                    confirmDelete(function () {
+                        $.ajax({
+                            url: deleteUrl.replace('__ID__', id),
+                            type: 'DELETE',
+                            data: { _token: csrfToken }
+                        }).done(function (response) {
+                            notify('success', response.message || 'Email template deleted');
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 700);
+                        }).fail(function (xhr) {
+                            notify('error', 'Delete failed', xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Unable to delete template.');
+                        });
+                    });
+                });
+
+                $('#templateModal').on('hidden.bs.modal', resetForm);
             });
-        });
+        })(jQuery);
     </script>
-@endsection
+@endpush

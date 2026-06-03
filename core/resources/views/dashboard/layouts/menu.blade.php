@@ -217,10 +217,12 @@ $GeneralWebmasterSections = $GeneralWebmasterSections ?? collect();
                     @endif
 
                     <?php
-                    $currentFolder = "marketing"; // Put folder name here
-                    $PathCurrentFolder = substr($urlAfterRoot, 0, strlen($currentFolder));
+                    $marketingFolders = ["marketing", "email-templates", "bulk-email-send"];
+                    $PathCurrentFolder = collect($marketingFolders)->first(function ($folder) use ($urlAfterRoot) {
+                        return substr($urlAfterRoot, 0, strlen($folder)) == $folder;
+                    });
                     ?>
-                    <li {{ ($PathCurrentFolder==$currentFolder) ? 'class=active' : '' }}>
+                    <li {{ ($PathCurrentFolder) ? 'class=active' : '' }}>
                         <a>
                             <span class="nav-caret">
                                 <i class="fa fa-caret-down"></i>
@@ -234,6 +236,11 @@ $GeneralWebmasterSections = $GeneralWebmasterSections ?? collect();
                             <li {{ request()->routeIs('marketingCampaigns') || request()->routeIs('marketingCampaignsCreate') || request()->routeIs('marketingCampaignsShow') ? 'class=active' : '' }}>
                                 <a href="{{ route('marketingCampaigns') }}">
                                     <span class="nav-text">Campaigns</span>
+                                </a>
+                            </li>
+                            <li {{ request()->routeIs('email-templates') ? 'class=active' : '' }}>
+                                <a href="{{ route('email-templates') }}">
+                                    <span class="nav-text">Email Templates</span>
                                 </a>
                             </li>
                             <li {{ request()->routeIs('marketingCampaignsHistory') ? 'class=active' : '' }}>
