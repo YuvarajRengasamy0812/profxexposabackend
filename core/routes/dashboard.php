@@ -19,6 +19,7 @@ use App\Http\Controllers\Dashboard\MenusController;
 use App\Http\Controllers\Dashboard\FileManagerController;
 use App\Http\Controllers\Dashboard\TagController;
 use App\Http\Controllers\Dashboard\PopupController;
+use App\Http\Controllers\Dashboard\MarketingController;
 use Illuminate\Support\Facades\Route;
 
 // Admin Home
@@ -322,3 +323,14 @@ Route::get('/cache-clear', [DashboardController::class, 'cache_clear'])->name('c
 Route::get('/cache-cleared', [DashboardController::class, 'cache_cleared'])->name('cacheCleared');
 // logout
 Route::get('/logout', [DashboardController::class, 'logout'])->name('adminLogout');
+
+ // Marketing Campaigns
+        Route::prefix('/marketing')->group(function () {
+            Route::get('/campaigns',              [MarketingController::class, 'index']);
+            Route::get('/campaigns/create',       [MarketingController::class, 'create']);
+            Route::post('/campaigns/store',       [MarketingController::class, 'store']);
+            Route::post('/campaigns/send_now',    [MarketingController::class, 'sendNow']);
+            Route::get('/campaigns/{id}',         [MarketingController::class, 'show']);
+            Route::get('/history',                [MarketingController::class, 'history']);
+            Route::get('/get_clients',            [MarketingController::class, 'getClients']);
+        });
