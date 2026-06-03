@@ -1,8 +1,6 @@
 @extends('dashboard.layouts.master')
 
-@section('styles')
-<link href="/admin_assets/assets/css/marketing.css" rel="stylesheet">
-@endsection
+@section('title', 'Campaign History')
 
 @section('content')
 <div class="main-content app-content">

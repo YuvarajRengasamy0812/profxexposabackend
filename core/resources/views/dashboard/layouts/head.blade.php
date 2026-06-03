@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="{{ asset('assets/dashboard/css/app.css') }}?v={{ filemtime(base_path('../assets/dashboard/css/app.css')) }}" type="text/css"/>
 <link rel="stylesheet" href="{{ asset('assets/dashboard/css/font.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
 <link rel="stylesheet" href="{{ asset('assets/dashboard/css/topic.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
+<link rel="stylesheet" href="{{ asset('assets/dashboard/css/marketing.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
 
 @if( @Helper::currentLanguage()->direction=="rtl")
     <link rel="stylesheet" href="{{ asset('assets/dashboard/css/bootstrap-rtl/dist/bootstrap-rtl.css') }}?v={{ Helper::system_version() }}">
