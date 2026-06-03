@@ -7,6 +7,7 @@ $envAdminCharCount = strlen(config('smartend.backend_path')) + 1;
 $urlAfterRoot = substr($fullPagePath, strpos($fullPagePath, config('smartend.backend_path')) + $envAdminCharCount);
 $mnu_title_var = "title_" . @Helper::currentLanguage()->code;
 $mnu_title_var2 = "title_" . config('smartend.default_language');
+$GeneralWebmasterSections = $GeneralWebmasterSections ?? collect();
 ?>
 
 <div id="aside" class="app-aside modal fade folded md nav-expand">
@@ -214,6 +215,34 @@ $mnu_title_var2 = "title_" . config('smartend.default_language');
                             </li>
                         @endif
                     @endif
+
+                    <?php
+                    $currentFolder = "marketing"; // Put folder name here
+                    $PathCurrentFolder = substr($urlAfterRoot, 0, strlen($currentFolder));
+                    ?>
+                    <li {{ ($PathCurrentFolder==$currentFolder) ? 'class=active' : '' }}>
+                        <a>
+                            <span class="nav-caret">
+                                <i class="fa fa-caret-down"></i>
+                            </span>
+                            <span class="nav-icon">
+                                <i class="material-icons">&#xe0be;</i>
+                            </span>
+                            <span class="nav-text">Mail Campaigns</span>
+                        </a>
+                        <ul class="nav-sub">
+                            <li {{ request()->routeIs('marketingCampaigns') || request()->routeIs('marketingCampaignsCreate') || request()->routeIs('marketingCampaignsShow') ? 'class=active' : '' }}>
+                                <a href="{{ route('marketingCampaigns') }}">
+                                    <span class="nav-text">Campaigns</span>
+                                </a>
+                            </li>
+                            <li {{ request()->routeIs('marketingCampaignsHistory') ? 'class=active' : '' }}>
+                                <a href="{{ route('marketingCampaignsHistory') }}">
+                                    <span class="nav-text">History</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
 
                     @if(Helper::GeneralWebmasterSettings("calendar_status"))
                         @if(@Auth::user()->permissionsGroup->calendar_status)

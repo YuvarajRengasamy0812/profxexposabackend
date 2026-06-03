@@ -1,4 +1,4 @@
-@extends('layouts.admin.admin')
+@extends('dashboard.layouts.master')
 
 @section('styles')
 <link href="/admin_assets/assets/css/marketing.css" rel="stylesheet">
@@ -11,7 +11,7 @@
         <div class="page-header">
             <h1 class="page-title">Marketing Campaigns</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('adminHome') }}">Dashboard</a></li>
                 <li class="breadcrumb-item active">Marketing Campaigns</li>
             </ol>
         </div>
@@ -42,13 +42,13 @@
                     </div>
                 </div>
                 <div class="d-flex gap-2 align-items-center" style="z-index:1">
-                    <a href="/admin/marketing/history" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border:1.5px solid rgba(255,255,255,0.35);border-radius:10px;">
+                    <a href="{{ route('marketingCampaignsHistory') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border:1.5px solid rgba(255,255,255,0.35);border-radius:10px;">
                         <i class="fe fe-clock me-1"></i> History
                     </a>
-                    <a href="/admin/email-templates" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border:1.5px solid rgba(255,255,255,0.35);border-radius:10px;">
+                    <a href="{{ url(config('smartend.backend_path').'/email-templates') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border:1.5px solid rgba(255,255,255,0.35);border-radius:10px;">
                         <i class="fe fe-file-text me-1"></i> Templates
                     </a>
-                    <a href="/admin/marketing/campaigns/create" class="btn btn-sm" style="background:#fff;color:var(--primary-color,#ffbe00);font-weight:600;border-radius:10px;border:none;">
+                    <a href="{{ route('marketingCampaignsCreate') }}" class="btn btn-sm" style="background:#fff;color:var(--primary-color,#ffbe00);font-weight:600;border-radius:10px;border:none;">
                         <i class="fe fe-plus me-1"></i> New Campaign
                     </a>
                 </div>
@@ -107,7 +107,7 @@
         <div class="card mkt-table-card border-0 shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-semibold"><i class="fe fe-list me-2 text-primary"></i>All Campaigns</h6>
-                <a href="/admin/marketing/campaigns/create" class="btn btn-primary btn-sm" style="border-radius:8px;">
+                <a href="{{ route('marketingCampaignsCreate') }}" class="btn btn-primary btn-sm" style="border-radius:8px;">
                     <i class="fe fe-plus me-1"></i> Create Campaign
                 </a>
             </div>
@@ -157,7 +157,7 @@
                                 </td>
                                 <td class="text-muted fs-12">{{ date('d M Y, H:i', strtotime($c->created_at)) }}</td>
                                 <td class="text-center">
-                                    <a href="/admin/marketing/campaigns/{{ $c->id }}" class="btn btn-sm btn-outline-primary" style="border-radius:8px;" title="View">
+                                    <a href="{{ route('marketingCampaignsShow', $c->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius:8px;" title="View">
                                         <i class="fe fe-eye"></i>
                                     </a>
                                 </td>
@@ -169,7 +169,7 @@
                                         <i class="fe fe-send" style="font-size:2.5rem;display:block;margin-bottom:.75rem;opacity:.35;"></i>
                                         <div class="fw-semibold mb-1">No campaigns yet</div>
                                         <div class="fs-13 mb-3">Start by creating your first campaign.</div>
-                                        <a href="/admin/marketing/campaigns/create" class="btn btn-primary btn-sm" style="border-radius:8px;">
+                                        <a href="{{ route('marketingCampaignsCreate') }}" class="btn btn-primary btn-sm" style="border-radius:8px;">
                                             <i class="fe fe-plus me-1"></i> Create Campaign
                                         </a>
                                     </div>

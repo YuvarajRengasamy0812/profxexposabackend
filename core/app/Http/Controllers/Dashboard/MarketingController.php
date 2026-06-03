@@ -8,6 +8,7 @@ use App\Models\MarketingCampaign;
 use App\Models\MarketingCampaignRecipient;
 use App\Services\MailService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -112,7 +113,7 @@ class MarketingController extends Controller
                 'failed_count'     => 0,
                 'status'           => 'scheduled',
                 'scheduled_at'     => $schedAt,
-                'created_by'       => session('alogin'),
+                'created_by'       => $this->campaignCreator(),
             ]);
 
             // Store recipients as pending; sendNow() marks them sent or failed.
@@ -266,7 +267,7 @@ class MarketingController extends Controller
             'sent_count'       => 0,
             'failed_count'     => 0,
             'status'           => 'sending',
-            'created_by'       => session('alogin'),
+            'created_by'       => $this->campaignCreator(),
         ]);
 
         try {
@@ -350,6 +351,17 @@ class MarketingController extends Controller
         }
 
         return array_values(array_unique($valid));
+    }
+
+    private function campaignCreator(): ?string
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return null;
+        }
+
+        return $user->name ?: ($user->email ?: (string) $user->id);
     }
 
     private function sendBulkCampaignEmail(array $emails, string $subject, string $html): void

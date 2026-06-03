@@ -324,13 +324,13 @@ Route::get('/cache-cleared', [DashboardController::class, 'cache_cleared'])->nam
 // logout
 Route::get('/logout', [DashboardController::class, 'logout'])->name('adminLogout');
 
- // Marketing Campaigns
-        Route::prefix('/marketing')->group(function () {
-            Route::get('/campaigns',              [MarketingController::class, 'index']);
-            Route::get('/campaigns/create',       [MarketingController::class, 'create']);
-            Route::post('/campaigns/store',       [MarketingController::class, 'store']);
-            Route::post('/campaigns/send_now',    [MarketingController::class, 'sendNow']);
-            Route::get('/campaigns/{id}',         [MarketingController::class, 'show']);
-            Route::get('/history',                [MarketingController::class, 'history']);
-            Route::get('/get_clients',            [MarketingController::class, 'getClients']);
-        });
+// Marketing Campaigns
+Route::prefix('marketing')->group(function () {
+    Route::get('/campaigns', [MarketingController::class, 'index'])->name('marketingCampaigns');
+    Route::get('/campaigns/create', [MarketingController::class, 'create'])->name('marketingCampaignsCreate');
+    Route::post('/campaigns/store', [MarketingController::class, 'store'])->name('marketingCampaignsStore');
+    Route::post('/campaigns/send-now', [MarketingController::class, 'sendNow'])->name('marketingCampaignsSendNow');
+    Route::get('/campaigns/{id}', [MarketingController::class, 'show'])->name('marketingCampaignsShow');
+    Route::get('/history', [MarketingController::class, 'history'])->name('marketingCampaignsHistory');
+    Route::get('/get-clients', [MarketingController::class, 'getClients'])->name('marketingCampaignsGetClients');
+});
