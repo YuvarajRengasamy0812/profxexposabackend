@@ -43,7 +43,15 @@ class EmailsController extends Controller
         }
 
         try {
-                $this->mailService->sendBulkEmail($emails, 'Promotional email', 'emails.marketings.dynamic-template',    ['html' => $templateData->template]);
+                $result = $this->mailService->sendBulkEmail($emails, 'Promotional email', 'emails.marketings.dynamic-template',    ['html' => $templateData->template]);
+
+                if (is_array($result) && !empty($result['error'])) {
+                    return response()->json([
+                        'status' => 0,
+                        'message' => $result['message'] ?? 'Bulk email failed',
+                        'failed' => $result['failed'] ?? [],
+                    ]);
+                }
                 
                 $datalogs = [
                     'action' => 'Bulk Email Send',
@@ -113,7 +121,15 @@ class EmailsController extends Controller
         }
 
         try {
-            $this->mailService->sendBulkEmail($emails, 'Promotional email', 'emails.marketings.dynamic-template',    ['html' => $templateData->template]);
+            $result = $this->mailService->sendBulkEmail($emails, 'Promotional email', 'emails.marketings.dynamic-template',    ['html' => $templateData->template]);
+
+            if (is_array($result) && !empty($result['error'])) {
+                return response()->json([
+                    'status' => 0,
+                    'message' => $result['message'] ?? 'Bulk email failed',
+                    'failed' => $result['failed'] ?? [],
+                ]);
+            }
 
             $datalogs = [
                 'action' => 'Bulk Email Send',

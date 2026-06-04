@@ -158,11 +158,24 @@
 @endsection
 
 @push('after-scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/dashboard/js/select2/dist/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/js/dataTables.bootstrap4.min.js') }}"></script>
     <script>
+    if (typeof window.Swal === 'undefined') {
+        window.Swal = {
+            fire(options) {
+                const title = typeof options === 'string' ? options : (options.title || '');
+                const text = typeof options === 'string' ? '' : (options.text || '');
+                if (window.swal) swal(title, text, options.icon || options.type || '');
+                else alert((title ? title + '\n' : '') + text);
+                return { then(callback) { if (callback) callback({ isConfirmed: true }); } };
+            },
+            close() {},
+            showLoading() {}
+        };
+    }
+
     const bulkEmailSendUrl = @json(route('bulk-email-send.send'));
     const importEmailsUrl = @json(route('import-emails'));
     const bulkEmailImportSendUrl = @json(route('bulk-email-import-send'));

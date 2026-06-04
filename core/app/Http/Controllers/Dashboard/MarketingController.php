@@ -65,7 +65,8 @@ class MarketingController extends Controller
 
         if ($request->recipient_type === 'all_clients') {
             $clients = DB::table('users_registers')
-                ->where('status', 1)
+                ->whereNotNull('email')
+                ->where('email', '!=', '')
                 ->select('email', DB::raw('full_name as fullname'))
                 ->get();
             foreach ($clients as $c) {
@@ -207,7 +208,12 @@ class MarketingController extends Controller
                 'status'       => 'failed',
             ]);
 
-            return response()->json(['status' => 0, 'message' => $e->getMessage()]);
+            return response()->json([
+                'status'      => 0,
+                'message'     => $e->getMessage(),
+                'campaign_id' => $campaign->id,
+                'count'       => count($emails),
+            ]);
         }
     }
 
@@ -235,7 +241,8 @@ class MarketingController extends Controller
         $search = trim($request->input('search', ''));
 
         $query = DB::table('users_registers')
-            ->where('status', 1)
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
             ->select('id', 'email', DB::raw('full_name as fullname'));
 
         if ($search !== '') {

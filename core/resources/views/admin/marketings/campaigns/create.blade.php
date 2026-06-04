@@ -3,7 +3,7 @@
 @section('title', 'Create Campaign')
 
 @section('content')
-<div class="main-content app-content">
+<div class="main-content app-content mkt-create-page">
     <div class="container-fluid">
 
         <div class="page-header">
@@ -279,7 +279,6 @@
 @endsection
 
 @push('after-scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 const marketingCampaignsUrl = @json(route('marketingCampaigns'));
@@ -290,6 +289,52 @@ let selectedAllClientIds = [];
 let allLoadedClients  = [];
 let pickerMode = 'specific_clients';
 let allClientsConfirmed = false;
+
+if (typeof window.Swal === 'undefined') {
+    window.Swal = {
+        mixin() {
+            return {
+                fire(options) {
+                    const title = typeof options === 'string' ? options : (options.title || options.text || '');
+                    if (window.swal) swal(title);
+                    else alert(title);
+                }
+            };
+        },
+        fire(options) {
+            const title = typeof options === 'string' ? options : (options.title || '');
+            const text = typeof options === 'string' ? '' : (options.text || '');
+
+            if (options && options.didOpen) {
+                return {
+                    then(callback) {
+                        callback({ isConfirmed: true });
+                    }
+                };
+            }
+
+            if (options && options.showCancelButton) {
+                const ok = confirm((title ? title + '\n' : '') + text);
+                return {
+                    then(callback) {
+                        callback({ isConfirmed: ok });
+                    }
+                };
+            }
+
+            if (window.swal) swal(title, text, options.icon || options.type || '');
+            else alert((title ? title + '\n' : '') + text);
+
+            return {
+                then(callback) {
+                    if (callback) callback({ isConfirmed: true });
+                }
+            };
+        },
+        close() {},
+        showLoading() {}
+    };
+}
 
 const Toast = Swal.mixin({ toast:true, position:'top-end', showConfirmButton:false, timer:2500, timerProgressBar:true });
 function toast(type, msg) { Toast.fire({ icon:type, title:msg }); }
@@ -306,6 +351,31 @@ function setCurrentClientIds(ids) {
 function escapeHtml(value) {
     return $('<div>').text(value || '').html();
 }
+
+function showClientModal() {
+    const modal = $('#clientPickerModal');
+    if ($.fn.modal) {
+        modal.modal('show');
+        return;
+    }
+    modal.show().addClass('in').attr('aria-hidden', 'false');
+    $('body').addClass('modal-open').append('<div class="modal-backdrop fade in mkt-fallback-backdrop"></div>');
+}
+
+function hideClientModal() {
+    const modal = $('#clientPickerModal');
+    if ($.fn.modal) {
+        modal.modal('hide');
+        return;
+    }
+    modal.hide().removeClass('in').attr('aria-hidden', 'true');
+    $('.mkt-fallback-backdrop').remove();
+    $('body').removeClass('modal-open');
+}
+
+$(document).on('click', '#clientPickerModal [data-dismiss="modal"], #clientPickerModal .close', function () {
+    hideClientModal();
+});
 
 // ── Summary live update ───────────────────────────────────────────────────────
 function updateSummary() {
@@ -335,7 +405,7 @@ $('#rt_all').on('change', () => {
     $('.recipient-panel').addClass('d-none');
     $('#panel_all').removeClass('d-none active-panel').addClass('active-panel');
     $('#clientPickerTitle').html('<i class="fe fe-users me-2 text-primary"></i>Pick All Clients');
-    $('#clientPickerModal').modal('show');
+    showClientModal();
     loadClients('');
     updateSummary();
 });
@@ -344,7 +414,7 @@ $('#rt_specific').on('change', () => {
     $('.recipient-panel').addClass('d-none');
     $('#panel_specific').removeClass('d-none active-panel').addClass('active-panel');
     $('#clientPickerTitle').html('<i class="fe fe-users me-2 text-primary"></i>Pick Clients');
-    $('#clientPickerModal').modal('show');
+    showClientModal();
     loadClients('');
     updateSummary();
 });
@@ -372,14 +442,14 @@ $('#mode_schedule').on('change', function () {
 $('#openPickerBtn').on('click', function () {
     pickerMode = 'specific_clients';
     $('#clientPickerTitle').html('<i class="fe fe-users me-2 text-primary"></i>Pick Clients');
-    $('#clientPickerModal').modal('show');
+    showClientModal();
     loadClients('');
 });
 
 $('#openAllPickerBtn').on('click', function () {
     pickerMode = 'all_clients';
     $('#clientPickerTitle').html('<i class="fe fe-users me-2 text-primary"></i>Pick All Clients');
-    $('#clientPickerModal').modal('show');
+    showClientModal();
     loadClients('');
 });
 
@@ -407,7 +477,7 @@ function renderClientTable(clients) {
         const chk = selectedIds.includes(id) ? 'checked' : '';
         html += `<tr>
             <td><input type="checkbox" class="form-check-input client-check" value="${id}" ${chk}></td>
-            <td class="fs-13">${c.fullname || '—'}</td>
+            <td class="fs-13">${escapeHtml(c.fullname || '--')}</td>
             <td class="text-muted fs-13">${escapeHtml(c.email)}</td>
         </tr>`;
     });
@@ -458,7 +528,7 @@ function updateModalCount() {
 }
 
 $('#confirmPickerBtn').on('click', function () {
-    $('#clientPickerModal').modal('hide');
+    hideClientModal();
     const ids = currentClientIds();
     const n = ids.length;
     const isAll = pickerMode === 'all_clients';
@@ -564,7 +634,14 @@ $('#sendCampaignBtn').on('click', function () {
                     confirmButtonColor: '#06b6c9',
                 }).then(() => window.location.href = marketingCampaignsUrl + '/' + res.campaign_id);
             } else {
-                Swal.fire({ icon: 'error', title: 'Failed', text: res.message || 'Something went wrong' });
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Campaign saved, send failed',
+                    text: res.message || 'Something went wrong',
+                    confirmButtonColor: '#06b6c9',
+                }).then(() => {
+                    if (res.campaign_id) window.location.href = marketingCampaignsUrl + '/' + res.campaign_id;
+                });
             }
         }).fail(() => {
             Swal.close();

@@ -5,8 +5,6 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
-
-
 class MailService
 {
     protected $client;
@@ -14,92 +12,30 @@ class MailService
     protected $senderName;
     protected $senderEmail;
 
-    // public function __construct()
-    // {
-    //      $settings=settings();
-    //     $this->client = new Client([
-    //         'base_uri' => 'https://api.brevo.com/v3/',
-    //         'timeout'  => 10.0,
-    //     ]);
-
-    //     $this->apiKey       = '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';
-    //     $this->senderName   = 'PROFX Summit';
-    //     $this->senderEmail  = 'info@profxmedia.com';
-    // }
-
     public function __construct()
     {
         $this->client = new Client([
             'base_uri' => 'https://api.brevo.com/v3/',
-            'timeout' => 10.0,
+            'timeout' => 20.0,
         ]);
 
-        $this->apiKey       = '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';
-        $this->senderName   = \config('mail.from.name') ?: 'PROFX Summit';
-        $this->senderEmail  = \config('mail.from.address') ?: 'info@profxmedia.com';
+        $this->apiKey = config('services.brevo.api_key') ?: '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';
+        $this->senderName = config('services.brevo.sender_name') ?: 'PROFX Summit';
+        $this->senderEmail = config('services.brevo.sender_email') ?: 'info@profxmedia.com';
     }
 
-    /**
-     * Send email via Brevo API
-     *
-     * @param string $toEmail
-     * @param string $subject
-     * @param string $template Blade template file name, e.g., 'emails.template'
-     * @param array $data Data to pass to the template
-     * @return array
-     */
     public function sendEmail($toEmail, $subject, $template = 'emails.template', $data = [])
     {
-        $htmlContent = view($template, $data)->render();
+        $email = strtolower(trim((string) $toEmail));
 
-        $payload = [
-            'sender' => [
-                'name'  => $this->senderName,
-                'email' => $this->senderEmail,
-            ],
-            'to' => [
-                ['email' => $toEmail],
-            ],
-            'subject'     => $subject,
-            'htmlContent' => $htmlContent,
-        ];
-
-        try {
-            $response = $this->client->post('smtp/email', [
-                'headers' => [
-                    'api-key'      => $this->apiKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $payload,
-            ]);
-
-            return json_decode($response->getBody(), true);
-
-        } catch (\Exception $e) {
-            Log::error('Brevo API Error: ' . $e->getMessage());
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return [
-                'error'   => true,
-                'message' => 'Failed to send email: ' . $e->getMessage(),
+                'error' => true,
+                'message' => 'Invalid recipient email',
             ];
         }
-    }
 
-       public function sendBulkEmail($emails, $subject, $templateFile, $data)
-    {
-        $template = empty($templateFile) ? 'emails.template' : $templateFile;
-        $htmlContent = view($template, $data)->render();
-
-        $messageVersions = [];
-
-        foreach ($emails as $email) {
-            $messageVersions[] = [
-                'to' => [
-                    ['email' => $email]
-                ],
-                'subject' => $subject,
-                'htmlContent' => $htmlContent,
-            ];
-        }
+        $htmlContent = view($template, array_merge($data, ['title' => $subject]))->render();
 
         $payload = [
             'sender' => [
@@ -107,34 +43,152 @@ class MailService
                 'email' => $this->senderEmail,
             ],
             'to' => [
-                [
-                    'email' => $emails[0] // required
-                ]
+                ['email' => $email],
             ],
-            'subject' => $subject, // âœ… ADD THIS (IMPORTANT)
-            'htmlContent' => $htmlContent, // âœ… also safer to include
-            'messageVersions' => $messageVersions
+            'replyTo' => [
+                'name' => $this->senderName,
+                'email' => $this->senderEmail,
+            ],
+            'subject' => $subject,
+            'htmlContent' => $htmlContent,
         ];
-        
 
         try {
             $response = $this->client->post('smtp/email', [
-                'headers' => [
-                    'api-key' => $this->apiKey,
-                    'Content-Type' => 'application/json',
-                ],
+                'headers' => $this->headers(),
                 'json' => $payload,
             ]);
 
-            return json_decode($response->getBody(), true);
+            $body = json_decode($response->getBody(), true) ?: [];
 
+            Log::info('Brevo Mail Response', [
+                'email' => $email,
+                'sender' => $this->senderEmail,
+                'subject' => $subject,
+                'html_length' => strlen($htmlContent),
+                'messageId' => $body['messageId'] ?? null,
+            ]);
+
+            return $body;
         } catch (\Exception $e) {
-            Log::error('Brevo Bulk Email Error: ' . $e->getMessage());
+            Log::error('Brevo API Error', [
+                'email' => $email,
+                'subject' => $subject,
+                'message' => $e->getMessage(),
+            ]);
 
             return [
                 'error' => true,
-                'message' => $e->getMessage(),
+                'message' => 'Failed to send email: ' . $e->getMessage(),
             ];
         }
+    }
+
+    public function sendBulkEmail($emails, $subject, $templateFile, $data)
+    {
+        $emails = $this->cleanEmails((array) $emails);
+
+        if (empty($emails)) {
+            return [
+                'error' => true,
+                'message' => 'No valid recipient emails found',
+            ];
+        }
+
+        $template = empty($templateFile) ? 'emails.template' : $templateFile;
+        $htmlContent = view($template, array_merge($data, ['title' => $subject]))->render();
+
+        $sent = [];
+        $failed = [];
+
+        foreach ($emails as $email) {
+            $payload = [
+                'sender' => [
+                    'name' => $this->senderName,
+                    'email' => $this->senderEmail,
+                ],
+                'to' => [
+                    ['email' => $email],
+                ],
+                'replyTo' => [
+                    'name' => $this->senderName,
+                    'email' => $this->senderEmail,
+                ],
+                'subject' => $subject,
+                'htmlContent' => $htmlContent,
+            ];
+
+            try {
+                $response = $this->client->post('smtp/email', [
+                    'headers' => $this->headers(),
+                    'json' => $payload,
+                ]);
+
+                $body = json_decode($response->getBody(), true) ?: [];
+                $messageId = $body['messageId'] ?? null;
+
+                $sent[] = [
+                    'email' => $email,
+                    'messageId' => $messageId,
+                ];
+
+                Log::info('Brevo Bulk Mail Response', [
+                    'email' => $email,
+                    'sender' => $this->senderEmail,
+                    'subject' => $subject,
+                    'html_length' => strlen($htmlContent),
+                    'messageId' => $messageId,
+                ]);
+            } catch (\Exception $e) {
+                $failed[] = [
+                    'email' => $email,
+                    'message' => $e->getMessage(),
+                ];
+
+                Log::error('Brevo Bulk Email Error', [
+                    'email' => $email,
+                    'subject' => $subject,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if (!empty($failed)) {
+            return [
+                'error' => true,
+                'message' => count($failed) . ' email(s) failed to send',
+                'sent' => $sent,
+                'failed' => $failed,
+            ];
+        }
+
+        return [
+            'error' => false,
+            'sent' => $sent,
+            'count' => count($sent),
+        ];
+    }
+
+    private function headers(): array
+    {
+        return [
+            'api-key' => $this->apiKey,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ];
+    }
+
+    private function cleanEmails(array $emails): array
+    {
+        $valid = [];
+
+        foreach ($emails as $email) {
+            $email = strtolower(trim((string) $email));
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $valid[] = $email;
+            }
+        }
+
+        return array_values(array_unique($valid));
     }
 }

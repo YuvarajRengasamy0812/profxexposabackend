@@ -212,9 +212,28 @@
 @endsection
 
 @push('after-scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 const csrfToken = $('meta[name="csrf-token"]').attr('content');
+if (typeof window.Swal === 'undefined') {
+    window.Swal = {
+        mixin() {
+            return { fire(options) { alert(options.title || options.text || ''); } };
+        },
+        fire(options) {
+            const title = typeof options === 'string' ? options : (options.title || '');
+            const text = typeof options === 'string' ? '' : (options.text || '');
+            if (options && options.showCancelButton) {
+                const ok = confirm((title ? title + '\n' : '') + text);
+                return { then(callback) { callback({ isConfirmed: ok }); } };
+            }
+            if (window.swal) swal(title, text, options.icon || options.type || '');
+            else alert((title ? title + '\n' : '') + text);
+            return { then(callback) { if (callback) callback({ isConfirmed: true }); } };
+        },
+        close() {},
+        showLoading() {}
+    };
+}
 const Toast = Swal.mixin({ toast:true, position:'top-end', showConfirmButton:false, timer:2500, timerProgressBar:true });
 function toast(type, msg) { Toast.fire({ icon:type, title:msg }); }
 
