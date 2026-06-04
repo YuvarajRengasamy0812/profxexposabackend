@@ -1,6 +1,6 @@
 @extends('dashboard.layouts.master')
 
-@section('title', 'Create Campaign')
+@section('title', 'Campaign Details')
 
 @section('content')
 <div class="main-content app-content">
@@ -211,7 +211,8 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('after-scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 const Toast = Swal.mixin({ toast:true, position:'top-end', showConfirmButton:false, timer:2500, timerProgressBar:true });
@@ -230,7 +231,7 @@ $('#sendNowBtn').on('click', function () {
         if (!result.isConfirmed) return;
         Swal.fire({ title: 'Sending...', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
 
-        $.post('/admin/marketing/campaigns/send_now', {
+        $.post(@json(route('marketingCampaignsSendNow')), {
             _token: csrfToken,
             campaign_id: {{ $campaign->id }}
         }, function (res) {
@@ -246,4 +247,4 @@ $('#sendNowBtn').on('click', function () {
 });
 @endif
 </script>
-@endsection
+@endpush

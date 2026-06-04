@@ -2,6 +2,10 @@
 
 @section('title', 'Campaign History')
 
+@push('after-styles')
+    <link rel="stylesheet" href="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css') }}">
+@endpush
+
 @section('content')
 <div class="main-content app-content">
     <div class="container-fluid">
@@ -110,7 +114,9 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('after-scripts')
+<script src="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/js/dataTables.bootstrap4.min.js') }}"></script>
 <script>
 $('#historyTable').DataTable({
     dom: '<"row mb-2"<"col-md-6"f><"col-md-6 text-end"l>><"row"<"col"t>><"row mt-2"<"col-md-6"i><"col-md-6"p>>',
@@ -119,4 +125,4 @@ $('#historyTable').DataTable({
     columnDefs: [{ orderable: false, targets: [11] }],
 });
 </script>
-@endsection
+@endpush

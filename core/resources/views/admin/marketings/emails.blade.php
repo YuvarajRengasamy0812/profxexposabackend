@@ -1,4 +1,12 @@
 @extends('dashboard.layouts.master')
+@section('title', 'Marketing Emails')
+
+@push('after-styles')
+    <link rel="stylesheet" href="{{ asset('assets/dashboard/js/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/dashboard/js/select2-bootstrap-theme/dist/select2-bootstrap.4.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css') }}">
+@endpush
+
 @section('content')
     <div class="main-content app-content">
         <div class="container-fluid">
@@ -17,12 +25,12 @@
                         <div class="card-header bg-white border-0 pb-0">
                             <ul class="nav nav-tabs card-header-tabs" id="emailTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#emails" type="button">
+                                    <button class="nav-link active" data-toggle="tab" data-target="#emails" type="button">
                                         Emails
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#import" type="button">
+                                    <button class="nav-link" data-toggle="tab" data-target="#import" type="button">
                                         Import Email
                                     </button>
                                 </li>
@@ -149,7 +157,11 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('after-scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('assets/dashboard/js/select2/dist/js/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/js/dataTables.bootstrap4.min.js') }}"></script>
     <script>
     const bulkEmailSendUrl = @json(route('bulk-email-send.send'));
     const importEmailsUrl = @json(route('import-emails'));
@@ -172,8 +184,8 @@
     });
 
     // TAB SWITCH RESET
-    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        let target = $(e.target).data("bs-target"); // active tab
+    $('button[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        let target = $(e.target).data("target"); // active tab
 
         if (target === "#emails") {
             // reset Import tab
@@ -540,4 +552,4 @@
 
         });
     </script>
-@endsection
+@endpush

@@ -3,6 +3,47 @@
 @section('title', 'Email Templates')
 
 @push('after-styles')
+    <link rel="stylesheet" href="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css') }}">
+    <style>
+        .template-page .template-hero,
+        .template-page .template-stat-row,
+        .template-page .template-table-card > .card-header,
+        .template-page .template-id-line {
+            display: none !important;
+        }
+
+        .template-page .template-top-action {
+            display: flex;
+            justify-content: flex-end;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .template-page .template-table-card {
+            border: 1px solid #e8eef8;
+            border-radius: 8px;
+        }
+
+        .template-page .dataTables_wrapper {
+            padding: 1rem;
+        }
+
+        .template-page table.dataTable {
+            border-collapse: collapse !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+
+        .template-page .dataTables_filter input,
+        .template-page .dataTables_length select {
+            border: 1px solid #d8e0ef;
+            border-radius: 4px;
+            height: 34px;
+            padding: 4px 10px;
+        }
+    </style>
+@endpush
+
+@push('after-styles')
     <link href="{{ asset('assets/dashboard/js/summernote/dist/summernote.css') }}" rel="stylesheet">
     <style>
         .template-hero {
@@ -176,6 +217,12 @@
             </ol>
         </div>
 
+        <div class="template-top-action">
+            <button type="button" class="btn btn-primary js-create-template" style="border-radius:4px;">
+                Add Template
+            </button>
+        </div>
+
         <div class="template-hero">
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3" style="position:relative;z-index:1;">
                 <div>
@@ -193,7 +240,7 @@
             </div>
         </div>
 
-        <div class="row mb-4">
+        <div class="row mb-4 template-stat-row">
             <div class="col-md-4 mb-3">
                 <div class="template-stat">
                     <div class="card-body d-flex align-items-center gap-3">
@@ -238,10 +285,10 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table template-table table-hover mb-0 text-nowrap">
+                    <table id="templatesTable" class="table template-table table-hover mb-0 text-nowrap">
                         <thead class="table-light">
                             <tr>
-                                <th class="ps-4">#</th>
+                                <th class="ps-4">ID</th>
                                 <th>Name</th>
                                 <th>Status</th>
                                 <th>Created</th>
@@ -254,7 +301,7 @@
                                     <td class="ps-4 text-muted fs-12">{{ $template->id }}</td>
                                     <td>
                                         <div class="fw-semibold">{{ $template->name }}</div>
-                                        <div class="text-muted fs-12">Template ID: {{ $template->id }}</div>
+                                        <div class="text-muted fs-12 template-id-line">Template ID: {{ $template->id }}</div>
                                     </td>
                                     <td>
                                         <span class="template-status {{ $template->is_active ? 'active' : 'inactive' }}">
@@ -356,6 +403,8 @@
 @endsection
 
 @push('after-scripts')
+    <script src="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/dashboard/js/summernote/dist/summernote.js') }}"></script>
     <script>
         (function ($) {
@@ -434,6 +483,15 @@
             }
 
             $(function () {
+                $('#templatesTable').DataTable({
+                    order: [[0, 'asc']],
+                    pageLength: 10,
+                    columnDefs: [
+                        { visible: false, targets: [3] },
+                        { orderable: false, targets: [4] }
+                    ]
+                });
+
                 $('#template_editor').summernote({
                     height: 360,
                     dialogsInBody: true,

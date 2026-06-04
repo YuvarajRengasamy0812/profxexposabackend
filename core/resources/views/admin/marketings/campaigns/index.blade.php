@@ -1,6 +1,6 @@
 @extends('dashboard.layouts.master')
 
-@section('title', 'Create Campaign')
+@section('title', 'Marketing Campaigns')
 
 @section('content')
 <div class="main-content app-content">

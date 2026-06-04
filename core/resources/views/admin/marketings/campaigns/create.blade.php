@@ -1,8 +1,6 @@
 @extends('dashboard.layouts.master')
 
-
-
-
+@section('title', 'Create Campaign')
 
 @section('content')
 <div class="main-content app-content">
@@ -92,9 +90,14 @@
                                 </div>
                                 <div>
                                     <div class="fw-semibold fs-13">All Active Registered Clients</div>
-                                    <div class="text-muted fs-12">The email will be sent to every active client in the system.</div>
+                                    <div class="text-muted fs-12 mb-3">The email will be sent to every active client in the system.</div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="openAllPickerBtn" style="border-radius:8px;">
+                                        <i class="fe fe-user-plus me-1"></i> Pick Clients
+                                    </button>
+                                    <span class="ms-2 fs-13 text-muted" id="selectedAllCount">No clients confirmed</span>
                                 </div>
                             </div>
+                            <div id="selectedAllClientsTags" class="d-flex flex-wrap gap-1 mt-3"></div>
                         </div>
 
                         {{-- Specific Clients Panel --}}
@@ -123,9 +126,9 @@
                                 <div class="flex-grow-1 border-top"></div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold fs-13">Upload CSV / Excel</label>
-                                <input type="file" class="form-control" id="csv_file" accept=".csv,.xlsx,.xls" style="border-radius:9px;">
-                                <div class="form-text">First column must be the email address.</div>
+                                <label class="form-label fw-semibold fs-13">Upload CSV / TXT</label>
+                                <input type="file" class="form-control" id="csv_file" accept=".csv,.txt" style="border-radius:9px;">
+                                <div class="form-text">Text-based CSV/TXT files are supported. First column can be the email address.</div>
                             </div>
                             <div>
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="previewExternalBtn" style="border-radius:8px;">
@@ -226,8 +229,10 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content" style="border-radius:14px;overflow:hidden;">
             <div class="modal-header border-bottom">
-                <h6 class="modal-title fw-semibold"><i class="fe fe-users me-2 text-primary"></i>Pick Clients</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h6 class="modal-title fw-semibold" id="clientPickerTitle"><i class="fe fe-users me-2 text-primary"></i>Pick Clients</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body p-0">
                 <div class="p-3 border-bottom">
@@ -261,7 +266,7 @@
             <div class="modal-footer justify-content-between">
                 <span class="fs-13 text-primary fw-semibold" id="modalFooterCount">0 clients selected</span>
                 <div>
-                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal" style="border-radius:8px;">Cancel</button>
+                    <button type="button" class="btn btn-secondary me-2" data-dismiss="modal" style="border-radius:8px;">Cancel</button>
                     <button type="button" class="btn btn-primary" id="confirmPickerBtn" style="border-radius:8px;">
                         <i class="fe fe-check me-1"></i> Confirm Selection
                     </button>
@@ -273,17 +278,34 @@
 
 @endsection
 
-@section('scripts')
+@push('after-scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 const marketingCampaignsUrl = @json(route('marketingCampaigns'));
 const marketingCampaignsStoreUrl = @json(route('marketingCampaignsStore'));
 const marketingCampaignsGetClientsUrl = @json(route('marketingCampaignsGetClients'));
 let selectedClientIds = [];
+let selectedAllClientIds = [];
 let allLoadedClients  = [];
+let pickerMode = 'specific_clients';
+let allClientsConfirmed = false;
 
 const Toast = Swal.mixin({ toast:true, position:'top-end', showConfirmButton:false, timer:2500, timerProgressBar:true });
 function toast(type, msg) { Toast.fire({ icon:type, title:msg }); }
+
+function currentClientIds() {
+    return pickerMode === 'all_clients' ? selectedAllClientIds : selectedClientIds;
+}
+
+function setCurrentClientIds(ids) {
+    if (pickerMode === 'all_clients') selectedAllClientIds = ids;
+    else selectedClientIds = ids;
+}
+
+function escapeHtml(value) {
+    return $('<div>').text(value || '').html();
+}
 
 // ── Summary live update ───────────────────────────────────────────────────────
 function updateSummary() {
@@ -297,7 +319,7 @@ function updateSummary() {
     $('#summary_mode').text(mode === 'schedule' ? 'Scheduled' : 'Instantly');
 
     let rec = '—';
-    if (type === 'all_clients') rec = 'All Clients';
+    if (type === 'all_clients') rec = allClientsConfirmed ? 'All Clients confirmed' : 'All Clients';
     else if (type === 'specific_clients') rec = selectedClientIds.length > 0 ? `${selectedClientIds.length} client(s)` : 'None selected';
     else if (type === 'external') { const e = parseEmails($('#external_emails').val()); rec = e.length > 0 ? `${e.length} email(s)` : 'None'; }
     $('#summary_recipients').text(rec);
@@ -307,9 +329,30 @@ $('#campaign_name, #template_id, #external_emails').on('input change', updateSum
 $('input[name="recipient_type"], input[name="send_mode"]').on('change', updateSummary);
 
 // ── Recipient type panels ─────────────────────────────────────────────────────
-$('#rt_all').on('change', () => { $('.recipient-panel').addClass('d-none'); $('#panel_all').removeClass('d-none active-panel').addClass('active-panel'); updateSummary(); });
-$('#rt_specific').on('change', () => { $('.recipient-panel').addClass('d-none'); $('#panel_specific').removeClass('d-none active-panel').addClass('active-panel'); updateSummary(); });
-$('#rt_external').on('change', () => { $('.recipient-panel').addClass('d-none'); $('#panel_external').removeClass('d-none active-panel').addClass('active-panel'); updateSummary(); });
+$('#rt_all').on('change', () => {
+    pickerMode = 'all_clients';
+    allClientsConfirmed = false;
+    $('.recipient-panel').addClass('d-none');
+    $('#panel_all').removeClass('d-none active-panel').addClass('active-panel');
+    $('#clientPickerTitle').html('<i class="fe fe-users me-2 text-primary"></i>Pick All Clients');
+    $('#clientPickerModal').modal('show');
+    loadClients('');
+    updateSummary();
+});
+$('#rt_specific').on('change', () => {
+    pickerMode = 'specific_clients';
+    $('.recipient-panel').addClass('d-none');
+    $('#panel_specific').removeClass('d-none active-panel').addClass('active-panel');
+    $('#clientPickerTitle').html('<i class="fe fe-users me-2 text-primary"></i>Pick Clients');
+    $('#clientPickerModal').modal('show');
+    loadClients('');
+    updateSummary();
+});
+$('#rt_external').on('change', () => {
+    $('.recipient-panel').addClass('d-none');
+    $('#panel_external').removeClass('d-none active-panel').addClass('active-panel');
+    updateSummary();
+});
 
 // ── Send mode toggle ──────────────────────────────────────────────────────────
 $('#mode_instant').on('change', function () {
@@ -327,6 +370,15 @@ $('#mode_schedule').on('change', function () {
 
 // ── Client Picker ─────────────────────────────────────────────────────────────
 $('#openPickerBtn').on('click', function () {
+    pickerMode = 'specific_clients';
+    $('#clientPickerTitle').html('<i class="fe fe-users me-2 text-primary"></i>Pick Clients');
+    $('#clientPickerModal').modal('show');
+    loadClients('');
+});
+
+$('#openAllPickerBtn').on('click', function () {
+    pickerMode = 'all_clients';
+    $('#clientPickerTitle').html('<i class="fe fe-users me-2 text-primary"></i>Pick All Clients');
     $('#clientPickerModal').modal('show');
     loadClients('');
 });
@@ -335,6 +387,9 @@ function loadClients(search) {
     $('#clientTableBody').html('<tr><td colspan="3" class="text-center text-muted py-4">Loading...</td></tr>');
     $.get(marketingCampaignsGetClientsUrl, { search }, function (res) {
         allLoadedClients = res.data;
+        if (pickerMode === 'all_clients' && selectedAllClientIds.length === 0 && search === '') {
+            selectedAllClientIds = allLoadedClients.map(c => parseInt(c.id, 10));
+        }
         renderClientTable(allLoadedClients);
     });
 }
@@ -346,12 +401,14 @@ function renderClientTable(clients) {
         return;
     }
     let html = '';
+    const selectedIds = currentClientIds();
     clients.forEach(c => {
-        const chk = selectedClientIds.includes(c.id) ? 'checked' : '';
+        const id = parseInt(c.id, 10);
+        const chk = selectedIds.includes(id) ? 'checked' : '';
         html += `<tr>
-            <td><input type="checkbox" class="form-check-input client-check" value="${c.id}" data-email="${c.email}" data-name="${c.fullname||''}" ${chk}></td>
+            <td><input type="checkbox" class="form-check-input client-check" value="${id}" ${chk}></td>
             <td class="fs-13">${c.fullname || '—'}</td>
-            <td class="text-muted fs-13">${c.email}</td>
+            <td class="text-muted fs-13">${escapeHtml(c.email)}</td>
         </tr>`;
     });
     tbody.html(html);
@@ -366,8 +423,10 @@ $('#clientSearch').on('input', function () {
 
 $(document).on('change', '.client-check', function () {
     const id = parseInt($(this).val());
-    if ($(this).is(':checked')) { if (!selectedClientIds.includes(id)) selectedClientIds.push(id); }
-    else { selectedClientIds = selectedClientIds.filter(x => x !== id); }
+    let ids = currentClientIds();
+    if ($(this).is(':checked')) { if (!ids.includes(id)) ids.push(id); }
+    else { ids = ids.filter(x => x !== id); }
+    setCurrentClientIds(ids);
     updateModalCount();
 });
 
@@ -376,29 +435,42 @@ $('#masterCheck').on('change', function () {
 });
 
 $('#selectAllClientsBtn').on('click', () => {
-    allLoadedClients.forEach(c => { if (!selectedClientIds.includes(c.id)) selectedClientIds.push(c.id); });
+    const ids = currentClientIds();
+    allLoadedClients.forEach(c => {
+        const id = parseInt(c.id, 10);
+        if (!ids.includes(id)) ids.push(id);
+    });
+    setCurrentClientIds(ids);
     $('.client-check').prop('checked', true);
     updateModalCount();
 });
 
 $('#clearClientsBtn').on('click', () => {
-    selectedClientIds = [];
+    setCurrentClientIds([]);
     $('.client-check').prop('checked', false);
+    $('#masterCheck').prop('checked', false);
     updateModalCount();
 });
 
 function updateModalCount() {
-    const n = selectedClientIds.length;
+    const n = currentClientIds().length;
     $('#modalSelectedCount, #modalFooterCount').text(`${n} client${n !== 1 ? 's' : ''} selected`);
 }
 
 $('#confirmPickerBtn').on('click', function () {
     $('#clientPickerModal').modal('hide');
-    const n = selectedClientIds.length;
-    $('#selectedCount').text(n > 0 ? `${n} client${n !== 1 ? 's' : ''} selected` : 'No clients selected');
-    const tags = $('#selectedClientsTags').empty();
-    allLoadedClients.filter(c => selectedClientIds.includes(c.id)).slice(0, 12).forEach(c => {
-        tags.append(`<span class="mkt-tag">${c.fullname || c.email}</span>`);
+    const ids = currentClientIds();
+    const n = ids.length;
+    const isAll = pickerMode === 'all_clients';
+    const countTarget = isAll ? '#selectedAllCount' : '#selectedCount';
+    const tagTarget = isAll ? '#selectedAllClientsTags' : '#selectedClientsTags';
+
+    if (isAll) allClientsConfirmed = true;
+    $(countTarget).text(n > 0 ? `${n} client${n !== 1 ? 's' : ''} selected` : 'No clients selected');
+
+    const tags = $(tagTarget).empty();
+    allLoadedClients.filter(c => ids.includes(parseInt(c.id, 10))).slice(0, 12).forEach(c => {
+        tags.append(`<span class="mkt-tag">${escapeHtml(c.fullname || c.email)}</span>`);
     });
     if (n > 12) tags.append(`<span class="mkt-tag">+${n - 12} more</span>`);
     updateSummary();
@@ -411,9 +483,30 @@ $('#previewExternalBtn').on('click', function () {
     updateSummary();
 });
 
+$('#csv_file').on('change', function () {
+    const file = this.files && this.files[0] ? this.files[0] : null;
+    if (!file) return;
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['csv', 'txt'].includes(ext)) {
+        toast('warning', 'Only CSV or TXT files are supported');
+        $(this).val('');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        const current = $('#external_emails').val().trim();
+        const incoming = event.target.result || '';
+        $('#external_emails').val(current ? `${current}\n${incoming}` : incoming);
+        $('#previewExternalBtn').trigger('click');
+    };
+    reader.readAsText(file);
+});
+
 function parseEmails(raw) {
     const emails = [], re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    raw.split(/[\r\n,]+/).forEach(line => {
+    raw.split(/[\r\n,;]+/).forEach(line => {
         line = line.trim();
         const m = line.match(/<([^>]+)>/);
         const email = (m ? m[1] : line).toLowerCase().trim();
@@ -433,6 +526,7 @@ $('#sendCampaignBtn').on('click', function () {
     if (!name)       { toast('warning', 'Campaign name is required'); return; }
     if (!templateId) { toast('warning', 'Please select a template'); return; }
     if (!type)       { toast('warning', 'Please select a recipient type'); return; }
+    if (type === 'all_clients' && !allClientsConfirmed) { toast('warning', 'Please confirm all clients'); return; }
     if (type === 'specific_clients' && selectedClientIds.length === 0) { toast('warning', 'Please pick at least one client'); return; }
     if (type === 'external' && parseEmails($('#external_emails').val()).length === 0) { toast('warning', 'No valid emails in the list'); return; }
     if (mode === 'schedule' && !schedAt) { toast('warning', 'Please select a schedule date and time'); return; }
@@ -445,7 +539,7 @@ $('#sendCampaignBtn').on('click', function () {
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: `Yes, ${actionLabel.toLowerCase()} it`,
-        confirmButtonColor: '#ffbe00',
+        confirmButtonColor: '#06b6c9',
     }).then(result => {
         if (!result.isConfirmed) return;
 
@@ -467,7 +561,7 @@ $('#sendCampaignBtn').on('click', function () {
                     icon: 'success',
                     title: mode === 'schedule' ? 'Campaign Scheduled!' : 'Campaign Sent!',
                     text: mode === 'schedule' ? `Scheduled for ${schedAt}` : `${res.count} email(s) sent successfully.`,
-                    confirmButtonColor: '#ffbe00',
+                    confirmButtonColor: '#06b6c9',
                 }).then(() => window.location.href = marketingCampaignsUrl + '/' + res.campaign_id);
             } else {
                 Swal.fire({ icon: 'error', title: 'Failed', text: res.message || 'Something went wrong' });
@@ -479,4 +573,4 @@ $('#sendCampaignBtn').on('click', function () {
     });
 });
 </script>
-@endsection
+@endpush
