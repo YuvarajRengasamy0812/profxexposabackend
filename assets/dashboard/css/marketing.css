@@ -285,7 +285,7 @@
 }
 
 .mkt-hero {
-    background: linear-gradient(135deg, var(--mkt-cyan) 0%, #3f8de3 48%, var(--mkt-purple) 100%);
+    background: linear-gradient(135deg, #b8c906 0%, #f0ad4e 48%, #93f65c 100%) !important;
     border-radius: 16px;
     color: #fff;
     margin-bottom: 1.75rem;

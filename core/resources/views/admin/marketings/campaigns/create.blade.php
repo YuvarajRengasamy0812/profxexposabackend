@@ -9,8 +9,8 @@
         <div class="page-header">
             <h1 class="page-title">Create Campaign</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="/admin/marketing/campaigns">Campaigns</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('adminHome') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('marketingCampaigns') }}">Campaigns</a></li>
                 <li class="breadcrumb-item active">Create</li>
             </ol>
         </div>
@@ -234,7 +234,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-0">
+            <div class="modal-body ">
                 <div class="p-3 border-bottom">
                     <div class="input-group" style="border-radius:9px;overflow:hidden;">
                         <span class="input-group-text bg-light border-end-0"><i class="fe fe-search text-muted"></i></span>
@@ -248,7 +248,7 @@
                     </div>
                     <span class="fs-12 text-muted" id="modalSelectedCount">0 selected</span>
                 </div>
-                <div id="clientListContainer" style="max-height:380px;overflow-y:auto;">
+                <div id="clientListContainer" style="max-height:380px;">
                     <table class="table table-hover mb-0">
                         <thead class="table-light sticky-top">
                             <tr>

@@ -9,8 +9,8 @@
         <div class="page-header">
             <h1 class="page-title">Campaign Details</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="/admin/marketing/campaigns">Campaigns</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('adminHome') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('marketingCampaigns') }}">Campaigns</a></li>
                 <li class="breadcrumb-item active">{{ $campaign->campaign_name }}</li>
             </ol>
         </div>
@@ -141,10 +141,10 @@
                             <i class="fe fe-zap me-1"></i> Send Now
                         </button>
                         @endif
-                        <a href="/admin/marketing/campaigns" class="btn btn-outline-secondary btn-sm" style="border-radius:9px;">
+                        <a href="{{ route('marketingCampaigns') }}" class="btn btn-outline-secondary btn-sm" style="border-radius:9px;">
                             <i class="fe fe-arrow-left me-1"></i> Back to Campaigns
                         </a>
-                        <a href="/admin/marketing/history" class="btn btn-outline-primary btn-sm" style="border-radius:9px;">
+                        <a href="{{ route('marketingCampaignsHistory') }}" class="btn btn-outline-primary btn-sm" style="border-radius:9px;">
                             <i class="fe fe-clock me-1"></i> View History
                         </a>
                     </div>

@@ -13,8 +13,8 @@
         <div class="page-header">
             <h1 class="page-title">Campaign History</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="/admin/marketing/campaigns">Campaigns</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('adminHome') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('marketingCampaigns') }}">Campaigns</a></li>
                 <li class="breadcrumb-item active">History</li>
             </ol>
         </div>
@@ -27,7 +27,7 @@
                     <div class="mkt-hero-sub">Full audit trail of all email campaigns sent from this system.</div>
                 </div>
                 <div style="z-index:1;">
-                    <a href="/admin/marketing/campaigns/create" class="btn btn-sm" style="background:#fff;color:#0f766e;font-weight:600;border-radius:10px;border:none;">
+                    <a href="{{ route('marketingCampaignsCreate') }}" class="btn btn-sm" style="background:#fff;color:#0f766e;font-weight:600;border-radius:10px;border:none;">
                         <i class="fe fe-plus me-1"></i> New Campaign
                     </a>
                 </div>
@@ -87,7 +87,7 @@
                                 <td class="text-muted fs-12">{{ $c->scheduled_at ? date('d M Y, H:i', strtotime($c->scheduled_at)) : '—' }}</td>
                                 <td class="text-muted fs-12">{{ date('d M Y, H:i', strtotime($c->created_at)) }}</td>
                                 <td class="text-center">
-                                    <a href="/admin/marketing/campaigns/{{ $c->id }}" class="btn btn-sm btn-outline-primary" style="border-radius:8px;" title="View">
+                                    <a href="{{ route('marketingCampaignsShow', $c->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius:8px;" title="View">
                                         <i class="fe fe-eye"></i>
                                     </a>
                                 </td>
