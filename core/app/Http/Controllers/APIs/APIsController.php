@@ -54,6 +54,78 @@ class APIsController extends Controller
 
         return $baseUrl . $separator . 'ref=' . urlencode($referralCode);
     }
+    private function generateLeagueUserHeroImage(BookingLeague $booking): ?string
+    {
+        if (!extension_loaded('gd') || !function_exists('imagettftext')) {
+            return null;
+        }
+
+        $sourcePath = base_path('../assets/dashboard/images/email/leagueuser.png');
+        if (!file_exists($sourcePath)) {
+            return null;
+        }
+
+        $image = imagecreatefrompng($sourcePath);
+        if (!$image) {
+            return null;
+        }
+
+        imagesavealpha($image, true);
+
+        $boldFont = 'C:/Windows/Fonts/arialbd.ttf';
+        $regularFont = 'C:/Windows/Fonts/arial.ttf';
+
+        if (!file_exists($boldFont) || !file_exists($regularFont)) {
+            imagedestroy($image);
+            return null;
+        }
+
+        $white = imagecolorallocate($image, 255, 255, 255);
+        $gold = imagecolorallocate($image, 232, 201, 107);
+        $dark = imagecolorallocate($image, 10, 46, 36);
+
+        $name = strtoupper((string) $booking->name);
+        $leagueId = 'LEAGUE ID: PFXL-' . str_pad((string) $booking->id, 5, '0', STR_PAD_LEFT);
+        $role = 'ROLE: ' . strtoupper((string) $booking->role);
+
+        $this->drawCenteredText($image, $name, $boldFont, 64, 870, $white);
+        $this->drawCenteredText($image, $leagueId, $boldFont, 42, 970, $gold);
+        $this->drawCenteredText($image, $role, $regularFont, 38, 1045, $white);
+        $this->drawCenteredText($image, 'PROFX LEAGUE REGISTRATION CONFIRMED', $boldFont, 34, 1160, $dark);
+
+        $fileName = 'league-user-' . $booking->id . '-' . time() . '.png';
+        $targetDir = base_path('../uploads/topics');
+
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
+        $targetPath = $targetDir . DIRECTORY_SEPARATOR . $fileName;
+        imagepng($image, $targetPath, 8);
+        imagedestroy($image);
+
+        return url('uploads/topics/' . $fileName);
+    }
+
+    private function drawCenteredText($image, string $text, string $font, int $size, int $y, int $color): void
+    {
+        $width = imagesx($image);
+        $text = trim($text);
+
+        if ($text === '') {
+            return;
+        }
+
+        if (strlen($text) > 32) {
+            $size = max(30, $size - 12);
+        }
+
+        $box = imagettfbbox($size, 0, $font, $text);
+        $textWidth = abs($box[2] - $box[0]);
+        $x = (int) (($width - $textWidth) / 2);
+
+        imagettftext($image, $size, 0, $x, $y, $color, $font, $text);
+    }
 
     
      protected $uploadPath = 'uploads/topics/';
@@ -169,6 +241,27 @@ public function BookingLeague(Request $request)
         'referred_by_user_id' => $referrer?->id,
         'referrer_name' => $referrer?->full_name,
     ]);
+
+    try {
+        $heroImage = $this->generateLeagueUserHeroImage($booking);
+        $mailService = new MailService();
+
+        $mailService->sendEmail(
+            $booking->email,
+            'PROFX League Registration Completed',
+            'emails.league-registration-completed',
+            [
+                'booking' => $booking,
+                'heroImage' => $heroImage ?: url('assets/dashboard/images/email/leagueuser.png'),
+                'logo' => 'https://profxexpo.com/africa/adminpanel/uploads/settings/17791964093936.png',
+            ]
+        );
+    } catch (\Exception $e) {
+        \Log::error('League registration email failed: ' . $e->getMessage(), [
+            'booking_id' => $booking->id,
+            'email' => $booking->email,
+        ]);
+    }
 
     // ? Success response
     return response()->json([
