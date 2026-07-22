@@ -109,6 +109,7 @@ Route::get('/client-speakers/{id}', [ClientSpeakerController::class, 'view'])->n
 Route::post('/client-speakers/{id}/approve', [ClientSpeakerController::class, 'approve'])->name('clientSpeakersApprove');
 // profxusers
 Route::get('/profxusers', [FloorplanController::class, 'profxusers'])->name('profxusers');
+Route::post('/profxusers/send-registration-emails', [FloorplanController::class, 'sendRegistrationEmails'])->name('profxusersSendRegistrationEmails');
 Route::get('/profxusersView/{id}', [FloorplanController::class, 'profxusersView'])->name('profxusersView');
 
 // Leagueusers

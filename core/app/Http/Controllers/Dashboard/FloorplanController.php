@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Response;
 
 use App\Models\Booking;
 use App\Models\Floorplan;
+use App\Services\MailService;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FloorplanController extends Controller
@@ -30,7 +32,10 @@ class FloorplanController extends Controller
     private $uploadPath = "uploads/settings/";
     protected $mailService;
 
-
+    public function __construct(MailService $mailService)
+    {
+        $this->mailService = $mailService;
+    }
 
 
     public function bookingList(Request $request)
@@ -316,9 +321,13 @@ public function approve(Request $request, $id)
             $query->where('email', 'like', '%' . $request->email . '%');
         }
 
-        // if ($request->filled('boothtitle')) {
-        //     $query->where('boothtitle', 'like', '%' . $request->location . '%');
-        // }
+        if ($request->filled('full_name')) {
+            $query->where('full_name', 'like', '%' . $request->full_name . '%');
+        }
+
+        if ($request->filled('user_type')) {
+            $query->where('user_type', $request->user_type);
+        }
 
 
 
@@ -328,12 +337,92 @@ public function approve(Request $request, $id)
             ->paginate(10)
             ->appends($request->query());
 
+        $userTypes = DB::table('users_registers')
+            ->whereNotNull('user_type')
+            ->where('user_type', '!=', '')
+            ->distinct()
+            ->orderBy('user_type')
+            ->pluck('user_type');
+
+
         // 📊 Stats
         $stats = (object) [
             'total' => DB::table('users_registers')->count(),
         ];
 
-        return view('dashboard.profxusers.listusers', compact('GeneralWebmasterSections', 'profxusers', 'stats'));
+        return view('dashboard.profxusers.listusers', compact('GeneralWebmasterSections', 'profxusers', 'stats', 'userTypes'));
+    }
+    public function sendRegistrationEmails(Request $request)
+    {
+        $selectedUserIds = $request->input('user_ids', []);
+
+        if (!is_array($selectedUserIds) || empty($selectedUserIds)) {
+            return redirect()
+                ->route('profxusers')
+                ->with('profxSwalError', 'Please select at least one user.');
+        }
+
+        $users = DB::table('users_registers')
+            ->whereIn('id', $selectedUserIds)
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->get();
+
+        if ($users->isEmpty()) {
+            return redirect()
+                ->route('profxusers')
+                ->with('profxSwalError', 'Please select users with valid email addresses.');
+        }
+
+        $sent = 0;
+        $failed = [];
+
+
+        foreach ($users as $user) {
+            $mailData = [
+                'user' => $user,
+                'title' => 'Welcome to PROFX Expo Africa 2026',
+                'details' => "Hi {$user->full_name},<br><br>Thank you for registering for PROFX Expo Africa 2026.<br>You can now login with your email.<br><br>Regards,<br>PROFX Team",
+                'logo' => 'https://profxexpo.com/africa/assets/images/logo/profx-white.png?v=20260722-082125',
+                'ticket_header' => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792010449837.png',
+                'ticket_footer' => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792011237810.png',
+                'downloadTicketUrl' => route('ticket.download', $user->id),
+            ];
+
+            try {
+                $result = $this->mailService->sendEmail(
+                    $user->email,
+                    'Registration Successful - PROFX Expo Africa',
+                    'emails.registration',
+                    $mailData
+                );
+
+                if (is_array($result) && !empty($result['error'])) {
+                    $failed[] = $user->email;
+                    continue;
+                }
+
+                $sent++;
+            } catch (\Exception $e) {
+                $failed[] = $user->email;
+
+                Log::error('Admin registration email failed', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if (!empty($failed)) {
+            return redirect()
+                ->route('profxusers')
+                ->with('profxSwalWarning', "{$sent} email(s) sent. Failed: " . implode(', ', $failed));
+        }
+
+        return redirect()
+            ->route('profxusers')
+            ->with('profxSwalSuccess', "{$sent} registration email(s) sent successfully.");
     }
     
       public function profxusersView($id)
@@ -366,9 +455,6 @@ public function approve(Request $request, $id)
             $query->where('email', 'like', '%' . $request->email . '%');
         }
 
-        // if ($request->filled('boothtitle')) {
-        //     $query->where('boothtitle', 'like', '%' . $request->location . '%');
-        // }
 
 
 
@@ -401,6 +487,7 @@ public function approve(Request $request, $id)
     }
 
 }
+
 
 
 

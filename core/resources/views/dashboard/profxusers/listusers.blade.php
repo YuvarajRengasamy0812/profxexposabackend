@@ -1,30 +1,182 @@
 @extends('dashboard.layouts.master')
-@section('title', 'Floorplan List')
+@section('title', 'PROFX Users')
 @section('content')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-
     <style>
-        /* ---------------- Modern Premium Table Wrapper ---------------- */
         .profx-admin-table-wrapper {
-            /* background: linear-gradient(135deg, #ffffff, #ffe6f0); */
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
             font-family: 'Inter', sans-serif;
             width: 100%;
             overflow-x: auto;
+            background: #fff;
         }
 
-        /* ---------------- Table Styling ---------------- */
+        .profx-page-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .profx-page-title {
+            margin: 0;
+            color: #0f172a;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .profx-page-count {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .profx-search-form {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(180px, 1fr)) auto auto;
+            gap: 12px;
+            align-items: end;
+            padding: 14px;
+            margin-bottom: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .profx-filter-field label {
+            display: block;
+            margin-bottom: 6px;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .form-control,
+        .form-select {
+            width: 100%;
+            min-height: 40px;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            color: #0f172a;
+            font-size: 13px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #c19d38;
+            box-shadow: 0 0 0 3px rgba(193, 157, 56, 0.16);
+            outline: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #c19d38;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(193, 157, 56, 0.24);
+        }
+
+        .btn-primary:hover {
+            background: #ad8a28;
+            color: #fff;
+        }
+
+        .btn-light {
+            background: #fff;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-light:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .btn-info {
+            width: 40px;
+            padding: 0;
+            background: #1d4ed8;
+            color: #fff;
+        }
+
+        .btn-info:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+            color: #fff;
+        }
+
+        .btn-secondary:disabled {
+            background: #dbe3ee;
+            color: #fff;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .profx-bulk-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+            padding: 12px 0;
+            border-top: 1px solid #eef2f7;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .profx-selected-count {
+            color: #334155;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .profx-select-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #c19d38;
+        }
+
         .profx-admin-table {
             width: 100%;
             border-collapse: collapse;
             background: #fff;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(15, 23, 42, 0.05);
         }
 
         .profx-admin-table thead {
@@ -33,100 +185,24 @@
 
         .profx-admin-table thead th {
             color: #fff;
-            padding: 16px;
-            font-size: 14px;
+            padding: 14px;
+            font-size: 13px;
             text-align: left;
+            white-space: nowrap;
         }
 
         .profx-admin-table tbody td {
-            padding: 14px 16px;
-            font-size: 14px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 13px 14px;
+            color: #334155;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
         }
 
         .profx-admin-table tbody tr:hover {
-            background: #fff0f6;
-            transition: 0.3s;
+            background: #fffaf0;
         }
 
-        /* ---------------- Status ---------------- */
-        .profx-admin-status {
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-            text-transform: uppercase;
-        }
-
-        .profx-admin-status.active {
-            background: #fdf8ea;
-            color: #c19d38;
-        }
-
-        .profx-admin-status.inactive {
-            background: #ffeaea;
-            color: #d32f2f;
-        }
-
-        /* ---------------- Buttons ---------------- */
-        .btn {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: 500;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, #c19d38, #d4b452);
-            color: #fff;
-            border: none;
-            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4);
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(90deg, #d4b452, #c19d38);
-        }
-
-        .btn-info {
-            background: #1d4ed8;
-            color: #fff;
-            border: none;
-        }
-
-        .btn-info:hover {
-            background: #2563eb;
-        }
-
-        /* ---------------- Form Inputs ---------------- */
-        .form-control {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-
-        .form-control:focus {
-            border-color: #c19d38;
-            box-shadow: 0 0 8px rgba(233, 30, 99, 0.2);
-            outline: none;
-        }
-
-        /* ---------------- Search Form ---------------- */
-        .profx-search-form {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        /* ---------------- Pagination ---------------- */
         .profx-pagination {
             display: flex;
             justify-content: flex-end;
@@ -147,7 +223,7 @@
         }
 
         .profx-pagination li.active span {
-            background: linear-gradient(90deg, #c19d38, #d4b452);
+            background: #c19d38;
             color: #fff;
             border-color: #c19d38;
         }
@@ -159,91 +235,202 @@
             cursor: not-allowed;
         }
 
-        /* ---------------- Modal ---------------- */
-        .modal-content {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        @media (max-width: 992px) {
+            .profx-search-form {
+                grid-template-columns: repeat(2, minmax(180px, 1fr));
+            }
         }
 
-        .modal-header {
-            background: linear-gradient(90deg, #c19d38, #d4b452);
-            color: #fff;
-            border-bottom: none;
-        }
+        @media (max-width: 640px) {
+            .profx-admin-table-wrapper {
+                padding: 16px;
+            }
 
-        .modal-footer {
-            border-top: none;
-            gap: 10px;
-        }
+            .profx-search-form {
+                grid-template-columns: 1fr;
+            }
 
-        /* Adjust input inside modal */
-        .modal-body .form-label {
-            font-weight: 500;
+            .btn {
+                width: 100%;
+            }
         }
     </style>
 
     <div class="profx-admin-table-wrapper">
-        <h4 class="mb-3">Total User: {{ $stats->total }}</h4>
+        <div class="profx-page-head">
+            <div>
+                <h4 class="profx-page-title">PROFX Users</h4>
+                <div class="profx-page-count">Total User: {{ $stats->total }}</div>
+            </div>
+        </div>
 
-        <!-- Search Form -->
-        <form method="GET" class="profx-search-form">
-            <input type="text" name="email" placeholder="Search by Email" value="{{ request('email') }}"
-                class="form-control" style="flex: 1 1 220px;">
-            <input type="text" name="full_name" placeholder="Search by User Name" value="{{ request('full_name') }}"
-                class="form-control" style="flex: 1 1 220px;">
-            <button type="submit" class="btn btn-primary" style="flex: 0 0 auto;">Search</button>
+        <form method="GET" class="profx-search-form" id="profxSearchForm">
+            <div class="profx-filter-field">
+                <label for="searchEmail">Email</label>
+                <input type="text" id="searchEmail" name="email" placeholder="Search email" value="{{ request('email') }}" class="form-control">
+            </div>
+            <div class="profx-filter-field">
+                <label for="searchName">User Name</label>
+                <input type="text" id="searchName" name="full_name" placeholder="Search name" value="{{ request('full_name') }}" class="form-control">
+            </div>
+            <div class="profx-filter-field">
+                <label for="searchUserType">User Type</label>
+                <select id="searchUserType" name="user_type" class="form-select">
+                    <option value="">All User Types</option>
+                    @foreach($userTypes as $type)
+                        <option value="{{ $type }}" {{ request('user_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Search</button>
+            <a href="{{ route('profxusers') }}" class="btn btn-light"><i class="bi bi-x-circle"></i> Clear</a>
         </form>
 
-        <!-- Table -->
-        <table class="profx-admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                     <th>Action</th>
-                    <th>Name</th>
-                     <th>User Type</th>
-                    <th>Email</th>
-                    <th>Company Name</th>
-                    <th>Phone</th>
-                    <th>Country</th>
-                   <th>Created_At</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($profxusers as $f)
-                    <tr>
-                        <td>{{ $f->id }}</td>
-                        <td>
-                            <a href="{{ route('profxusersView', $f->id) }}" class="btn"><i class="bi bi-eye"></i></a>
-                           
-                        </td>
-                        <td>{{ $f->full_name }}</td>
-                         <td>{{ $f->user_type }}</td>
-                        <td>{{ $f->email }}</td>
-                        <td>{{ $f->company_name }}</td>
-                        <td>{{ $f->phone }}</td>
-                        <td>
-                           {{ $f->nationality }}
-                        </td>
-                        <td>{{$f->created_at}}</td>
-                        
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="text-center">No floorplans found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <form method="POST" action="{{ route('profxusersSendRegistrationEmails') }}" id="registrationEmailForm">
+            @csrf
+            <div class="profx-bulk-actions">
+                <span class="profx-selected-count"><span id="selectedUsersCount">0</span> user(s) selected</span>
+                <button type="submit" class="btn btn-secondary" id="sendRegistrationEmailBtn" disabled>
+                    <i class="bi bi-envelope-paper"></i> Send Registration Email
+                </button>
+            </div>
 
-        <!-- Pagination -->
+            <table class="profx-admin-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" class="profx-select-checkbox" id="selectAllUsers" title="Select all users on this page"></th>
+                        <th>ID</th>
+                        <th>Action</th>
+                        <th>Name</th>
+                        <th>User Type</th>
+                        <th>Email</th>
+                        <th>Company Name</th>
+                        <th>Phone</th>
+                        <th>Country</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($profxusers as $f)
+                        <tr>
+                            <td><input type="checkbox" class="profx-select-checkbox user-select-checkbox" name="user_ids[]" value="{{ $f->id }}"></td>
+                            <td>{{ $f->id }}</td>
+                            <td>
+                                <a href="{{ route('profxusersView', $f->id) }}" class="btn btn-info" title="View"><i class="bi bi-eye"></i></a>
+                            </td>
+                            <td>{{ $f->full_name }}</td>
+                            <td>{{ $f->user_type }}</td>
+                            <td>{{ $f->email }}</td>
+                            <td>{{ $f->company_name }}</td>
+                            <td>{{ $f->phone }}</td>
+                            <td>{{ $f->nationality }}</td>
+                            <td>{{ $f->created_at }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10" class="text-center">No users found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </form>
+
         <div class="mt-3">
             {{ $profxusers->withQueryString()->links('pagination::bootstrap-5') }}
         </div>
     </div>
 
-    <!-- Approve Modal -->
-  
+    @push('after-scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.getElementById('registrationEmailForm');
+                const selectAll = document.getElementById('selectAllUsers');
+                const checkboxes = Array.from(document.querySelectorAll('.user-select-checkbox'));
+                const sendBtn = document.getElementById('sendRegistrationEmailBtn');
+                const countLabel = document.getElementById('selectedUsersCount');
+
+                function showToast(icon, title) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: icon,
+                        title: title,
+                        showConfirmButton: false,
+                        timer: 2800,
+                        timerProgressBar: true
+                    });
+                }
+
+                function refreshBulkState() {
+                    const selectedCount = checkboxes.filter(function (checkbox) { return checkbox.checked; }).length;
+                    countLabel.textContent = selectedCount;
+                    sendBtn.disabled = selectedCount === 0;
+                    if (selectAll) {
+                        selectAll.checked = selectedCount > 0 && selectedCount === checkboxes.length;
+                        selectAll.indeterminate = selectedCount > 0 && selectedCount < checkboxes.length;
+                    }
+                }
+
+                if (selectAll) {
+                    selectAll.addEventListener('change', function () {
+                        checkboxes.forEach(function (checkbox) {
+                            checkbox.checked = selectAll.checked;
+                        });
+                        refreshBulkState();
+                    });
+                }
+
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.addEventListener('change', refreshBulkState);
+                });
+
+                if (form) {
+                    form.addEventListener('submit', function (event) {
+                        const selectedCount = checkboxes.filter(function (checkbox) { return checkbox.checked; }).length;
+
+                        if (form.dataset.confirmed === '1') {
+                            return;
+                        }
+
+                        event.preventDefault();
+
+                        if (selectedCount === 0) {
+                            showToast('warning', 'Please select at least one user.');
+                            return;
+                        }
+
+                        Swal.fire({
+                            icon: 'question',
+                            title: 'Send registration email?',
+                            text: 'This will send email to ' + selectedCount + ' selected user(s).',
+                            showCancelButton: true,
+                            confirmButtonText: 'Send Email',
+                            cancelButtonText: 'Cancel',
+                            confirmButtonColor: '#c19d38'
+                        }).then(function (result) {
+                            if (result.isConfirmed) {
+                                form.dataset.confirmed = '1';
+                                form.submit();
+                            }
+                        });
+                    });
+                }
+
+                @if(session('profxSwalSuccess'))
+                    showToast('success', @json(session('profxSwalSuccess')));
+                @endif
+
+                @if(session('profxSwalWarning'))
+                    showToast('warning', @json(session('profxSwalWarning')));
+                @endif
+
+                @if(session('profxSwalError'))
+                    showToast('error', @json(session('profxSwalError')));
+                @endif
+
+                refreshBulkState();
+            });
+        </script>
+    @endpush
 
 @endsection

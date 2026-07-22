@@ -16,7 +16,7 @@
                 <!-- Header -->
                 <tr>
                     <td align="center" style="padding:30px 20px; background-color:#0f172a;">
-                        <img src="{{ $logo ?? 'https://profxsummit.com/assets/images/logo/profx-dark.png' }}" alt="PROFX Summit Logo" width="150" style="display:block; margin-bottom:10px;">
+                        <img src="{{ $logo ?? 'https://profxexpo.com/africa/assets/images/logo/profx-white.png?v=20260722-082125' }}" alt="PROFX Summit Logo" width="150" style="display:block; margin-bottom:10px;">
                         <h1 style="color:#ffffff; font-size:24px; margin:0;">Your Ticket is Ready!</h1>
                         <p style="color:#cbd5e1; font-size:14px; margin:5px 0 0;">We're excited to see you at the summit</p>
                     </td>

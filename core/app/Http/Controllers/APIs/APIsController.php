@@ -2779,7 +2779,7 @@ try {
         $mailData = [
             'title'             => 'Welcome to PROFX Expo Africa 2026',
             'details'           => "Hi {$user->full_name},<br><br>Thank you for registering for PROFX Expo Africa 2026.<br>You can now login with your email.<br><br>Regards,<br>PROFX Team",
-            'logo'              => 'https://profxsummit.com/assets/images/logo/profx-dark.png',
+            'logo'              => 'https://profxexpo.com/africa/adminpanel/uploads/settings/17791964093936.png',
             'ticket_header'     => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792010449837.png',
             'ticket_footer'     => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792011237810.png',
             'barcodeBase64'     => $barcodeBase64,
