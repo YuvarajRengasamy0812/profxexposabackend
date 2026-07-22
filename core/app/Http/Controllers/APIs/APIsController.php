@@ -42,6 +42,19 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class APIsController extends Controller
 {
+    private function createReferralCodeForUser(UserRegister $user): string
+    {
+        return 'PFX' . str_pad((string) $user->id, 6, '0', STR_PAD_LEFT);
+    }
+
+    private function createReferralLink(string $referralCode, ?string $frontendUrl = null): string
+    {
+        $baseUrl = $frontendUrl ?: 'https://profxexpo.com/africa/LeagueEnroll';
+        $separator = str_contains($baseUrl, '?') ? '&' : '?';
+
+        return $baseUrl . $separator . 'ref=' . urlencode($referralCode);
+    }
+
     
      protected $uploadPath = 'uploads/topics/';
     public function __construct()
@@ -118,6 +131,7 @@ public function BookingLeague(Request $request)
         'country' => 'required|string',
         'company'    => 'required|string|max:100',
         'role'    => 'required|string|max:100',
+        'referral_code' => 'nullable|string|max:50',
         'api_key' => 'required|string',
     ]);
 
@@ -129,6 +143,20 @@ public function BookingLeague(Request $request)
         ], 401);
     }
 
+    $referralCode = strtoupper(trim($request->input('referral_code', '')));
+    $referrer = null;
+
+    if ($referralCode !== '') {
+        $referrer = UserRegister::where('referral_code', $referralCode)->first();
+
+        if (!$referrer) {
+            return response()->json([
+                'code' => -1,
+                'msg'  => 'Invalid referral code'
+            ], 422);
+        }
+    }
+
     // ? Save booking
     $booking = BookingLeague::create([
         'name'    => $validated['name'],
@@ -137,6 +165,9 @@ public function BookingLeague(Request $request)
         'country' => $validated['country'],
         'company' => $validated['company'],
         'role'    => $validated['role'],
+        'referral_code' => $referralCode ?: null,
+        'referred_by_user_id' => $referrer?->id,
+        'referrer_name' => $referrer?->full_name,
     ]);
 
     // ? Success response
@@ -2667,7 +2698,8 @@ public function blog()
 //         'user_type' => 'required',
 //         'nationality' => 'required',
 //         'password' => 'required|min:6',
-//         'password_confirmation' => 'required|same:password'
+//         'password_confirmation' => 'required|same:password',
+//         'frontend_url' => 'nullable|string|max:500'
 //     ]);
 
 //     if ($request->api_key == Helper::GeneralWebmasterSettings("api_key")) {
@@ -2731,7 +2763,8 @@ public function registerSubmit(Request $request)
         'user_type' => 'required',
         'nationality' => 'required',
         'password' => 'required|min:6',
-        'password_confirmation' => 'required|same:password'
+        'password_confirmation' => 'required|same:password',
+        'frontend_url' => 'nullable|string|max:500'
     ]);
 
     // ?? API KEY CHECK
@@ -2755,6 +2788,12 @@ public function registerSubmit(Request $request)
     $user->sponsor_package = $request->sponsor_package;
     $user->products_services = $request->products_services;
     $user->save();
+
+    if (empty($user->referral_code)) {
+        $user->referral_code = $this->createReferralCodeForUser($user);
+        $user->referral_link = $this->createReferralLink($user->referral_code, $request->frontend_url);
+        $user->save();
+    }
 
     // QR code generation
 try {
@@ -2837,7 +2876,12 @@ try {
     // ? Response
     return response()->json([
         'code' => '1',
-        'msg'  => 'Registration successful'
+        'msg'  => 'Registration successful',
+        'data' => [
+            'user_id' => $user->id,
+            'referral_code' => $user->referral_code,
+            'referral_link' => $user->referral_link,
+        ]
     ], 201);
 }
 
@@ -2888,7 +2932,9 @@ try {
                     'sponsor_package'=>$user->sponsor_package,
                     'products_services'=>$user->products_services,
                     'profile_photo'=>$user->profile_photo ?? null,
-                    'profile_photo_url'=>!empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null
+                    'profile_photo_url'=>!empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
+                    'referral_code'=>$user->referral_code ?? null,
+                    'referral_link'=>$user->referral_link ?? null
                 ]
             ], 200);
 
@@ -2985,6 +3031,8 @@ public function updateClientProfile(Request $request)
             'products_services' => $user->products_services,
             'profile_photo' => $user->profile_photo,
             'profile_photo_url' => !empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
+            'referral_code' => $user->referral_code ?? null,
+            'referral_link' => $user->referral_link ?? null,
         ],
     ], 200);
 }
@@ -3148,6 +3196,7 @@ public function BookingPageSubmit(Request $request)
         'phone'   => 'required|string|max:20',
         'address' => 'required|string',
         'role'    => 'required|string|max:100',
+        'referral_code' => 'nullable|string|max:50',
         'api_key' => 'required|string',
     ]);
 
@@ -3191,7 +3240,8 @@ public function exhibitorsSubmit(Request $request)
         'user_type' => 'required',
         'nationality' => 'required',
         'password' => 'required|min:6',
-        'password_confirmation' => 'required|same:password'
+        'password_confirmation' => 'required|same:password',
+        'frontend_url' => 'nullable|string|max:500'
     ]);
 
     // ?? API KEY CHECK (BODY la irundhu)
@@ -3208,14 +3258,18 @@ public function exhibitorsSubmit(Request $request)
         $user->password = \Hash::make($request->password);
         $user->special_requirements = $request->special_requirements;
         $user->sponsor_package = $request->sponsor_package;
-        $user->products_services = $request->products_services;
-        $user->save();
+    $user->products_services = $request->products_services;
+    $user->save();
+
 
         // ? Response
-        return response()->json([
-            'code' => '1',
-            'msg' => 'Registration successful'
-        ], 201);
+    return response()->json([
+        'code' => '1',
+        'msg'  => 'Registration successful',
+        'data' => [
+            'user_id' => $user->id,
+        ]
+    ], 201);
 
     } else {
         // ? API KEY FAILED
@@ -3984,6 +4038,9 @@ public function influencers()
 
 
 }
+
+
+
 
 
 

@@ -110,6 +110,8 @@
         <tr><th>Email</th><td>{{ $leagueusers->email }}</td></tr>
         <tr><th>Phone</th><td>{{ $leagueusers->phone }}</td></tr>
         <tr><th>Company</th><td>{{ $leagueusers->company }}</td></tr>
+        <tr><th>Referral User</th><td>{{ $leagueusers->referral_user_name ?? $leagueusers->referrer_name ?? "-" }}</td></tr>
+        <tr><th>Referral Code</th><td>{{ $leagueusers->referral_code ?? "-" }}</td></tr>
 
      
         <tr><th>Created At</th><td>{{ $leagueusers->created_at }}</td></tr>
@@ -120,3 +122,4 @@
 </div>
 
 @endsection
+

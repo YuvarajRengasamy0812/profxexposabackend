@@ -17,9 +17,13 @@ class BookingLeague extends Model
     'phone',
     'country',
     'company',
-    'role'
+    'role',
+    'referral_code',
+    'referred_by_user_id',
+    'referrer_name'
 ];
 
 
 
 }
+

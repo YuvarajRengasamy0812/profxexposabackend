@@ -436,7 +436,18 @@ public function approve(Request $request, $id)
 
         abort_if(!$profxusers, 404);
 
-        return view('dashboard.profxusers.viewusers', compact('GeneralWebmasterSections', 'profxusers'));
+        $referralLeagueUsers = DB::table('booking_leagues')
+            ->where(function ($query) use ($profxusers) {
+                $query->where('referred_by_user_id', $profxusers->id);
+
+                if (!empty($profxusers->referral_code)) {
+                    $query->orWhere('referral_code', $profxusers->referral_code);
+                }
+            })
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return view('dashboard.profxusers.viewusers', compact('GeneralWebmasterSections', 'profxusers', 'referralLeagueUsers'));
     }
     
     
@@ -448,11 +459,17 @@ public function approve(Request $request, $id)
             ->get();
 
         $exporttitle = 'All';
-        $query = DB::table('booking_leagues');
+        $query = DB::table('booking_leagues as bl')
+            ->leftJoin('users_registers as ur', 'bl.referred_by_user_id', '=', 'ur.id')
+            ->select('bl.*', DB::raw('COALESCE(' . DB::getTablePrefix() . 'ur.full_name, ' . DB::getTablePrefix() . 'bl.referrer_name) as referral_user_name'));
 
         // 🔍 Search filters
         if ($request->filled('email')) {
-            $query->where('email', 'like', '%' . $request->email . '%');
+            $query->where('bl.email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('name')) {
+            $query->where('bl.name', 'like', '%' . $request->name . '%');
         }
 
 
@@ -460,7 +477,7 @@ public function approve(Request $request, $id)
 
         // 📄 Pagination
         $leagueusers = $query
-            ->orderBy('created_at', 'DESC')
+            ->orderBy('bl.created_at', 'DESC')
             ->paginate(10)
             ->appends($request->query());
 
@@ -479,7 +496,11 @@ public function approve(Request $request, $id)
             ->get();
 
         $exporttitle = 'All';
-        $leagueusers = DB::table('booking_leagues')->where('id', $id)->first();
+        $leagueusers = DB::table('booking_leagues as bl')
+            ->leftJoin('users_registers as ur', 'bl.referred_by_user_id', '=', 'ur.id')
+            ->select('bl.*', DB::raw('COALESCE(' . DB::getTablePrefix() . 'ur.full_name, ' . DB::getTablePrefix() . 'bl.referrer_name) as referral_user_name'))
+            ->where('bl.id', $id)
+            ->first();
 
         abort_if(!$leagueusers, 404);
 
@@ -487,6 +508,7 @@ public function approve(Request $request, $id)
     }
 
 }
+
 
 
 

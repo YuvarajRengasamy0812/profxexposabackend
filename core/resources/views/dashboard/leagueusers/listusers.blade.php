@@ -207,6 +207,8 @@
                     <th>Company Name</th>
                     <th>Phone</th>
                     <th>Country</th>
+                    <th>Referral User</th>
+                    <th>Referral Code</th>
                    <th>Created_At</th>
                 </tr>
             </thead>
@@ -226,12 +228,14 @@
                         <td>
                            {{ $f->country }}
                         </td>
+                        <td>{{ $f->referral_user_name ?? $f->referrer_name ?? "-" }}</td>
+                        <td>{{ $f->referral_code ?? "-" }}</td>
                         <td>{{$f->created_at}}</td>
                         
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center">No league users found.</td>
+                        <td colspan="10" class="text-center">No league users found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -247,3 +251,4 @@
   
 
 @endsection
+

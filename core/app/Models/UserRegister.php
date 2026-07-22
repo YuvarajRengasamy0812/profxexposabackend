@@ -19,7 +19,10 @@ class UserRegister extends Model
         'sponsor_package',
         'products_services',
         'profile_photo',
+        'referral_code',
+        'referral_link',
     ];
 
     protected $hidden = ['password'];
 }
+
