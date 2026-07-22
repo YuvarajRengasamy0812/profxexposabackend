@@ -106,7 +106,7 @@ class FloorplanController extends Controller
         }
 
         if ($request->filled('boothtitle')) {
-            $query->where('boothtitle', 'like', '%' . $request->location . '%');
+            $query->where('boothtitle', 'like', '%' . $request->boothtitle . '%');
         }
 
 
@@ -163,8 +163,10 @@ public function approve(Request $request, $id)
     $request->validate([
         'message' => 'nullable|string|max:1000',
         'profile_name' => 'nullable|string|max:255',
-        'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:10028',
+        'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:10028',
         'company_url' => 'nullable|url|max:255',
+        'booth_design' => 'nullable|string|max:255',
+        'booth_design_image' => 'nullable|file|mimes:jpg,jpeg,png,gif,svg,webp,pdf,mp4,mov,avi,webm,mkv|max:10240',
         'status' => 'required|string|in:pending,approved,rejected',
     ]);
 
@@ -175,7 +177,12 @@ public function approve(Request $request, $id)
     $floorplan->status = $request->status;
     $floorplan->approval_message = $request->message;
     $floorplan->approved_by = $request->profile_name ?? auth()->user()->name ?? 'Admin';
-    $floorplan->company_url = $request->company_url;
+    if ($request->filled('company_url')) {
+        $floorplan->company_url = $request->company_url;
+    }
+    if ($request->has('booth_design')) {
+        $floorplan->booth_design = $request->booth_design;
+    }
 
     // ✅ Upload company logo (if exists)
     if ($request->hasFile('company_logo')) {
@@ -195,7 +202,11 @@ public function approve(Request $request, $id)
         $floorplan->company_logo = $fileFinalName;
     }
 
-    // ✅ Save floorplan
+    if ($request->hasFile('booth_design_image')) {
+        $floorplan->booth_design_image = $this->storeSettingsImage($request->file('booth_design_image'));
+    }
+
+    // Save floorplan
     $floorplan->save();
 
     // ✅ Flash messages
@@ -208,7 +219,88 @@ public function approve(Request $request, $id)
     }
 }
 
+    private function storeSettingsImage($file)
+    {
+        $fileFinalName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
+        $path = $this->uploadPath;
+        $file->move($path, $fileFinalName);
 
+        if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            Helper::imageResize($path . $fileFinalName);
+            Helper::imageOptimize($path . $fileFinalName);
+        }
+
+        return $fileFinalName;
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'referal_code' => 'nullable|string|max:255',
+            'boothno' => 'nullable|string|max:255',
+            'boothtitle' => 'nullable|string|max:255',
+            'boothsize' => 'nullable|string|max:255',
+            'boothammount' => 'nullable|numeric',
+            'paymenttype' => 'nullable|string|max:255',
+            'networktype' => 'nullable|string|max:255',
+            'company_profile_name' => 'nullable|string|max:255',
+            'company_details' => 'nullable|string|max:5000',
+            'company_url' => 'nullable|url|max:255',
+            'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:10028',
+            'booth_design' => 'nullable|string|max:255',
+            'booth_design_image' => 'nullable|file|mimes:jpg,jpeg,png,gif,svg,webp,pdf,mp4,mov,avi,webm,mkv|max:10240',
+            'status' => 'nullable|string|in:pending,approved,rejected',
+            'approval_message' => 'nullable|string|max:1000',
+        ]);
+
+        $floorplan = Floorplan::findOrFail($id);
+
+        foreach ([
+            'name', 'email', 'phone', 'company', 'referal_code', 'boothno',
+            'boothtitle', 'boothsize', 'boothammount', 'paymenttype', 'networktype',
+            'company_profile_name', 'company_details', 'company_url', 'booth_design',
+            'status', 'approval_message'
+        ] as $field) {
+            if ($request->has($field)) {
+                $floorplan->{$field} = $request->input($field);
+            }
+        }
+
+        if ($request->hasFile('company_logo')) {
+            $floorplan->company_logo = $this->storeSettingsImage($request->file('company_logo'));
+        }
+
+        if ($request->hasFile('booth_design_image')) {
+            $floorplan->booth_design_image = $this->storeSettingsImage($request->file('booth_design_image'));
+        }
+
+        $floorplan->save();
+
+        return redirect()->back()->with('success', 'Floorplan updated successfully');
+    }
+
+    public function destroy($id)
+    {
+        $floorplan = Floorplan::findOrFail($id);
+
+        foreach (['company_logo', 'booth_design_image'] as $field) {
+            if (!empty($floorplan->{$field}) && File::exists($this->uploadPath . $floorplan->{$field})) {
+                File::delete($this->uploadPath . $floorplan->{$field});
+            }
+        }
+
+        if (!empty($floorplan->file) && File::exists('uploads/topics/' . $floorplan->file)) {
+            File::delete('uploads/topics/' . $floorplan->file);
+        }
+
+        $floorplan->delete();
+
+        return redirect()->back()->with('success', 'Floorplan deleted successfully');
+    }
     public function profxusers(Request $request)
     {
 
@@ -309,6 +401,11 @@ public function approve(Request $request, $id)
     }
 
 }
+
+
+
+
+
 
 
 

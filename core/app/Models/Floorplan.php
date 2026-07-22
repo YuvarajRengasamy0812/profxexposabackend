@@ -23,6 +23,17 @@ class Floorplan extends Model
         'boothammount',
         'paymenttype',
         'file',
-        'networktype'
-    ];
+        'networktype',
+        'company_profile_name',
+        'company_details',
+        'company_url',
+        'company_logo',
+        'status',
+        'approval_message',
+        'approved_by',
+        'booth_design',
+        'booth_design_image'
+];
 }
+
+

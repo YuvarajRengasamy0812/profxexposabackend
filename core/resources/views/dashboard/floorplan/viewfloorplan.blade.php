@@ -145,6 +145,60 @@
     </td>
 </tr>
 
+        <tr><th>Company Profile Name</th><td>{{ $floorplan->company_profile_name ?: 'N/A' }}</td></tr>
+        <tr>
+            <th>Company Website</th>
+            <td>
+                @if(!empty($floorplan->company_url))
+                    <a href="{{ $floorplan->company_url }}" target="_blank" rel="noopener">{{ $floorplan->company_url }}</a>
+                @else
+                    N/A
+                @endif
+            </td>
+        </tr>
+        <tr><th>Company Details</th><td>{{ $floorplan->company_details ?: 'N/A' }}</td></tr>
+        <tr>
+            <th>Company Logo</th>
+            <td>
+                @if(!empty($floorplan->company_logo))
+                    <a href="{{ url('uploads/settings/'.$floorplan->company_logo) }}" target="_blank" rel="noopener">
+                        <img src="{{ url('uploads/settings/'.$floorplan->company_logo) }}"
+                             alt="Company Logo"
+                             style="max-width:200px; max-height:120px; border-radius:8px; border:1px solid #ddd; background:#fff; padding:8px;">
+                    </a>
+                @else
+                    N/A
+                @endif
+            </td>
+        </tr>
+        <tr><th>Booth Design</th><td>{{ $floorplan->booth_design ?? 'N/A' }}</td></tr>
+        <tr>
+            <th>Booth Design Image</th>
+            <td>
+                @if(!empty($floorplan->booth_design_image))
+                    @php
+                        $designUrl = url('uploads/settings/'.$floorplan->booth_design_image);
+                        $designExt = strtolower(pathinfo($floorplan->booth_design_image, PATHINFO_EXTENSION));
+                        $imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+                        $videoTypes = ['mp4', 'mov', 'avi', 'webm', 'mkv'];
+                    @endphp
+                    <a href="{{ $designUrl }}" target="_blank" rel="noopener" style="display:inline-block; text-decoration:none; color:#333;">
+                        @if(in_array($designExt, $imageTypes))
+                            <img src="{{ $designUrl }}" alt="Booth Design" style="max-width:220px; max-height:140px; border-radius:8px; border:1px solid #ddd; background:#fff; padding:8px;">
+                        @elseif(in_array($designExt, $videoTypes))
+                            <video src="{{ $designUrl }}" controls style="max-width:220px; max-height:140px; border-radius:8px; border:1px solid #ddd; background:#000;"></video>
+                        @else
+                            <span style="display:inline-block; padding:12px 18px; border:1px solid #ddd; border-radius:8px; background:#fff; font-weight:700;">{{ strtoupper($designExt ?: 'FILE') }} File</span>
+                        @endif
+                    </a>
+                @else
+                    N/A
+                @endif
+            </td>
+        </tr>
+        <tr><th>Approval Status</th><td>{{ ucfirst($floorplan->status ?? 'pending') }}</td></tr>
+        <tr><th>Admin Message</th><td>{{ $floorplan->approval_message ?: 'N/A' }}</td></tr>
+        <tr><th>Approved By</th><td>{{ $floorplan->approved_by ?: 'N/A' }}</td></tr>
         <tr><th>Network Type</th><td>{{ $floorplan->networktype }}</td></tr>
         <tr><th>Created At</th><td>{{ $floorplan->created_at }}</td></tr>
         <tr><th>Updated At</th><td>{{ $floorplan->updated_at }}</td></tr>
@@ -154,3 +208,5 @@
 </div>
 
 @endsection
+
+

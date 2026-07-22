@@ -28,6 +28,7 @@ use App\Models\UserRegister;
 use App\Models\Exhibitors;
 use App\Models\Payment;
 use App\Models\Booking;
+use App\Models\ClientSpeaker;
 use Helper;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -109,7 +110,7 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
 
 public function BookingLeague(Request $request)
 {
-    // ✅ Validate request data
+    // ? Validate request data
     $validated = $request->validate([
         'name'    => 'required|string|max:255',
         'email'   => 'required|email|max:255',
@@ -120,7 +121,7 @@ public function BookingLeague(Request $request)
         'api_key' => 'required|string',
     ]);
 
-    // ✅ API Key check
+    // ? API Key check
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
         return response()->json([
             'code' => -1,
@@ -128,7 +129,7 @@ public function BookingLeague(Request $request)
         ], 401);
     }
 
-    // ✅ Save booking
+    // ? Save booking
     $booking = BookingLeague::create([
         'name'    => $validated['name'],
         'email'   => $validated['email'],
@@ -138,7 +139,7 @@ public function BookingLeague(Request $request)
         'role'    => $validated['role'],
     ]);
 
-    // ✅ Success response
+    // ? Success response
     return response()->json([
         'code' => 1,
         'msg'  => 'Registration successful',
@@ -2671,7 +2672,7 @@ public function blog()
 
 //     if ($request->api_key == Helper::GeneralWebmasterSettings("api_key")) {
 
-//         // ✅ Save user
+//         // ? Save user
 //         $user = new UserRegister();
 //         $user->full_name = $request->full_name;
 //         $user->email = $request->email;
@@ -2719,7 +2720,7 @@ public function downloadTicket(UserRegister $user)
 
 public function registerSubmit(Request $request)
 {
-    // ✅ Validation
+    // ? Validation
     $this->validate($request, [
         'api_key' => 'required',
         'full_name' => 'required',
@@ -2732,7 +2733,7 @@ public function registerSubmit(Request $request)
         'password_confirmation' => 'required|same:password'
     ]);
 
-    // 🔐 API KEY CHECK
+    // ?? API KEY CHECK
     if ($request->api_key != Helper::GeneralWebmasterSettings("api_key")) {
         return response()->json([
             'code' => '-1',
@@ -2740,7 +2741,7 @@ public function registerSubmit(Request $request)
         ], 500);
     }
 
-    // ✅ Save user
+    // ? Save user
     $user = new UserRegister();
     $user->full_name = $request->full_name;
     $user->email = $request->email;
@@ -2771,7 +2772,7 @@ try {
 }
 
 
-    // ✅ Send registration email via Brevo API
+    // ? Send registration email via Brevo API
     try {
         $mailService = new MailService();
 
@@ -2802,7 +2803,7 @@ try {
         \Log::error('Exception sending registration email: ' . $e->getMessage());
     }
 
-    // ✅ Response
+    // ? Response
     return response()->json([
         'code' => '1',
         'msg'  => 'Registration successful'
@@ -2812,17 +2813,17 @@ try {
 
  public function loginSubmit(Request $request)
     {
-        // ✅ Validation
+        // ? Validation
         $this->validate($request, [
             'api_key' => 'required',
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        // 🔐 API KEY CHECK (BODY)
+        // ?? API KEY CHECK (BODY)
         if ($request->api_key == Helper::GeneralWebmasterSettings("api_key")) {
 
-            // ✅ Check user
+            // ? Check user
             $user = UserRegister::where('email', $request->email)->first();
 
             if (!$user) {
@@ -2832,7 +2833,7 @@ try {
                 ], 404);
             }
 
-            // ✅ Password check
+            // ? Password check
             if (!Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'code' => '0',
@@ -2840,7 +2841,7 @@ try {
                 ], 401);
             }
 
-            // ✅ Login success
+            // ? Login success
             return response()->json([
                 'code' => '1',
                 'msg' => 'Login successful',
@@ -2853,7 +2854,10 @@ try {
                       'phone' => $user->phone,
                     'nationality'=>$user->nationality,
                     'special_requirements'=>$user->special_requirements,
-                    'sponsor_package'=>$user->sponsor_package
+                    'sponsor_package'=>$user->sponsor_package,
+                    'products_services'=>$user->products_services,
+                    'profile_photo'=>$user->profile_photo ?? null,
+                    'profile_photo_url'=>!empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null
                 ]
             ], 200);
 
@@ -2865,6 +2869,126 @@ try {
         }
     }
 
+
+public function updateClientProfile(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'user_id' => 'required',
+        'full_name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'company_name' => 'nullable|string|max:255',
+        'phone' => 'nullable|string|max:50',
+        'nationality' => 'nullable|string|max:255',
+        'user_type' => 'nullable|string|max:255',
+        'sponsor_package' => 'nullable|string|max:255',
+        'products_services' => 'nullable|string|max:1000',
+        'special_requirements' => 'nullable|string|max:5000',
+        'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $user = UserRegister::find($validated['user_id']);
+
+    if (!$user) {
+        return response()->json(['code' => -1, 'msg' => 'User not found'], 404);
+    }
+
+    $oldEmail = $user->email;
+
+    $emailExists = UserRegister::where('email', $validated['email'])
+        ->where('id', '!=', $user->id)
+        ->exists();
+
+    if ($emailExists) {
+        return response()->json(['code' => -1, 'msg' => 'Email already exists'], 422);
+    }
+
+    $user->full_name = $request->full_name;
+    $user->email = $request->email;
+    $user->company_name = $request->company_name;
+    $user->phone = $request->phone;
+    $user->nationality = $request->nationality;
+    $user->user_type = $request->user_type;
+    $user->sponsor_package = $request->sponsor_package;
+    $user->products_services = $request->products_services;
+    $user->special_requirements = $request->special_requirements;
+
+    if ($request->hasFile('profile_photo')) {
+        $file = $request->file('profile_photo');
+        $fileFinalName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
+        $path = 'uploads/settings/';
+        $file->move($path, $fileFinalName);
+
+        if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            Helper::imageResize($path . $fileFinalName);
+            Helper::imageOptimize($path . $fileFinalName);
+        }
+
+        $user->profile_photo = $fileFinalName;
+    }
+
+    $user->save();
+
+    if ($oldEmail !== $user->email) {
+        Floorplan::where('email', $oldEmail)->update(['email' => $user->email]);
+        ClientSpeaker::where('email', $oldEmail)->update(['email' => $user->email]);
+    }
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Profile updated successfully',
+        'data' => [
+            'id' => $user->id,
+            'full_name' => $user->full_name,
+            'email' => $user->email,
+            'user_type' => $user->user_type,
+            'company_name' => $user->company_name,
+            'phone' => $user->phone,
+            'nationality' => $user->nationality,
+            'special_requirements' => $user->special_requirements,
+            'sponsor_package' => $user->sponsor_package,
+            'products_services' => $user->products_services,
+            'profile_photo' => $user->profile_photo,
+            'profile_photo_url' => !empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
+        ],
+    ], 200);
+}
+
+public function updateClientPassword(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'user_id' => 'required',
+        'current_password' => 'required|string',
+        'password' => 'required|string|min:6|confirmed',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $user = UserRegister::find($validated['user_id']);
+
+    if (!$user) {
+        return response()->json(['code' => -1, 'msg' => 'User not found'], 404);
+    }
+
+    if (!Hash::check($request->current_password, $user->password)) {
+        return response()->json(['code' => -1, 'msg' => 'Current password is incorrect'], 422);
+    }
+
+    $user->password = Hash::make($request->password);
+    $user->save();
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Password updated successfully',
+    ], 200);
+}
 public function TicketPage(Request $request)
 {
     // Validate request
@@ -2945,7 +3069,7 @@ public function TicketPage(Request $request)
 
 public function TicketList(Request $request)
 {
-    // ✅ API key check
+    // ? API key check
     $apiKey = $request->query('api_key');
     $correctApiKey = Helper::GeneralWebmasterSettings("api_key");
 
@@ -2986,7 +3110,7 @@ public function TicketList(Request $request)
 
 public function BookingPageSubmit(Request $request)
 {
-    // ✅ Validate request data
+    // ? Validate request data
     $validated = $request->validate([
         'name'    => 'required|string|max:255',
         'email'   => 'required|email|max:255',
@@ -2996,7 +3120,7 @@ public function BookingPageSubmit(Request $request)
         'api_key' => 'required|string',
     ]);
 
-    // ✅ API Key check
+    // ? API Key check
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
         return response()->json([
             'code' => -1,
@@ -3004,7 +3128,7 @@ public function BookingPageSubmit(Request $request)
         ], 401);
     }
 
-    // ✅ Save booking
+    // ? Save booking
     $booking = Booking::create([
         'name'    => $validated['name'],
         'email'   => $validated['email'],
@@ -3013,7 +3137,7 @@ public function BookingPageSubmit(Request $request)
         'role'    => $validated['role'],
     ]);
 
-    // ✅ Success response
+    // ? Success response
     return response()->json([
         'code' => 1,
         'msg'  => 'Registration successful',
@@ -3026,7 +3150,7 @@ public function BookingPageSubmit(Request $request)
 
 public function exhibitorsSubmit(Request $request)
 {
-    // ✅ Validation (same style as subscribe)
+    // ? Validation (same style as subscribe)
     $this->validate($request, [
         'api_key' => 'required',
         'full_name' => 'required',
@@ -3039,10 +3163,10 @@ public function exhibitorsSubmit(Request $request)
         'password_confirmation' => 'required|same:password'
     ]);
 
-    // 🔐 API KEY CHECK (BODY la irundhu)
+    // ?? API KEY CHECK (BODY la irundhu)
     if ($request->api_key == Helper::GeneralWebmasterSettings("api_key")) {
 
-        // ✅ Save user
+        // ? Save user
         $user = new Exhibitors();
         $user->full_name = $request->full_name;
         $user->email = $request->email;
@@ -3056,14 +3180,14 @@ public function exhibitorsSubmit(Request $request)
         $user->products_services = $request->products_services;
         $user->save();
 
-        // ✅ Response
+        // ? Response
         return response()->json([
             'code' => '1',
             'msg' => 'Registration successful'
         ], 201);
 
     } else {
-        // ❌ API KEY FAILED
+        // ? API KEY FAILED
         return response()->json([
             'code' => '-1',
             'msg' => 'Authentication failed'
@@ -3073,7 +3197,7 @@ public function exhibitorsSubmit(Request $request)
 
 public function FloorplanSubmit(Request $request)
 {
-    // ✅ Validate request
+    // ? Validate request
     $validated = $request->validate([
         'name'         => 'required|string|max:255',
         'email'        => 'required|email|max:255',
@@ -3090,7 +3214,7 @@ public function FloorplanSubmit(Request $request)
         'api_key'      => 'required|string',
     ]);
 
-    // ✅ API key check
+    // ? API key check
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
         return response()->json([
             'code' => -1,
@@ -3098,12 +3222,12 @@ public function FloorplanSubmit(Request $request)
         ], 401);
     }
 
-    // ❌ remove api_key before DB save
+    // ? remove api_key before DB save
     unset($validated['api_key']);
 
     $filePath = null;
 
-    // ✅ File upload
+    // ? File upload
     if ($request->hasFile('file')) {
 
         $file = $request->file('file');
@@ -3112,18 +3236,18 @@ public function FloorplanSubmit(Request $request)
         $path = $this->uploadPath; // example: uploads/topics/
         $file->move($path, $fileFinalName);
 
-        // ✅ Resize only for images
+        // ? Resize only for images
         if (in_array($file->getClientOriginalExtension(), ['jpg','jpeg','png'])) {
             Helper::imageResize($path . $fileFinalName);
             Helper::imageOptimize($path . $fileFinalName);
         }
 
-        // ✅ Save filename into validated data
+        // ? Save filename into validated data
         $validated['file'] = $fileFinalName;
         $filePath = url($path . $fileFinalName);
     }
 
-    // ✅ Save to DB
+    // ? Save to DB
     $floorplan = Floorplan::create($validated);
 
     return response()->json([
@@ -3145,7 +3269,7 @@ public function floorplanList(Request $request)
 
     $query = DB::table('floorplans');
 
-    // 🔍 Search filters
+    // ?? Search filters
     if ($request->filled('email')) {
         $query->where('email', 'like', '%' . $request->email . '%');
     }
@@ -3154,17 +3278,24 @@ public function floorplanList(Request $request)
         $query->where('boothtitle', 'like', '%' . $request->boothtitle . '%');
     }
 
-    // 📄 Pagination
+    // ?? Pagination
     $floorplans = $query
         ->orderBy('created_at', 'DESC')
         ->paginate(10)
         ->appends($request->query());
-
-    // ✅ Add full image path
+    // Public floorplan must only reveal client company profile after admin approval.
     $floorplans->getCollection()->transform(function ($item) {
-        $item->company_logo = $item->company_logo
-            ? url('uploads/settings/' . $item->company_logo)
-            : null;
+        $isApproved = ($item->status ?? 'pending') === 'approved';
+        $logoFile = $item->company_logo ?? null;
+        $approvedLogo = $isApproved && $logoFile ? url('uploads/settings/' . $logoFile) : null;
+
+        $item->is_company_profile_approved = $isApproved;
+        $item->public_company_name = $isApproved ? ($item->company_profile_name ?: $item->company) : null;
+        $item->public_company_details = $isApproved ? ($item->company_details ?? null) : null;
+        $item->public_company_url = $isApproved ? ($item->company_url ?? null) : null;
+        $item->company_logo = $approvedLogo;
+        $item->company_url = $isApproved ? ($item->company_url ?? null) : null;
+
         return $item;
     });
 
@@ -3177,32 +3308,293 @@ public function floorplanList(Request $request)
     ], 200);
 }
 
+
+public function clientBoothList(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'required|email|max:255',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $booths = Floorplan::where('email', $validated['email'])
+        ->orderBy('created_at', 'DESC')
+        ->get()
+        ->map(function ($item) {
+            $item->payment_file_url = $item->file ? url('uploads/topics/' . $item->file) : null;
+            $item->company_logo_url = $item->company_logo ? url('uploads/settings/' . $item->company_logo) : null;
+            $item->booth_design_image_url = $item->booth_design_image ? url('uploads/settings/' . $item->booth_design_image) : null;
+            return $item;
+        });
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Client booths fetched successfully',
+        'details' => $booths,
+    ], 200);
+}
+
+public function updateBoothCompanyProfile(Request $request, $id)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'required|email|max:255',
+        'company_profile_name' => 'nullable|string|max:255',
+        'company' => 'nullable|string|max:255',
+        'company_url' => 'nullable|url|max:255',
+        'company_details' => 'nullable|string|max:5000',
+        'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp,svg|max:10048',
+        'booth_design' => 'nullable|string|max:255',
+        'booth_design_image' => 'nullable|file|mimes:jpg,jpeg,png,gif,svg,webp,pdf,mp4,mov,avi,webm,mkv|max:10240',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $floorplan = Floorplan::where('id', $id)->where('email', $validated['email'])->first();
+
+    if (!$floorplan) {
+        return response()->json(['code' => -1, 'msg' => 'Booth booking not found'], 404);
+    }
+
+    $floorplan->company_profile_name = $request->company_profile_name;
+    $floorplan->company = $request->company;
+    $floorplan->company_url = $request->company_url;
+    $floorplan->company_details = $request->company_details;
+    $floorplan->booth_design = $request->booth_design;
+    $floorplan->status = 'pending';
+    $floorplan->approval_message = null;
+
+    if ($request->hasFile('company_logo')) {
+        $file = $request->file('company_logo');
+        $fileFinalName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
+        $path = 'uploads/settings/';
+        $file->move($path, $fileFinalName);
+
+        if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            Helper::imageResize($path . $fileFinalName);
+            Helper::imageOptimize($path . $fileFinalName);
+        }
+
+        $floorplan->company_logo = $fileFinalName;
+    }
+
+
+    if ($request->hasFile('booth_design_image')) {
+        $file = $request->file('booth_design_image');
+        $fileFinalName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
+        $path = 'uploads/settings/';
+        $file->move($path, $fileFinalName);
+
+        if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            Helper::imageResize($path . $fileFinalName);
+            Helper::imageOptimize($path . $fileFinalName);
+        }
+
+        $floorplan->booth_design_image = $fileFinalName;
+    }
+    $floorplan->save();
+    $floorplan->company_logo_url = $floorplan->company_logo ? url('uploads/settings/' . $floorplan->company_logo) : null;
+    $floorplan->booth_design_image_url = $floorplan->booth_design_image ? url('uploads/settings/' . $floorplan->booth_design_image) : null;
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Booth company profile submitted for admin review',
+        'data' => $floorplan,
+    ], 200);
+}
+
+public function clientSpeakerList(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'required|email|max:255',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $speakers = ClientSpeaker::where('email', $validated['email'])
+        ->orderBy('created_at', 'DESC')
+        ->get()
+        ->map(function ($speaker) {
+            $speaker->photo_url = $speaker->photo ? url('uploads/topics/' . $speaker->photo) : null;
+            return $speaker;
+        });
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Client speakers fetched successfully',
+        'details' => $speakers,
+    ], 200);
+}
+
+public function clientSpeakerSubmit(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'user_id' => 'nullable|integer',
+        'email' => 'required|email|max:255',
+        'name' => 'required|string|max:255',
+        'designation' => 'nullable|string|max:255',
+        'company' => 'nullable|string|max:255',
+        'bio' => 'nullable|string|max:3000',
+        'website' => 'nullable|url|max:255',
+        'linkedin' => 'nullable|url|max:255',
+        'instagram' => 'nullable|url|max:255',
+        'photo' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:10048',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $photoName = null;
+
+    if ($request->hasFile('photo')) {
+        $file = $request->file('photo');
+        $photoName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
+        $path = $this->uploadPath;
+        $file->move($path, $photoName);
+        Helper::imageResize($path . $photoName);
+        Helper::imageOptimize($path . $photoName);
+    }
+
+    $speaker = ClientSpeaker::create([
+        'user_id' => $request->user_id,
+        'email' => $request->email,
+        'name' => $request->name,
+        'designation' => $request->designation,
+        'company' => $request->company,
+        'bio' => $request->bio,
+        'website' => $request->website,
+        'linkedin' => $request->linkedin,
+        'instagram' => $request->instagram,
+        'photo' => $photoName,
+        'status' => 'pending',
+    ]);
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Speaker profile submitted for admin approval',
+        'data' => ['speaker_id' => $speaker->id, 'status' => $speaker->status],
+    ], 201);
+}
+
+public function updateClientSpeaker(Request $request, $id)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'user_id' => 'nullable|integer',
+        'email' => 'required|email|max:255',
+        'name' => 'required|string|max:255',
+        'designation' => 'nullable|string|max:255',
+        'company' => 'nullable|string|max:255',
+        'bio' => 'nullable|string|max:3000',
+        'website' => 'nullable|url|max:255',
+        'linkedin' => 'nullable|url|max:255',
+        'instagram' => 'nullable|url|max:255',
+        'photo' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:10048',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $speaker = ClientSpeaker::where('id', $id)->where('email', $validated['email'])->first();
+
+    if (!$speaker) {
+        return response()->json(['code' => -1, 'msg' => 'Speaker profile not found'], 404);
+    }
+
+    $photoName = $speaker->photo;
+
+    if ($request->hasFile('photo')) {
+        $file = $request->file('photo');
+        $photoName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
+        $path = $this->uploadPath;
+        $file->move($path, $photoName);
+        Helper::imageResize($path . $photoName);
+        Helper::imageOptimize($path . $photoName);
+    }
+
+    $speaker->update([
+        'user_id' => $request->user_id,
+        'name' => $request->name,
+        'designation' => $request->designation,
+        'company' => $request->company,
+        'bio' => $request->bio,
+        'website' => $request->website,
+        'linkedin' => $request->linkedin,
+        'instagram' => $request->instagram,
+        'photo' => $photoName,
+        'status' => 'pending',
+        'admin_message' => null,
+        'approved_by' => null,
+        'approved_at' => null,
+    ]);
+
+    $speaker->photo_url = $speaker->photo ? url('uploads/topics/' . $speaker->photo) : null;
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Speaker profile updated. Admin approval pending.',
+        'data' => $speaker,
+    ], 200);
+}
+
+public function deleteClientSpeaker(Request $request, $id)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'required|email|max:255',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $speaker = ClientSpeaker::where('id', $id)->where('email', $validated['email'])->first();
+
+    if (!$speaker) {
+        return response()->json(['code' => -1, 'msg' => 'Speaker profile not found'], 404);
+    }
+
+    $speaker->delete();
+
+    return response()->json(['code' => 1, 'msg' => 'Speaker profile deleted successfully'], 200);
+}
 public function Sponsors()
 {
     $lang = Helper::currentLanguage()->code;
 
-    // 1️⃣ Get the "Sponsors" section
+    // 1?? Get the "Sponsors" section
     $sportsSection = WebmasterSection::where('title_en', 'Sponsors')
         ->where('status', 1)
         ->firstOrFail();
 
-    // 2️⃣ Get Categories under Sponsors
+    // 2?? Get Categories under Sponsors
     $categories = Section::where('webmaster_id', $sportsSection->id)
         ->where('status', 1)
         ->orderBy('row_no')
         ->get();
 
-    // 3️⃣ Get Topics under Sponsors
+    // 3?? Get Topics under Sponsors
     $topics = Topic::where('webmaster_id', $sportsSection->id)
         ->where('status', 1)
         ->get();
 
-    // 4️⃣ Get Topic → Category mapping
+    // 4?? Get Topic ? Category mapping
     $topicCategories = TopicCategory::whereIn('topic_id', $topics->pluck('id'))
         ->get()
         ->groupBy('topic_id');
 
-    // 5️⃣ Build categories array with their topics
+    // 5?? Build categories array with their topics
     $categoriesWithTopics = [];
     $filter = []; // Optional: list of category names for filtering
 
@@ -3235,7 +3627,7 @@ public function Sponsors()
         $filter[] = strtoupper(trim($cat->title_en));
     }
 
-    // 6️⃣ Return JSON
+    // 6?? Return JSON
     return response()->json([
         'success' => true,
         'categories' => $categoriesWithTopics,
@@ -3248,32 +3640,32 @@ public function speakers()
 {
     $lang = Helper::currentLanguage()->code;
 
-    // 1️⃣ Get the "Speakers" section
+    // 1?? Get the "Speakers" section
     $speakersSection = WebmasterSection::where('title_en', 'speakers')
         ->where('status', 1)
         ->firstOrFail();
 
-    // 2️⃣ Get all fields defined for this section (field definitions)
+    // 2?? Get all fields defined for this section (field definitions)
     $sectionFields = DB::table('webmaster_section_fields')
         ->where('webmaster_id', $speakersSection->id)
         ->where('status', 1)
         ->orderBy('row_no')
         ->get();
 
-    // 3️⃣ Get all topics under this section
+    // 3?? Get all topics under this section
     $topics = Topic::where('webmaster_id', $speakersSection->id)
         ->where('status', 1)
         ->get();
 
     $topicIds = $topics->pluck('id');
 
-    // 4️⃣ Get all topic field values for these topics
+    // 4?? Get all topic field values for these topics
     $topicFields = DB::table('topic_fields')
         ->whereIn('topic_id', $topicIds)
         ->get()
         ->groupBy('topic_id');
 
-    // 5️⃣ Build topics list with all extra fields
+    // 5?? Build topics list with all extra fields
     $topicsList = $topics->map(function($topic) use ($topicFields, $sectionFields) {
         $fields = [];
 
@@ -3302,8 +3694,46 @@ public function speakers()
             'fields' => $fields, // all extra fields included here
         ];
     });
+    $approvedClientSpeakers = ClientSpeaker::where('status', 'approved')
+        ->orderBy('approved_at', 'DESC')
+        ->orderBy('updated_at', 'DESC')
+        ->get();
 
-    // 6️⃣ Return JSON
+    foreach ($approvedClientSpeakers as $clientSpeaker) {
+        $topicsList->push([
+            'id' => 'client-' . $clientSpeaker->id,
+            'title' => $clientSpeaker->name,
+            'description' => $clientSpeaker->designation ?? '',
+            'image' => $clientSpeaker->photo ? url('uploads/topics/' . $clientSpeaker->photo) : null,
+            'fields' => [
+                [
+                    'field_id' => null,
+                    'field_title' => 'company',
+                    'value' => $clientSpeaker->company ?? '',
+                    'type' => 'text',
+                ],
+                [
+                    'field_id' => null,
+                    'field_title' => 'website',
+                    'value' => $clientSpeaker->website ?? '',
+                    'type' => 'url',
+                ],
+                [
+                    'field_id' => null,
+                    'field_title' => 'linkedin',
+                    'value' => $clientSpeaker->linkedin ?? '',
+                    'type' => 'url',
+                ],
+                [
+                    'field_id' => null,
+                    'field_title' => 'instagram',
+                    'value' => $clientSpeaker->instagram ?? '',
+                    'type' => 'url',
+                ],
+            ],
+        ]);
+    }
+    // Return JSON
     return response()->json([
         'success' => true,
         'section_fields' => $sectionFields, // optional: all field definitions
@@ -3421,32 +3851,32 @@ public function influencers()
 {
     $lang = Helper::currentLanguage()->code;
 
-    // 1️⃣ Get influencers section
+    // 1?? Get influencers section
     $influencersSection = WebmasterSection::where('title_en', 'influencers')
         ->where('status', 1)
         ->firstOrFail();
 
-    // 2️⃣ Get section fields
+    // 2?? Get section fields
     $sectionFields = DB::table('webmaster_section_fields')
         ->where('webmaster_id', $influencersSection->id)
         ->where('status', 1)
         ->orderBy('row_no')
         ->get();
 
-    // 3️⃣ Get topics
+    // 3?? Get topics
     $topics = Topic::where('webmaster_id', $influencersSection->id)
         ->where('status', 1)
         ->get();
 
     $topicIds = $topics->pluck('id');
 
-    // 4️⃣ Get topic fields
+    // 4?? Get topic fields
     $topicFields = DB::table('topic_fields')
         ->whereIn('topic_id', $topicIds)
         ->get()
         ->groupBy('topic_id');
 
-    // 5️⃣ Get topic tags
+    // 5?? Get topic tags
     $topicTags = DB::table('topic_tags')
         ->join('tags', 'topic_tags.tag_id', '=', 'tags.id')
         ->whereIn('topic_tags.topic_id', $topicIds)
@@ -3460,7 +3890,7 @@ public function influencers()
         ->get()
         ->groupBy('topic_id');
 
-    // 6️⃣ Build response
+    // 6?? Build response
     $topicsList = $topics->map(function ($topic) use ($topicFields, $sectionFields, $topicTags) {
 
         $fields = [];
@@ -3512,7 +3942,7 @@ public function influencers()
         ];
     });
 
-    // 7️⃣ Return JSON
+    // 7?? Return JSON
     return response()->json([
         'success' => true,
         'section_fields' => $sectionFields,
@@ -3523,3 +3953,7 @@ public function influencers()
 
 
 }
+
+
+
+

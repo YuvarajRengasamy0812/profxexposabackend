@@ -18,6 +18,7 @@ use App\Http\Controllers\Dashboard\WebmailsController;
 use App\Http\Controllers\Dashboard\EventsController;
 use App\Http\Controllers\Dashboard\AnalyticsController;
 use App\Http\Controllers\Dashboard\FloorplanController;
+use App\Http\Controllers\Dashboard\ClientSpeakerController;
 use App\Http\Controllers\Dashboard\MenusController;
 use App\Http\Controllers\Dashboard\FileManagerController;
 use App\Http\Controllers\Dashboard\TagController;
@@ -98,7 +99,14 @@ Route::get('/floorplanList', [FloorplanController::class, 'floorplanList'])->nam
 Route::get('/floorplansView/{id}', [FloorplanController::class, 'floorplansView'])->name('floorplansView');
 Route::post('/floorplans/{id}/approve', [FloorplanController::class, 'approve'])
     ->name('floorplans.approve');
+Route::post('/floorplans/{id}/update', [FloorplanController::class, 'update'])->name('floorplans.update');
+Route::delete('/floorplans/{id}', [FloorplanController::class, 'destroy'])->name('floorplans.destroy');
 
+
+// Client speaker requests
+Route::get('/client-speakers', [ClientSpeakerController::class, 'index'])->name('clientSpeakers');
+Route::get('/client-speakers/{id}', [ClientSpeakerController::class, 'view'])->name('clientSpeakersView');
+Route::post('/client-speakers/{id}/approve', [ClientSpeakerController::class, 'approve'])->name('clientSpeakersApprove');
 // profxusers
 Route::get('/profxusers', [FloorplanController::class, 'profxusers'])->name('profxusers');
 Route::get('/profxusersView/{id}', [FloorplanController::class, 'profxusersView'])->name('profxusersView');
@@ -347,3 +355,5 @@ Route::get('/email-templates', [EmailTemplateController::class, 'index'])->name(
 Route::post('/email-templates/store', [EmailTemplateController::class, 'store'])->name('email-templates.store');
 Route::get('/email-templates/{id}', [EmailTemplateController::class, 'show'])->whereNumber('id')->name('email-templates.show');
 Route::delete('/delete-template/{id}', [EmailTemplateController::class, 'destroy'])->name('email-templates.destroy');
+
+

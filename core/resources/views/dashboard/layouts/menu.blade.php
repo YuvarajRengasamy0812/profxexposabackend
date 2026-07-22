@@ -272,6 +272,11 @@ $GeneralWebmasterSections = $GeneralWebmasterSections ?? collect();
 							<span class="nav-text">FloorPlan </span>
 						</a>
 					</li>
+                    <li class="{{ request()->routeIs('clientSpeakers') || request()->routeIs('clientSpeakersView') ? 'active' : '' }}">
+                        <a href="{{ route('clientSpeakers') }}" ><span class="nav-icon"><i class="material-icons">&#xe7fd;</i></span>
+                            <span class="nav-text">Client Speakers </span>
+                        </a>
+                    </li>
 					                    <li class="{{ request()->routeIs('leagueusers') || request()->routeIs('leagueusers') ? 'active' : '' }}">
 						<a href="{{ route('leagueusers') }}" ><span class="nav-icon"><i class="material-icons">&#xe7fb;</i></span>
 							<span class="nav-text">League Users </span>

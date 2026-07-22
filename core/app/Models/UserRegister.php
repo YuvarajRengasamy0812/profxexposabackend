@@ -18,6 +18,7 @@ class UserRegister extends Model
         'special_requirements',
         'sponsor_package',
         'products_services',
+        'profile_photo',
     ];
 
     protected $hidden = ['password'];
