@@ -28,38 +28,8 @@
                 </tr>
 
                 <tr>
-                    <td style="padding:12px 28px 22px;">
+                    <td style="padding:12px 28px 26px;">
                         <img src="{{ $heroImage }}" alt="PROFX League Registration {{ $booking->name ?? '' }}" width="624" style="display:block; width:100%; max-width:624px; height:auto; border-radius:14px; border:1px solid #e5e7eb;">
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style="padding:0 28px 24px;">
-                        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px;">
-                            <tr>
-                                <td style="padding:20px;">
-                                    <h3 style="margin:0 0 14px; color:#082f49; font-size:18px;">Registration Details</h3>
-                                    <table width="100%" cellpadding="0" cellspacing="0">
-                                        <tr>
-                                            <td style="padding:8px 0; color:#64748b; font-size:14px; width:130px;">League ID</td>
-                                            <td style="padding:8px 0; color:#0b2d24; font-size:14px; font-weight:bold;">PFXL-{{ str_pad((string) ($booking->id ?? 0), 5, '0', STR_PAD_LEFT) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding:8px 0; color:#64748b; font-size:14px;">Name</td>
-                                            <td style="padding:8px 0; color:#0b2d24; font-size:14px; font-weight:bold;">{{ $booking->name ?? '' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding:8px 0; color:#64748b; font-size:14px;">Role</td>
-                                            <td style="padding:8px 0; color:#0b2d24; font-size:14px; font-weight:bold;">{{ $booking->role ?? '' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding:8px 0; color:#64748b; font-size:14px;">Company</td>
-                                            <td style="padding:8px 0; color:#0b2d24; font-size:14px; font-weight:bold;">{{ $booking->company ?? '' }}</td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
                     </td>
                 </tr>
 

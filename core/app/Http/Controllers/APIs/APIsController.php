@@ -80,18 +80,16 @@ class APIsController extends Controller
             return null;
         }
 
-        $white = imagecolorallocate($image, 255, 255, 255);
-        $gold = imagecolorallocate($image, 232, 201, 107);
         $dark = imagecolorallocate($image, 10, 46, 36);
 
         $name = strtoupper((string) $booking->name);
-        $leagueId = 'LEAGUE ID: PFXL-' . str_pad((string) $booking->id, 5, '0', STR_PAD_LEFT);
-        $role = 'ROLE: ' . strtoupper((string) $booking->role);
+        $leagueId = 'PFXL-' . str_pad((string) $booking->id, 5, '0', STR_PAD_LEFT);
+        $role = strtoupper((string) $booking->role);
 
-        $this->drawCenteredText($image, $name, $boldFont, 64, 870, $white);
-        $this->drawCenteredText($image, $leagueId, $boldFont, 42, 970, $gold);
-        $this->drawCenteredText($image, $role, $regularFont, 38, 1045, $white);
-        $this->drawCenteredText($image, 'PROFX LEAGUE REGISTRATION CONFIRMED', $boldFont, 34, 1160, $dark);
+        // Place values on the blank lines in the right-side league pass.
+        $this->drawFittedText($image, $name, $boldFont, 30, 1845, 424, $dark, 360);
+        $this->drawFittedText($image, $leagueId, $boldFont, 28, 1845, 552, $dark, 360);
+        $this->drawFittedText($image, $role, $boldFont, 28, 1845, 680, $dark, 360);
 
         $fileName = 'league-user-' . $booking->id . '-' . time() . '.png';
         $targetDir = base_path('../uploads/topics');
@@ -107,22 +105,24 @@ class APIsController extends Controller
         return url('uploads/topics/' . $fileName);
     }
 
-    private function drawCenteredText($image, string $text, string $font, int $size, int $y, int $color): void
+    private function drawFittedText($image, string $text, string $font, int $size, int $x, int $y, int $color, int $maxWidth): void
     {
-        $width = imagesx($image);
         $text = trim($text);
 
         if ($text === '') {
             return;
         }
 
-        if (strlen($text) > 32) {
-            $size = max(30, $size - 12);
-        }
+        while ($size > 16) {
+            $box = imagettfbbox($size, 0, $font, $text);
+            $textWidth = abs($box[2] - $box[0]);
 
-        $box = imagettfbbox($size, 0, $font, $text);
-        $textWidth = abs($box[2] - $box[0]);
-        $x = (int) (($width - $textWidth) / 2);
+            if ($textWidth <= $maxWidth) {
+                break;
+            }
+
+            $size -= 2;
+        }
 
         imagettftext($image, $size, 0, $x, $y, $color, $font, $text);
     }
