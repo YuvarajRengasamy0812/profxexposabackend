@@ -2686,6 +2686,7 @@ public function blog()
 //         $user->products_services = $request->products_services;
 //         $user->save();
 
+
 //         return response()->json([
 //             'code' => '1',
 //             'msg' => 'Registration successful'
@@ -2788,7 +2789,7 @@ try {
 
         $result = $mailService->sendEmail(
             $user->email,
-            'Registration Successful - PROFX Expo Africa',
+            'Ticket - PROFX Expo Africa',
             'emails.registration', // Blade template
             $mailData
         );
@@ -2801,6 +2802,36 @@ try {
 
     } catch (\Exception $e) {
         \Log::error('Exception sending registration email: ' . $e->getMessage());
+    }
+
+    // Send register completed email via Brevo API
+    try {
+        $completedMailService = new MailService();
+
+        $completedMailData = [
+            'title' => 'Register Completed - PROFX Expo Africa',
+            'user' => $user,
+            'logo' => 'https://profxexpo.com/africa/adminpanel/uploads/settings/17791964093936.png',
+            'heroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/1.png',
+            'loginUrl' => 'https://profxsummit.com/login',
+            'loginEmail' => $user->email,
+            'loginPassword' => $request->password,
+        ];
+
+        $completedResult = $completedMailService->sendEmail(
+            $user->email,
+            'Register Completed - PROFX Expo Africa',
+            'emails.register-completed',
+            $completedMailData
+        );
+
+        \Log::info('Brevo Register Completed Mail Response', $completedResult);
+
+        if (isset($completedResult['error'])) {
+            \Log::error('Failed to send register completed email: ' . $completedResult['message']);
+        }
+    } catch (\Exception $e) {
+        \Log::error('Exception sending register completed email: ' . $e->getMessage());
     }
 
     // ? Response
@@ -3953,6 +3984,7 @@ public function influencers()
 
 
 }
+
 
 
 

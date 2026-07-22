@@ -392,7 +392,7 @@ public function approve(Request $request, $id)
             try {
                 $result = $this->mailService->sendEmail(
                     $user->email,
-                    'Registration Successful - PROFX Expo Africa',
+                    'Ticket - PROFX Expo Africa',
                     'emails.registration',
                     $mailData
                 );
