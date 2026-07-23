@@ -50,9 +50,13 @@ class APIsController extends Controller
     private function createReferralLink(string $referralCode, ?string $frontendUrl = null): string
     {
         $baseUrl = $frontendUrl ?: 'https://profxexpo.com/africa/LeagueEnroll';
-        $separator = str_contains($baseUrl, '?') ? '&' : '?';
+        $separator = strpos($baseUrl, '?') !== false ? '&' : '?';
 
         return $baseUrl . $separator . 'ref=' . urlencode($referralCode);
+    }
+    private function createLeagueReferralCode(BookingLeague $booking): string
+    {
+        return 'PFXL' . str_pad((string) $booking->id, 6, '0', STR_PAD_LEFT);
     }
     private function generateLeagueUserHeroImage(BookingLeague $booking): ?string
     {
@@ -80,16 +84,17 @@ class APIsController extends Controller
             return null;
         }
 
-        $dark = imagecolorallocate($image, 10, 46, 36);
+        $black = imagecolorallocate($image, 0, 0, 0);
 
         $name = strtoupper((string) $booking->name);
         $leagueId = 'PFXL-' . str_pad((string) $booking->id, 5, '0', STR_PAD_LEFT);
         $role = strtoupper((string) $booking->role);
 
-        // Place values on the blank lines in the right-side league pass.
-        $this->drawFittedText($image, $name, $boldFont, 30, 1845, 424, $dark, 360);
-        $this->drawFittedText($image, $leagueId, $boldFont, 28, 1845, 552, $dark, 360);
-        $this->drawFittedText($image, $role, $boldFont, 28, 1845, 680, $dark, 360);
+        // Values are placed on the blank lines in the right-side league pass.
+        // Font is intentionally large because the 2304px artwork is scaled down in email clients.
+        $this->drawFittedText($image, $name, $boldFont, 21, 1870, 332, $black, 300);
+        $this->drawFittedText($image, $leagueId, $boldFont, 21, 1870, 462, $black, 300);
+        $this->drawFittedText($image, $role, $boldFont, 21, 1870, 590, $black, 300);
 
         $fileName = 'league-user-' . $booking->id . '-' . time() . '.png';
         $targetDir = base_path('../uploads/topics');
@@ -195,52 +200,72 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
 
 public function BookingLeague(Request $request)
 {
-    // ? Validate request data
     $validated = $request->validate([
-        'name'    => 'required|string|max:255',
-        'email'   => 'required|email|max:255',
-        'phone'   => 'required|string|max:20',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'phone' => 'required|string|max:20',
         'country' => 'required|string',
-        'company'    => 'required|string|max:100',
-        'role'    => 'required|string|max:100',
-        'referral_code' => 'nullable|string|max:50',
+        'company' => 'required|string|max:100',
+        'role' => 'required|string|max:100',
+        'referral_code' => 'nullable|string|max:500',
+        'ref' => 'nullable|string|max:500',
+        'frontend_url' => 'nullable|url|max:500',
         'api_key' => 'required|string',
     ]);
 
-    // ? API Key check
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
         return response()->json([
             'code' => -1,
-            'msg'  => 'Authentication failed'
+            'msg' => 'Authentication failed',
         ], 401);
     }
 
-    $referralCode = strtoupper(trim($request->input('referral_code', '')));
+    $rawReferralCode = trim((string) ($request->input('referral_code') ?: $request->input('ref', '')));
+
+    if (filter_var($rawReferralCode, FILTER_VALIDATE_URL)) {
+        $query = parse_url($rawReferralCode, PHP_URL_QUERY);
+        parse_str((string) $query, $params);
+        $rawReferralCode = $params['ref'] ?? $params['referral_code'] ?? $rawReferralCode;
+    }
+
+    $referralCode = strtoupper(trim($rawReferralCode));
     $referrer = null;
+    $leagueReferrer = null;
 
     if ($referralCode !== '') {
         $referrer = UserRegister::where('referral_code', $referralCode)->first();
 
         if (!$referrer) {
+            $leagueReferrer = BookingLeague::where('own_referral_code', $referralCode)->first();
+        }
+
+        if (!$referrer && !$leagueReferrer) {
             return response()->json([
                 'code' => -1,
-                'msg'  => 'Invalid referral code'
+                'msg' => 'Invalid referral code',
             ], 422);
         }
     }
 
-    // ? Save booking
     $booking = BookingLeague::create([
-        'name'    => $validated['name'],
-        'email'   => $validated['email'],
-        'phone'   => $validated['phone'],
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'phone' => $validated['phone'],
         'country' => $validated['country'],
         'company' => $validated['company'],
-        'role'    => $validated['role'],
+        'role' => $validated['role'],
         'referral_code' => $referralCode ?: null,
         'referred_by_user_id' => $referrer?->id,
-        'referrer_name' => $referrer?->full_name,
+        'referred_by_league_id' => $leagueReferrer?->id,
+        'referrer_name' => $referrer?->full_name ?? $leagueReferrer?->name,
     ]);
+
+    $booking->own_referral_code = 'PFXL' . str_pad((string) $booking->id, 6, '0', STR_PAD_LEFT);
+
+    $baseReferralUrl = $request->frontend_url ?: 'https://profxexpo.com/africa/LeagueEnroll';
+    $separator = strpos($baseReferralUrl, '?') !== false ? '&' : '?';
+    $booking->own_referral_link = $baseReferralUrl . $separator . 'ref=' . urlencode($booking->own_referral_code);
+    $booking->save();
 
     try {
         $heroImage = $this->generateLeagueUserHeroImage($booking);
@@ -263,16 +288,16 @@ public function BookingLeague(Request $request)
         ]);
     }
 
-    // ? Success response
     return response()->json([
         'code' => 1,
-        'msg'  => 'Registration successful',
+        'msg' => 'Registration successful',
         'data' => [
-            'booking_id' => $booking->id
-        ]
+            'booking_id' => $booking->id,
+            'referral_code' => $booking->own_referral_code,
+            'referral_link' => $booking->own_referral_link,
+        ],
     ], 201);
 }
-
     public function website_status()
     {
         // Get Site Settings
@@ -3818,46 +3843,41 @@ public function speakers()
 {
     $lang = Helper::currentLanguage()->code;
 
-    // 1?? Get the "Speakers" section
     $speakersSection = WebmasterSection::where('title_en', 'speakers')
         ->where('status', 1)
         ->firstOrFail();
 
-    // 2?? Get all fields defined for this section (field definitions)
     $sectionFields = DB::table('webmaster_section_fields')
         ->where('webmaster_id', $speakersSection->id)
         ->where('status', 1)
         ->orderBy('row_no')
         ->get();
 
-    // 3?? Get all topics under this section
     $topics = Topic::where('webmaster_id', $speakersSection->id)
         ->where('status', 1)
+        ->orderByRaw('CASE WHEN row_no IS NULL OR row_no = 0 THEN 999999 ELSE row_no END ASC')
+        ->orderBy('id', 'ASC')
         ->get();
 
     $topicIds = $topics->pluck('id');
 
-    // 4?? Get all topic field values for these topics
     $topicFields = DB::table('topic_fields')
         ->whereIn('topic_id', $topicIds)
         ->get()
         ->groupBy('topic_id');
 
-    // 5?? Build topics list with all extra fields
-    $topicsList = $topics->map(function($topic) use ($topicFields, $sectionFields) {
+    $topicsList = $topics->map(function ($topic) use ($topicFields, $sectionFields) {
         $fields = [];
 
-        // Check if this topic has fields
         if (isset($topicFields[$topic->id])) {
             foreach ($topicFields[$topic->id] as $tf) {
-                // Get field definition (title/type)
                 $fieldDef = $sectionFields->firstWhere('id', $tf->field_id);
 
                 $fields[] = [
                     'field_id' => $tf->field_id,
-                    'field_title' => $fieldDef->title_en ?? '', // show label
-                    'value' => $tf->field_value, // the actual stored value
-                    'type' => $fieldDef->type ?? 'text', // field type
+                    'field_title' => $fieldDef->title_en ?? '',
+                    'value' => $tf->field_value,
+                    'type' => $fieldDef->type ?? 'text',
                 ];
             }
         }
@@ -3866,13 +3886,15 @@ public function speakers()
             'id' => $topic->id,
             'title' => $topic->title_en,
             'description' => $topic->details_en ?? '',
-            'image' => $topic->photo_file 
-                ? url('uploads/topics/' . $topic->photo_file) 
-                : null,
-            'fields' => $fields, // all extra fields included here
+            'image' => $topic->photo_file ? url('uploads/topics/' . $topic->photo_file) : null,
+            'fields' => $fields,
+            'speaker_order' => ($topic->row_no && $topic->row_no > 0) ? (int) $topic->row_no : 999999,
+            'speaker_source' => 'admin',
         ];
     });
+
     $approvedClientSpeakers = ClientSpeaker::where('status', 'approved')
+        ->orderByRaw('CASE WHEN display_order IS NULL OR display_order = 0 THEN 999999 ELSE display_order END ASC')
         ->orderBy('approved_at', 'DESC')
         ->orderBy('updated_at', 'DESC')
         ->get();
@@ -3883,6 +3905,8 @@ public function speakers()
             'title' => $clientSpeaker->name,
             'description' => $clientSpeaker->designation ?? '',
             'image' => $clientSpeaker->photo ? url('uploads/topics/' . $clientSpeaker->photo) : null,
+            'speaker_order' => ($clientSpeaker->display_order && $clientSpeaker->display_order > 0) ? (int) $clientSpeaker->display_order : 999999,
+            'speaker_source' => 'client',
             'fields' => [
                 [
                     'field_id' => null,
@@ -3911,18 +3935,21 @@ public function speakers()
             ],
         ]);
     }
-    // Return JSON
+
+    $topicsList = $topicsList->sortBy([
+        ['speaker_order', 'asc'],
+        ['id', 'asc'],
+    ])->values();
+
     return response()->json([
         'success' => true,
-        'section_fields' => $sectionFields, // optional: all field definitions
-        'topics' => $topicsList,            // topics with extra labels
+        'section_fields' => $sectionFields,
+        'topics' => $topicsList,
         'count' => $topicsList->count(),
     ]);
 }
 
-
-
-     public function influencer()
+public function influencer()
 {
     $lang = Helper::currentLanguage()->code;
 
@@ -4131,6 +4158,17 @@ public function influencers()
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

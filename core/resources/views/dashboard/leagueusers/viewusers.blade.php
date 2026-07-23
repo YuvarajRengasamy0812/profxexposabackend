@@ -109,17 +109,60 @@
         <tr><th>Name</th><td>{{ $leagueusers->name }}</td></tr>
         <tr><th>Email</th><td>{{ $leagueusers->email }}</td></tr>
         <tr><th>Phone</th><td>{{ $leagueusers->phone }}</td></tr>
+        <tr><th>Country</th><td>{{ $leagueusers->country ?? "-" }}</td></tr>
+        <tr><th>Role</th><td>{{ $leagueusers->role ?? "-" }}</td></tr>
         <tr><th>Company</th><td>{{ $leagueusers->company }}</td></tr>
         <tr><th>Referral User</th><td>{{ $leagueusers->referral_user_name ?? $leagueusers->referrer_name ?? "-" }}</td></tr>
-        <tr><th>Referral Code</th><td>{{ $leagueusers->referral_code ?? "-" }}</td></tr>
+        <tr><th>Used Referral Code</th><td>{{ $leagueusers->referral_code ?? "-" }}</td></tr>
+        <tr><th>Own Referral Code</th><td>{{ $leagueusers->own_referral_code ?? "-" }}</td></tr>
+        <tr><th>Own Referral Link</th><td>
+            @if(!empty($leagueusers->own_referral_link))
+                <a href="{{ $leagueusers->own_referral_link }}" target="_blank" class="profx-view-file-link">{{ $leagueusers->own_referral_link }}</a>
+            @else
+                -
+            @endif
+        </td></tr>
 
      
         <tr><th>Created At</th><td>{{ $leagueusers->created_at }}</td></tr>
         <tr><th>Updated At</th><td>{{ $leagueusers->updated_at }}</td></tr>
     </table>
 
+
+    <h4 style="margin-top:30px;">Referral League Users</h4>
+    <table class="profx-view-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Country</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($referralLeagueUsers ?? [] as $referralLeagueUser)
+                <tr>
+                    <td>{{ $referralLeagueUser->id }}</td>
+                    <td>{{ $referralLeagueUser->name }}</td>
+                    <td>{{ $referralLeagueUser->email }}</td>
+                    <td>{{ $referralLeagueUser->phone }}</td>
+                    <td>{{ $referralLeagueUser->role ?? '-' }}</td>
+                    <td>{{ $referralLeagueUser->country ?? '-' }}</td>
+                    <td>{{ $referralLeagueUser->created_at }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" class="text-center">No referred league users found.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
     <a href="{{ route('leagueusers') }}" class="profx-view-back-btn">Back to List</a>
 </div>
 
 @endsection
+
 

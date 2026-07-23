@@ -22,6 +22,7 @@ class ClientSpeaker extends Model
         'linkedin',
         'instagram',
         'photo',
+        'display_order',
         'status',
         'admin_message',
         'approved_by',

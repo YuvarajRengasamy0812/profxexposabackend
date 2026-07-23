@@ -107,8 +107,10 @@ Route::delete('/floorplans/{id}', [FloorplanController::class, 'destroy'])->name
 Route::get('/client-speakers', [ClientSpeakerController::class, 'index'])->name('clientSpeakers');
 Route::get('/client-speakers/{id}', [ClientSpeakerController::class, 'view'])->name('clientSpeakersView');
 Route::post('/client-speakers/{id}/approve', [ClientSpeakerController::class, 'approve'])->name('clientSpeakersApprove');
+Route::post('/client-speakers/{id}/order', [ClientSpeakerController::class, 'updateOrder'])->name('clientSpeakersOrder');
 // profxusers
 Route::get('/profxusers', [FloorplanController::class, 'profxusers'])->name('profxusers');
+Route::post('/profxusers/referral-account', [FloorplanController::class, 'storeReferralAccount'])->name('profxusersReferralAccountStore');
 Route::post('/profxusers/send-registration-emails', [FloorplanController::class, 'sendRegistrationEmails'])->name('profxusersSendRegistrationEmails');
 Route::get('/profxusersView/{id}', [FloorplanController::class, 'profxusersView'])->name('profxusersView');
 
@@ -137,6 +139,7 @@ Route::post('/{webmasterId}/topics/store', [TopicsController::class, 'store'])->
 Route::get('/{webmasterId}/topics/{id}/edit', [TopicsController::class, 'edit'])->name('topicsEdit');
 Route::get('/{webmasterId}/topics/{id}/clone', [TopicsController::class, 'clone'])->name('topicsClone');
 Route::post('/{webmasterId}/topics/{id}/update', [TopicsController::class, 'update'])->name('topicsUpdate');
+Route::post('/{webmasterId}/topics/{id}/speaker-position', [TopicsController::class, 'updateSpeakerPosition'])->name('topicsSpeakerPosition');
 Route::get('/{webmasterId}/topics/destroy/{id?}', [TopicsController::class, 'destroy'])->name('topicsDestroy');
 Route::post('/{webmasterId}/topics/updateAll', [TopicsController::class, 'updateAll'])->name('topicsUpdateAll');
 Route::get('/{webmasterId}/print', [TopicsController::class, 'print'])->name('topicsPrint');
@@ -356,5 +359,7 @@ Route::get('/email-templates', [EmailTemplateController::class, 'index'])->name(
 Route::post('/email-templates/store', [EmailTemplateController::class, 'store'])->name('email-templates.store');
 Route::get('/email-templates/{id}', [EmailTemplateController::class, 'show'])->whereNumber('id')->name('email-templates.show');
 Route::delete('/delete-template/{id}', [EmailTemplateController::class, 'destroy'])->name('email-templates.destroy');
+
+
 
 

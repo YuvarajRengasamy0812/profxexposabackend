@@ -25,7 +25,8 @@ class ClientSpeakerController extends Controller
             $query->where('status', $request->status);
         }
 
-        $speakers = $query->orderBy('created_at', 'DESC')
+        $speakers = $query->orderByRaw('CASE WHEN display_order IS NULL OR display_order = 0 THEN 999999 ELSE display_order END ASC')
+            ->orderBy('created_at', 'DESC')
             ->paginate(10)
             ->appends($request->query());
 
@@ -55,15 +56,30 @@ class ClientSpeakerController extends Controller
         $request->validate([
             'status' => 'required|string|in:pending,approved,rejected',
             'admin_message' => 'nullable|string|max:1000',
+            'display_order' => 'nullable|integer|min:0|max:9999',
         ]);
 
         $speaker = ClientSpeaker::findOrFail($id);
         $speaker->status = $request->status;
         $speaker->admin_message = $request->admin_message;
+        $speaker->display_order = (int) $request->input('display_order', $speaker->display_order ?? 0);
         $speaker->approved_by = auth()->user()->name ?? 'Admin';
         $speaker->approved_at = $request->status === 'approved' ? now() : null;
         $speaker->save();
 
         return redirect()->back()->with('success', 'Speaker status updated successfully');
+    }
+
+    public function updateOrder(Request $request, $id)
+    {
+        $request->validate([
+            'display_order' => 'nullable|integer|min:0|max:9999',
+        ]);
+
+        $speaker = ClientSpeaker::findOrFail($id);
+        $speaker->display_order = (int) $request->input('display_order', 0);
+        $speaker->save();
+
+        return redirect()->back()->with('success', 'Speaker position updated successfully');
     }
 }

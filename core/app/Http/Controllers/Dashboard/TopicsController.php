@@ -424,6 +424,13 @@ class TopicsController extends Controller
                     $options .= '<a class="dropdown-item text-danger" onclick="DeleteTopic(\'' . $Topic->id . '\')"><i class="material-icons">&#xe872;</i> ' . __('backend.delete') . '</a>';
                 }
                 $options .= '</div></div>';
+                if (@$Topic->webmasterSection->title_en == 'speakers') {
+                    $options .= '<form method="POST" action="' . route("topicsSpeakerPosition", ["webmasterId" => @$Topic->webmasterSection->id, "id" => $Topic->id]) . '" style="display:flex;gap:6px;align-items:center;justify-content:center;margin-top:8px;">'
+                        . csrf_field()
+                        . '<input type="number" name="row_no" min="0" max="9999" value="' . (($Topic->row_no > 0) ? $Topic->row_no : '') . '" placeholder="Position" style="width:86px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;">'
+                        . '<button type="submit" class="btn btn-sm btn-primary" title="Save position"><i class="material-icons" style="font-size:16px;vertical-align:middle;">save</i></button>'
+                        . '</form>';
+                }
 
                 $nestedData['options'] = "<div class='text-center'>" . $options . "</div>";
 
@@ -1409,7 +1416,18 @@ class TopicsController extends Controller
             return json_encode(array("stat" => "error", "id" => $id));
         }
     }
+    public function updateSpeakerPosition(Request $request, $webmasterId, $id)
+    {
+        $request->validate([
+            'row_no' => 'nullable|integer|min:0|max:9999',
+        ]);
 
+        $Topic = Topic::where('webmaster_id', $webmasterId)->findOrFail($id);
+        $Topic->row_no = (int) $request->input('row_no', 0);
+        $Topic->save();
+
+        return redirect()->back()->with('doneMessage', 'Speaker position updated successfully');
+    }
     public function updateAll(Request $request, $webmasterId)
     {
         $WebmasterSection = WebmasterSection::find($webmasterId);
@@ -2765,3 +2783,6 @@ class TopicsController extends Controller
         return redirect()->back();
     }
 }
+
+
+

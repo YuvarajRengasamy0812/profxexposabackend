@@ -34,6 +34,26 @@
                 </tr>
 
                 <tr>
+                    <td style="padding:0 28px 22px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
+                            <tr>
+                                <td style="padding:18px 20px;">
+                                    <p style="margin:0 0 8px; color:#0b2d24; font-size:15px; line-height:1.5; font-weight:bold;">Your Referral Details</p>
+                                    <p style="margin:0 0 6px; color:#506174; font-size:14px; line-height:1.6;">
+                                        Referral Code: <strong style="color:#0b2d24;">{{ $booking->own_referral_code ?? '-' }}</strong>
+                                    </p>
+                                    @if(!empty($booking->own_referral_link))
+                                        <p style="margin:0; color:#506174; font-size:14px; line-height:1.6;">
+                                            Referral Link: <a href="{{ $booking->own_referral_link }}" style="color:#0f766e; font-weight:bold; text-decoration:none;">{{ $booking->own_referral_link }}</a>
+                                        </p>
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
                     <td style="padding:0 28px 30px;">
                         <p style="margin:0 0 10px; color:#506174; font-size:14px; line-height:1.7;">
                             We will share championship updates and next steps with you soon. Please keep this confirmation email for your records.

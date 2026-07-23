@@ -352,6 +352,57 @@ public function approve(Request $request, $id)
 
         return view('dashboard.profxusers.listusers', compact('GeneralWebmasterSections', 'profxusers', 'stats', 'userTypes'));
     }
+    public function storeReferralAccount(Request $request)
+    {
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users_registers,email',
+            'phone' => 'required|string|max:50',
+            'nationality' => 'required|string|max:100',
+            'user_type' => 'required|string|max:100',
+            'referral_code' => 'nullable|string|max:50|unique:users_registers,referral_code',
+            'password' => 'nullable|string|min:6|max:100',
+        ]);
+
+        $now = now();
+        $password = $request->filled('password') ? $request->password : 'profx' . random_int(100000, 999999);
+        $referralCode = strtoupper(trim((string) $request->input('referral_code', '')));
+
+        $userId = DB::table('users_registers')->insertGetId([
+            'full_name' => $request->full_name,
+            'email' => strtolower(trim($request->email)),
+            'company_name' => $request->input('company_name', $request->user_type),
+            'phone' => $request->phone,
+            'user_type' => $request->user_type,
+            'nationality' => $request->nationality,
+            'password' => Hash::make($password),
+            'special_requirements' => null,
+            'sponsor_package' => null,
+            'products_services' => null,
+            'referral_code' => null,
+            'referral_link' => null,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        if ($referralCode === '') {
+            $referralCode = $this->createReferralCodeForRegisteredUser($userId);
+        }
+
+        $referralLink = $this->createReferralLinkForCode($referralCode);
+
+        DB::table('users_registers')
+            ->where('id', $userId)
+            ->update([
+                'referral_code' => $referralCode,
+                'referral_link' => $referralLink,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()
+            ->route('profxusers')
+            ->with('profxSwalSuccess', 'Referral account created. Code: ' . $referralCode);
+    }
     public function sendRegistrationEmails(Request $request)
     {
         $selectedUserIds = $request->input('user_ids', []);
@@ -461,7 +512,8 @@ public function approve(Request $request, $id)
         $exporttitle = 'All';
         $query = DB::table('booking_leagues as bl')
             ->leftJoin('users_registers as ur', 'bl.referred_by_user_id', '=', 'ur.id')
-            ->select('bl.*', DB::raw('COALESCE(' . DB::getTablePrefix() . 'ur.full_name, ' . DB::getTablePrefix() . 'bl.referrer_name) as referral_user_name'));
+            ->leftJoin('booking_leagues as rbl', 'bl.referred_by_league_id', '=', 'rbl.id')
+            ->select('bl.*', DB::raw('COALESCE(' . DB::getTablePrefix() . 'ur.full_name, ' . DB::getTablePrefix() . 'rbl.name, ' . DB::getTablePrefix() . 'bl.referrer_name) as referral_user_name'));
 
         // 🔍 Search filters
         if ($request->filled('email')) {
@@ -495,19 +547,43 @@ public function approve(Request $request, $id)
             ->orderby('row_no', 'asc')
             ->get();
 
-        $exporttitle = 'All';
         $leagueusers = DB::table('booking_leagues as bl')
             ->leftJoin('users_registers as ur', 'bl.referred_by_user_id', '=', 'ur.id')
-            ->select('bl.*', DB::raw('COALESCE(' . DB::getTablePrefix() . 'ur.full_name, ' . DB::getTablePrefix() . 'bl.referrer_name) as referral_user_name'))
+            ->leftJoin('booking_leagues as rbl', 'bl.referred_by_league_id', '=', 'rbl.id')
+            ->select('bl.*', DB::raw('COALESCE(' . DB::getTablePrefix() . 'ur.full_name, ' . DB::getTablePrefix() . 'rbl.name, ' . DB::getTablePrefix() . 'bl.referrer_name) as referral_user_name'))
             ->where('bl.id', $id)
             ->first();
 
         abort_if(!$leagueusers, 404);
 
-        return view('dashboard.leagueusers.viewusers', compact('GeneralWebmasterSections', 'leagueusers'));
+        $referralLeagueUsers = DB::table('booking_leagues')
+            ->where(function ($query) use ($leagueusers) {
+                $query->where('referred_by_league_id', $leagueusers->id);
+
+                if (!empty($leagueusers->own_referral_code)) {
+                    $query->orWhere('referral_code', $leagueusers->own_referral_code);
+                }
+            })
+            ->where('id', '!=', $leagueusers->id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return view('dashboard.leagueusers.viewusers', compact('GeneralWebmasterSections', 'leagueusers', 'referralLeagueUsers'));
     }
 
+    private function createReferralCodeForRegisteredUser(int $userId): string
+    {
+        return 'PFX' . str_pad((string) $userId, 6, '0', STR_PAD_LEFT);
+    }
+
+    private function createReferralLinkForCode(string $referralCode): string
+    {
+        return 'https://profxexpo.com/africa/LeagueEnroll?ref=' . urlencode($referralCode);
+    }
 }
+
+
+
 
 
 

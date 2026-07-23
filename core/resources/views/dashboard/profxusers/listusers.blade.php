@@ -37,6 +37,50 @@
             font-weight: 600;
         }
 
+        .profx-page-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .profx-ref-code {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #fff7df;
+            color: #8a6815;
+            font-weight: 800;
+            font-size: 12px;
+        }
+
+        .profx-ref-link {
+            max-width: 240px;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+            color: #2563eb;
+        }
+
+        .profx-modal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .profx-modal-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        .profx-help-text {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
         .profx-search-form {
             display: grid;
             grid-template-columns: repeat(3, minmax(180px, 1fr)) auto auto;
@@ -246,7 +290,8 @@
                 padding: 16px;
             }
 
-            .profx-search-form {
+            .profx-search-form,
+            .profx-modal-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -261,6 +306,11 @@
             <div>
                 <h4 class="profx-page-title">PROFX Users</h4>
                 <div class="profx-page-count">Total User: {{ $stats->total }}</div>
+            </div>
+            <div class="profx-page-actions">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#referralAccountModal">
+                    <i class="bi bi-person-plus"></i> Add Referral Account
+                </button>
             </div>
         </div>
 
@@ -302,8 +352,10 @@
                         <th>ID</th>
                         <th>Action</th>
                         <th>Name</th>
-                        <th>User Type</th>
+                        <th>Role</th>
                         <th>Email</th>
+                        <th>Referral Code</th>
+                        <th>Referral Link</th>
                         <th>Company Name</th>
                         <th>Phone</th>
                         <th>Country</th>
@@ -321,6 +373,14 @@
                             <td>{{ $f->full_name }}</td>
                             <td>{{ $f->user_type }}</td>
                             <td>{{ $f->email }}</td>
+                            <td><span class="profx-ref-code">{{ $f->referral_code ?? '-' }}</span></td>
+                            <td>
+                                @if(!empty($f->referral_link))
+                                    <a href="{{ $f->referral_link }}" target="_blank" class="profx-ref-link" title="{{ $f->referral_link }}">{{ $f->referral_link }}</a>
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>{{ $f->company_name }}</td>
                             <td>{{ $f->phone }}</td>
                             <td>{{ $f->nationality }}</td>
@@ -328,7 +388,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center">No users found.</td>
+                            <td colspan="12" class="text-center">No users found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -339,7 +399,65 @@
             {{ $profxusers->withQueryString()->links('pagination::bootstrap-5') }}
         </div>
     </div>
-
+    <div class="modal fade" id="referralAccountModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('profxusersReferralAccountStore') }}">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create Community / Influencer Referral Account</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="profx-modal-grid">
+                            <div>
+                                <label>Name</label>
+                                <input type="text" name="full_name" class="form-control" required>
+                            </div>
+                            <div>
+                                <label>Email</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            <div>
+                                <label>Phone Number</label>
+                                <input type="text" name="phone" class="form-control" required>
+                            </div>
+                            <div>
+                                <label>Country</label>
+                                <input type="text" name="nationality" class="form-control" required>
+                            </div>
+                            <div>
+                                <label>Role</label>
+                                <select name="user_type" class="form-select" required>
+                                    <option value="Influencer">Influencer</option>
+                                    <option value="Community">Community</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Password</label>
+                                <input type="text" name="password" class="form-control" placeholder="Optional auto password">
+                                <div class="profx-help-text">Leave empty to auto-generate a password.</div>
+                            </div>
+                            <div class="full">
+                                <label>Referral Code</label>
+                                <div class="input-group">
+                                    <input type="text" name="referral_code" id="newReferralCode" class="form-control" placeholder="Auto generate if empty">
+                                    <button type="button" class="btn btn-light" id="generateReferralCodeBtn">Generate</button>
+                                </div>
+                                <div class="profx-help-text">Referral link will be created automatically from this code.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     @push('after-scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -348,6 +466,8 @@
                 const checkboxes = Array.from(document.querySelectorAll('.user-select-checkbox'));
                 const sendBtn = document.getElementById('sendRegistrationEmailBtn');
                 const countLabel = document.getElementById('selectedUsersCount');
+                const generateReferralCodeBtn = document.getElementById('generateReferralCodeBtn');
+                const newReferralCode = document.getElementById('newReferralCode');
 
                 function showToast(icon, title) {
                     Swal.fire({
@@ -383,6 +503,17 @@
                 checkboxes.forEach(function (checkbox) {
                     checkbox.addEventListener('change', refreshBulkState);
                 });
+
+                if (generateReferralCodeBtn && newReferralCode) {
+                    generateReferralCodeBtn.addEventListener('click', function () {
+                        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                        let code = 'PFX';
+                        for (let i = 0; i < 6; i++) {
+                            code += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                        newReferralCode.value = code;
+                    });
+                }
 
                 if (form) {
                     form.addEventListener('submit', function (event) {
@@ -434,3 +565,5 @@
     @endpush
 
 @endsection
+
+

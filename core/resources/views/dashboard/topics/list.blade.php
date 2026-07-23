@@ -113,7 +113,7 @@ if ($WebmasterSection->$title_var != "") {
                             <th class="{{ ($KEY == "col_title")?"":"text-center" }}"
                                 style="{{ ($KEY == "col_id"||$KEY == "col_status"||$KEY == "col_visits")?"width:80px;":"" }}">{{ @$COL['title'] }}</th>
                         @endforeach
-                        <th class="text-center" style="width:60px;">{{ __('backend.options') }}</th>
+                        <th class="text-center" style="{{ @$WebmasterSection->title_en == 'speakers' ? 'width:190px;' : 'width:60px;' }}">{{ __('backend.options') }}</th>
                         </thead>
                     </table>
                 </div>

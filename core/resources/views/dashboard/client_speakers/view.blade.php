@@ -31,6 +31,7 @@
         <tr><th>LinkedIn</th><td>@if($speaker->linkedin)<a href="{{ $speaker->linkedin }}" target="_blank">{{ $speaker->linkedin }}</a>@endif</td></tr>
         <tr><th>Instagram</th><td>@if($speaker->instagram)<a href="{{ $speaker->instagram }}" target="_blank">{{ $speaker->instagram }}</a>@endif</td></tr>
         <tr><th>Status</th><td>{{ ucfirst($speaker->status) }}</td></tr>
+        <tr><th>Public Position</th><td>{{ $speaker->display_order ?: 'Not fixed' }}</td></tr>
         <tr><th>Admin Message</th><td>{{ $speaker->admin_message }}</td></tr>
         <tr><th>Created At</th><td>{{ $speaker->created_at }}</td></tr>
     </table>
@@ -44,6 +45,11 @@
                 <option value="approved" {{ $speaker->status === 'approved' ? 'selected' : '' }}>Approved</option>
                 <option value="rejected" {{ $speaker->status === 'rejected' ? 'selected' : '' }}>Rejected</option>
             </select>
+        </div>
+        <div class="mb-3">
+            <label>Public Position</label>
+            <input type="number" name="display_order" min="0" max="9999" value="{{ $speaker->display_order ?: '' }}" class="form-control" placeholder="1, 2, 3...">
+            <small>Lower number shows first. Empty/0 uses default order.</small>
         </div>
         <div class="mb-3">
             <label>Admin Message</label>

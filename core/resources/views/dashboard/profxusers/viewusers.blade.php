@@ -154,6 +154,8 @@
             <div class="profx-detail-item"><span>Name</span><strong>{{ $profxusers->full_name }}</strong></div>
             <div class="profx-detail-item"><span>Email</span><strong>{{ $profxusers->email }}</strong></div>
             <div class="profx-detail-item"><span>Phone</span><strong>{{ $profxusers->phone }}</strong></div>
+            <div class="profx-detail-item"><span>Country</span><strong>{{ $profxusers->nationality ?? '-' }}</strong></div>
+            <div class="profx-detail-item"><span>Role</span><strong>{{ $profxusers->user_type ?? '-' }}</strong></div>
             <div class="profx-detail-item"><span>Company</span><strong>{{ $profxusers->company_name }}</strong></div>
             <div class="profx-detail-item"><span>Referral Code</span><strong>{{ $referralCode }}</strong></div>
             <div class="profx-detail-item"><span>Created At</span><strong>{{ $profxusers->created_at }}</strong></div>
@@ -213,3 +215,4 @@
 </div>
 
 @endsection
+

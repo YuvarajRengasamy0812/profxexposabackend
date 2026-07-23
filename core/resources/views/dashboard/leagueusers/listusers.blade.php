@@ -33,15 +33,18 @@
 
         .profx-admin-table thead th {
             color: #fff;
-            padding: 16px;
-            font-size: 14px;
+            padding: 14px 12px;
+            font-size: 13px;
             text-align: left;
+            white-space: nowrap;
+            vertical-align: middle;
         }
 
         .profx-admin-table tbody td {
-            padding: 14px 16px;
-            font-size: 14px;
+            padding: 13px 12px;
+            font-size: 13px;
             border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
         }
 
         .profx-admin-table tbody tr:hover {
@@ -159,6 +162,38 @@
             cursor: not-allowed;
         }
 
+
+        .copy-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 0;
+            background: #0f766e;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .copy-link-btn:hover {
+            background: #115e59;
+            color: #fff;
+        }
+
+        .ref-code-badge {
+            display: inline-block;
+            min-width: 104px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+        }
         /* ---------------- Modal ---------------- */
         .modal-content {
             border-radius: 12px;
@@ -204,12 +239,12 @@
                     <th>Name</th>
                      <th>Role</th>
                     <th>Email</th>
-                    <th>Company Name</th>
+                    <th>Company</th>
                     <th>Phone</th>
                     <th>Country</th>
-                    <th>Referral User</th>
                     <th>Referral Code</th>
-                   <th>Created_At</th>
+                    <th>Referral Link</th>
+                   <th>Created At</th>
                 </tr>
             </thead>
             <tbody>
@@ -228,14 +263,22 @@
                         <td>
                            {{ $f->country }}
                         </td>
-                        <td>{{ $f->referral_user_name ?? $f->referrer_name ?? "-" }}</td>
-                        <td>{{ $f->referral_code ?? "-" }}</td>
+                        <td><span class="ref-code-badge">{{ $f->own_referral_code ?? "-" }}</span></td>
+                        <td>
+                            @if(!empty($f->own_referral_link))
+                                <button type="button" class="copy-link-btn" data-copy-link="{{ $f->own_referral_link }}">
+                                    <i class="bi bi-clipboard"></i> Copy Link
+                                </button>
+                            @else
+                                -
+                            @endif
+                        </td>
                         <td>{{$f->created_at}}</td>
                         
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10" class="text-center">No league users found.</td>
+                        <td colspan="11" class="text-center">No league users found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -250,5 +293,38 @@
     <!-- Approve Modal -->
   
 
+
+    <script>
+        document.querySelectorAll('[data-copy-link]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const link = this.getAttribute('data-copy-link');
+                const done = () => Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Referral link copied',
+                    showConfirmButton: false,
+                    timer: 1600,
+                    timerProgressBar: true
+                });
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(link).then(done);
+                    return;
+                }
+
+                const input = document.createElement('input');
+                input.value = link;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                done();
+            });
+        });
+    </script>
 @endsection
+
+
+
 

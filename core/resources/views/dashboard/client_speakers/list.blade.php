@@ -15,6 +15,9 @@
     .badge-approved { background:#e8f7ee; color:#167447; }
     .badge-rejected { background:#fdecec; color:#b42318; }
     .speaker-thumb { width:56px; height:56px; object-fit:cover; border-radius:10px; background:#f7f7f7; }
+    .position-form { display:flex; gap:8px; align-items:center; }
+    .position-input { width:82px; padding:7px 8px; border:1px solid #d9d9d9; border-radius:8px; }
+    .btn-order { background:#173a30; color:#fff; border:0; border-radius:8px; padding:8px 12px; }
 </style>
 
 <div class="profx-admin-table-wrapper">
@@ -45,6 +48,7 @@
                 <th>Company</th>
                 <th>Designation</th>
                 <th>Status</th>
+                <th>Position</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -63,10 +67,17 @@
                     <td>{{ $speaker->company }}</td>
                     <td>{{ $speaker->designation }}</td>
                     <td><span class="badge-status badge-{{ $speaker->status }}">{{ $speaker->status }}</span></td>
+                    <td>
+                        <form method="POST" action="{{ route('clientSpeakersOrder', $speaker->id) }}" class="position-form">
+                            @csrf
+                            <input type="number" name="display_order" min="0" max="9999" value="{{ $speaker->display_order ?: '' }}" placeholder="Order" class="position-input">
+                            <button type="submit" class="btn-order">Save</button>
+                        </form>
+                    </td>
                     <td><a class="btn-gold" href="{{ route('clientSpeakersView', $speaker->id) }}">View</a></td>
                 </tr>
             @empty
-                <tr><td colspan="7" class="text-center">No speaker requests found.</td></tr>
+                <tr><td colspan="8" class="text-center">No speaker requests found.</td></tr>
             @endforelse
         </tbody>
     </table>
