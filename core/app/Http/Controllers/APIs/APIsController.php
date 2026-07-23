@@ -3002,7 +3002,77 @@ try {
         ]
     ], 201);
 }
+public function awardNominationSubmit(Request $request)
+{
+    $this->validate($request, [
+        'api_key' => 'required',
+        'user_id' => 'nullable|integer',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'company' => 'required|string|max:255',
+        'phone' => 'required|string|max:80',
+        'website' => 'nullable|string|max:255',
+        'category' => 'required|string|max:255',
+        'award_title' => 'required|string|max:255',
+        'reason' => 'required|string|max:3000',
+    ]);
 
+    if ($request->api_key != Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json([
+            'code' => '-1',
+            'msg' => 'Authentication failed'
+        ], 500);
+    }
+
+    $registeredUser = null;
+    if ($request->filled('user_id')) {
+        $registeredUser = UserRegister::find($request->user_id);
+    }
+
+    if (!$registeredUser) {
+        $registeredUser = UserRegister::where('email', $request->email)->first();
+    }
+
+    if (!$registeredUser) {
+        return response()->json([
+            'code' => '-1',
+            'msg' => 'Please register before submitting an award nomination.'
+        ], 403);
+    }
+
+    $exists = DB::table('award_nominations')
+        ->where('email', $request->email)
+        ->where('award_title', $request->award_title)
+        ->exists();
+
+    if ($exists) {
+        return response()->json([
+            'code' => '-1',
+            'msg' => 'You have already submitted a nomination for this award category.'
+        ], 422);
+    }
+
+    $id = DB::table('award_nominations')->insertGetId([
+        'user_id' => $registeredUser->id,
+        'name' => $request->name,
+        'email' => $request->email,
+        'company' => $request->company,
+        'phone' => $request->phone,
+        'website' => $request->website,
+        'category' => $request->category,
+        'award_title' => $request->award_title,
+        'reason' => $request->reason,
+        'status' => 'pending',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return response()->json([
+        'code' => '1',
+        'msg' => 'Award nomination submitted successfully',
+        'data' => ['id' => $id],
+    ], 201);
+}
 
  public function loginSubmit(Request $request)
     {
@@ -3771,6 +3841,95 @@ public function deleteClientSpeaker(Request $request, $id)
     $speaker->delete();
 
     return response()->json(['code' => 1, 'msg' => 'Speaker profile deleted successfully'], 200);
+}
+
+public function clientAwardNominationList(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'nullable|email|max:255',
+        'user_id' => 'nullable|integer',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $query = DB::table('award_nominations');
+
+    if ($request->filled('user_id')) {
+        $query->where('user_id', $request->user_id);
+    } elseif ($request->filled('email')) {
+        $query->where('email', $request->email);
+    } else {
+        return response()->json(['code' => -1, 'msg' => 'Email or user id is required'], 422);
+    }
+
+    $awards = $query->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($award) {
+            $award->status_label = ucfirst((string) ($award->status ?: 'pending'));
+            $award->submitted_at = $award->created_at;
+            return $award;
+        });
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Client award nominations fetched successfully',
+        'details' => $awards,
+    ], 200);
+}
+
+public function clientLeagueReferralList(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'nullable|email|max:255',
+        'user_id' => 'nullable|integer',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $user = null;
+    if ($request->filled('user_id')) {
+        $user = UserRegister::find($request->user_id);
+    }
+
+    if (!$user && $request->filled('email')) {
+        $user = UserRegister::where('email', $request->email)->first();
+    }
+
+    if (!$user) {
+        return response()->json(['code' => -1, 'msg' => 'User not found'], 404);
+    }
+
+    $referralCode = $user->referral_code;
+
+    $referrals = DB::table('booking_leagues')
+        ->where(function ($query) use ($user, $referralCode) {
+            $query->where('referred_by_user_id', $user->id);
+            if (!empty($referralCode)) {
+                $query->orWhere('referral_code', $referralCode);
+            }
+        })
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($booking) {
+            $booking->league_id = 'PFXL-' . str_pad((string) $booking->id, 5, '0', STR_PAD_LEFT);
+            return $booking;
+        });
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Client league referrals fetched successfully',
+        'details' => $referrals,
+        'data' => [
+            'referral_code' => $user->referral_code,
+            'referral_link' => $user->referral_link,
+        ],
+    ], 200);
 }
 public function Sponsors()
 {

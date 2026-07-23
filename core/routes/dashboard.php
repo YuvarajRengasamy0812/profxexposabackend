@@ -24,6 +24,7 @@ use App\Http\Controllers\Dashboard\FileManagerController;
 use App\Http\Controllers\Dashboard\TagController;
 use App\Http\Controllers\Dashboard\PopupController;
 use App\Http\Controllers\Dashboard\MarketingController;
+use App\Http\Controllers\Dashboard\AwardNominationController;
 use Illuminate\Support\Facades\Route;
 
 // Admin Home
@@ -117,6 +118,10 @@ Route::get('/profxusersView/{id}', [FloorplanController::class, 'profxusersView'
 // Leagueusers
 Route::get('/leagueusers', [FloorplanController::class, 'leagueusers'])->name('leagueusers');
 Route::get('/leagueusersView/{id}', [FloorplanController::class, 'leagueusersView'])->name('leagueusersView');
+Route::get('/award-nominations', [AwardNominationController::class, 'index'])->name('awardNominations');
+Route::post('/award-nominations/{id}/winner', [AwardNominationController::class, 'selectWinner'])->name('awardNominations.winner');
+Route::post('/award-nominations/{id}/status', [AwardNominationController::class, 'updateStatus'])->name('awardNominations.status');
+Route::post('/award-nominations/{id}/reset-winner', [AwardNominationController::class, 'resetWinner'])->name('awardNominations.resetWinner');
 
 
 // Sections

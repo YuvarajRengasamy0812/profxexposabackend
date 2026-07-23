@@ -277,6 +277,11 @@ $GeneralWebmasterSections = $GeneralWebmasterSections ?? collect();
                             <span class="nav-text">Client Speakers </span>
                         </a>
                     </li>
+                    <li class="{{ request()->routeIs('awardNominations') ? 'active' : '' }}">
+                        <a href="{{ route('awardNominations') }}" ><span class="nav-icon"><i class="material-icons">&#xe838;</i></span>
+                            <span class="nav-text">Award Nominations </span>
+                        </a>
+                    </li>
 					                    <li class="{{ request()->routeIs('leagueusers') || request()->routeIs('leagueusers') ? 'active' : '' }}">
 						<a href="{{ route('leagueusers') }}" ><span class="nav-icon"><i class="material-icons">&#xe7fb;</i></span>
 							<span class="nav-text">League Users </span>
