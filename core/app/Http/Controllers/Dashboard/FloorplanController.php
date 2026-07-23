@@ -405,46 +405,78 @@ public function approve(Request $request, $id)
     }
     public function sendRegistrationEmails(Request $request)
     {
+        $templateKey = $request->input('email_template', 'registration_ticket');
+        $sendScope = $request->input('send_scope', 'selected');
         $selectedUserIds = $request->input('user_ids', []);
 
-        if (!is_array($selectedUserIds) || empty($selectedUserIds)) {
+        $allowedTemplates = [
+            'registration_ticket' => [
+                'label' => 'Registration Ticket',
+                'subject' => 'Ticket - PROFX Expo Africa',
+                'view' => 'emails.registration',
+            ],
+            'community_groups' => [
+                'label' => 'Telegram & WhatsApp Community',
+                'subject' => 'Join PROFX Expo Africa 2026 Official Communities',
+                'view' => 'emails.community-groups',
+            ],
+        ];
+
+        if (!array_key_exists($templateKey, $allowedTemplates)) {
+            return redirect()
+                ->route('profxusers')
+                ->with('profxSwalError', 'Please select a valid email template.');
+        }
+
+        if (!in_array($sendScope, ['selected', 'all'], true)) {
+            $sendScope = 'selected';
+        }
+
+        if ($sendScope === 'selected' && (!is_array($selectedUserIds) || empty($selectedUserIds))) {
             return redirect()
                 ->route('profxusers')
                 ->with('profxSwalError', 'Please select at least one user.');
         }
 
-        $users = DB::table('users_registers')
-            ->whereIn('id', $selectedUserIds)
+        $usersQuery = DB::table('users_registers')
             ->whereNotNull('email')
-            ->where('email', '!=', '')
-            ->get();
+            ->where('email', '!=', '');
+
+        if ($sendScope === 'selected') {
+            $usersQuery->whereIn('id', $selectedUserIds);
+        }
+
+        $users = $usersQuery->orderBy('created_at', 'DESC')->get();
 
         if ($users->isEmpty()) {
             return redirect()
                 ->route('profxusers')
-                ->with('profxSwalError', 'Please select users with valid email addresses.');
+                ->with('profxSwalError', 'No users with valid email addresses found.');
         }
 
+        $template = $allowedTemplates[$templateKey];
         $sent = 0;
         $failed = [];
-
 
         foreach ($users as $user) {
             $mailData = [
                 'user' => $user,
-                'title' => 'Welcome to PROFX Expo Africa 2026',
+                'title' => $template['subject'],
                 'details' => "Hi {$user->full_name},<br><br>Thank you for registering for PROFX Expo Africa 2026.<br>You can now login with your email.<br><br>Regards,<br>PROFX Team",
                 'logo' => 'https://profxexpo.com/africa/assets/images/logo/profx-white.png?v=20260722-082125',
                 'ticket_header' => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792010449837.png',
                 'ticket_footer' => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792011237810.png',
                 'downloadTicketUrl' => route('ticket.download', $user->id),
+                'heroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/telgram.png',
+                'telegramUrl' => 'https://t.me/profxexpoafrica',
+                'whatsappUrl' => 'https://chat.whatsapp.com/Er7vSpSmGoK68nFbGrxAQk',
             ];
 
             try {
                 $result = $this->mailService->sendEmail(
                     $user->email,
-                    'Ticket - PROFX Expo Africa',
-                    'emails.registration',
+                    $template['subject'],
+                    $template['view'],
                     $mailData
                 );
 
@@ -457,26 +489,28 @@ public function approve(Request $request, $id)
             } catch (\Exception $e) {
                 $failed[] = $user->email;
 
-                Log::error('Admin registration email failed', [
+                Log::error('Admin user email failed', [
                     'user_id' => $user->id,
                     'email' => $user->email,
+                    'template' => $templateKey,
                     'message' => $e->getMessage(),
                 ]);
             }
         }
 
+        $scopeText = $sendScope === 'all' ? 'all users' : 'selected users';
+
         if (!empty($failed)) {
             return redirect()
                 ->route('profxusers')
-                ->with('profxSwalWarning', "{$sent} email(s) sent. Failed: " . implode(', ', $failed));
+                ->with('profxSwalWarning', "{$sent} {$template['label']} email(s) sent to {$scopeText}. Failed: " . implode(', ', $failed));
         }
 
         return redirect()
             ->route('profxusers')
-            ->with('profxSwalSuccess', "{$sent} registration email(s) sent successfully.");
+            ->with('profxSwalSuccess', "{$sent} {$template['label']} email(s) sent successfully to {$scopeText}.");
     }
-    
-      public function profxusersView($id)
+          public function profxusersView($id)
     {
         $GeneralWebmasterSections = WebmasterSection::where('status', 1)
             ->orderby('row_no', 'asc')

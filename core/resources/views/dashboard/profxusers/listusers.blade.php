@@ -207,6 +207,33 @@
             font-weight: 700;
         }
 
+        .profx-bulk-controls {
+            display: grid;
+            grid-template-columns: minmax(190px, 240px) minmax(150px, 190px) auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .profx-bulk-field label {
+            display: block;
+            margin-bottom: 5px;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .btn-community {
+            background: linear-gradient(135deg, #0b5d35, #168632 48%, #c19d38);
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(11, 93, 53, 0.18);
+        }
+
+        .btn-community:hover {
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
         .profx-select-checkbox {
             width: 18px;
             height: 18px;
@@ -286,6 +313,11 @@
         }
 
         @media (max-width: 640px) {
+            .profx-bulk-controls {
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+
             .profx-admin-table-wrapper {
                 padding: 16px;
             }
@@ -340,9 +372,25 @@
             @csrf
             <div class="profx-bulk-actions">
                 <span class="profx-selected-count"><span id="selectedUsersCount">0</span> user(s) selected</span>
-                <button type="submit" class="btn btn-secondary" id="sendRegistrationEmailBtn" disabled>
-                    <i class="bi bi-envelope-paper"></i> Send Registration Email
-                </button>
+                <div class="profx-bulk-controls">
+                    <div class="profx-bulk-field">
+                        <label for="emailTemplateSelect">Template</label>
+                        <select name="email_template" id="emailTemplateSelect" class="form-select">
+                            <option value="registration_ticket">Registration Ticket Email</option>
+                            <option value="community_groups">Telegram / WhatsApp Group Email</option>
+                        </select>
+                    </div>
+                    <div class="profx-bulk-field">
+                        <label for="sendScopeSelect">Send To</label>
+                        <select name="send_scope" id="sendScopeSelect" class="form-select">
+                            <option value="selected">Selected Users</option>
+                            <option value="all">All Users</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-community" id="sendRegistrationEmailBtn" disabled>
+                        <i class="bi bi-send"></i> Send Email
+                    </button>
+                </div>
             </div>
 
             <table class="profx-admin-table">
@@ -483,8 +531,9 @@
 
                 function refreshBulkState() {
                     const selectedCount = checkboxes.filter(function (checkbox) { return checkbox.checked; }).length;
+                    const sendScope = sendScopeSelect ? sendScopeSelect.value : 'selected';
                     countLabel.textContent = selectedCount;
-                    sendBtn.disabled = selectedCount === 0;
+                    sendBtn.disabled = sendScope === 'selected' && selectedCount === 0;
                     if (selectAll) {
                         selectAll.checked = selectedCount > 0 && selectedCount === checkboxes.length;
                         selectAll.indeterminate = selectedCount > 0 && selectedCount < checkboxes.length;
@@ -504,6 +553,10 @@
                     checkbox.addEventListener('change', refreshBulkState);
                 });
 
+                if (sendScopeSelect) {
+                    sendScopeSelect.addEventListener('change', refreshBulkState);
+                }
+
                 if (generateReferralCodeBtn && newReferralCode) {
                     generateReferralCodeBtn.addEventListener('click', function () {
                         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -518,6 +571,9 @@
                 if (form) {
                     form.addEventListener('submit', function (event) {
                         const selectedCount = checkboxes.filter(function (checkbox) { return checkbox.checked; }).length;
+                        const sendScope = sendScopeSelect ? sendScopeSelect.value : 'selected';
+                        const templateName = templateSelect ? templateSelect.options[templateSelect.selectedIndex].text : 'email';
+                        const recipientText = sendScope === 'all' ? 'all users' : selectedCount + ' selected user(s)';
 
                         if (form.dataset.confirmed === '1') {
                             return;
@@ -525,15 +581,15 @@
 
                         event.preventDefault();
 
-                        if (selectedCount === 0) {
+                        if (sendScope === 'selected' && selectedCount === 0) {
                             showToast('warning', 'Please select at least one user.');
                             return;
                         }
 
                         Swal.fire({
                             icon: 'question',
-                            title: 'Send registration email?',
-                            text: 'This will send email to ' + selectedCount + ' selected user(s).',
+                            title: 'Send email?',
+                            text: 'Template: ' + templateName + '. This will send to ' + recipientText + '.',
                             showCancelButton: true,
                             confirmButtonText: 'Send Email',
                             cancelButtonText: 'Cancel',
