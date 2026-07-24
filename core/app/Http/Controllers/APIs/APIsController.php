@@ -2991,8 +2991,8 @@ try {
         'msg'  => 'Registration successful',
         'data' => [
             'user_id' => $user->id,
-            'referral_code' => $user->referral_code,
-            'referral_link' => $user->referral_link,
+        'referral_code' => 'nullable|string|max:255',
+        'referral_link' => 'nullable|string|max:500',
         ]
     ], 201);
 }
@@ -3047,8 +3047,8 @@ try {
                     'products_services'=>$user->products_services,
                     'profile_photo'=>$user->profile_photo ?? null,
                     'profile_photo_url'=>!empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
-                     'referral_code'=>$user->referral_code ?? null,
-                    'referral_link'=>$user->referral_link ?? null
+        'referral_code' => 'nullable|string|max:255',
+        'referral_link' => 'nullable|string|max:500',
 
                 ]
             ], 200);
@@ -3076,8 +3076,8 @@ public function updateClientProfile(Request $request)
         'products_services' => 'nullable|string|max:1000',
         'special_requirements' => 'nullable|string|max:5000',
         'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
-         'referral_code' => $user->referral_code ?? null,
-            'referral_link' => $user->referral_link ?? null,
+        'referral_code' => 'nullable|string|max:255',
+        'referral_link' => 'nullable|string|max:500',
     ]);
 
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
@@ -4361,8 +4361,8 @@ public function clientLeagueReferralList(Request $request)
         'msg' => 'Client league referrals fetched successfully',
         'details' => $referrals,
         'data' => [
-            'referral_code' => $user->referral_code,
-            'referral_link' => $user->referral_link,
+        'referral_code' => 'nullable|string|max:255',
+        'referral_link' => 'nullable|string|max:500',
         ],
     ], 200);
 }
