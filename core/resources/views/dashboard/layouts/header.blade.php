@@ -10,11 +10,6 @@
 
         <!-- navbar right -->
         <ul class="nav navbar-nav pull-right">
-            <li class="nav-item pa-13">
-                <a class="btn btn info" href="https://profxsummit.com/" target="_blank">
-                    <i class="material-icons">&#xe895;</i> <small>{{ __('backend.sitePreview') }}</small>
-                </a>
-            </li>
             <?php
             $webmailsAlerts = Helper::webmailsAlerts();
             $eventsAlerts = Helper::eventsAlerts();
@@ -225,3 +220,4 @@
         </div>
     </div>
 </div>
+

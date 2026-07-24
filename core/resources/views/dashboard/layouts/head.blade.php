@@ -14,7 +14,6 @@
 <link rel="shortcut icon" sizes="196x196" href="{{ asset('assets/dashboard/images/favicon.png') }}">
 @stack('before-styles')
 <link rel="stylesheet" href="{{ asset('assets/dashboard/css/animate.css/animate.min.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
-<link rel="stylesheet" href="{{ asset('assets/dashboard/css/animate.css/animate.min.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
 <link rel="stylesheet" href="{{ asset('assets/dashboard/fonts/glyphicons/glyphicons.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
 <link rel="stylesheet" href="{{ asset('assets/dashboard/fonts/font-awesome/css/font-awesome.min.css') }}?v={{ Helper::system_version() }}"
       type="text/css"/>
@@ -28,9 +27,11 @@
 <link rel="stylesheet" href="{{ asset('assets/dashboard/css/font.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
 <link rel="stylesheet" href="{{ asset('assets/dashboard/css/topic.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
 <link rel="stylesheet" href="{{ asset('assets/dashboard/css/marketing.css') }}?v={{ Helper::system_version() }}" type="text/css"/>
+<link rel="stylesheet" href="{{ asset('assets/dashboard/css/admin-responsive.css') }}?v={{ filemtime(base_path('../assets/dashboard/css/admin-responsive.css')) }}" type="text/css"/>
 
 @if( @Helper::currentLanguage()->direction=="rtl")
     <link rel="stylesheet" href="{{ asset('assets/dashboard/css/bootstrap-rtl/dist/bootstrap-rtl.css') }}?v={{ Helper::system_version() }}">
     <link rel="stylesheet" href="{{ asset('assets/dashboard/css/app.rtl.css') }}?v={{ Helper::system_version() }}">
 @endif
 @stack('after-styles')
+

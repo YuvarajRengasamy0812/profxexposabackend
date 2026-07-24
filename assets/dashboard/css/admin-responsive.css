@@ -1,0 +1,365 @@
+/* Admin-only responsive and theme-safe fixes. */
+:root {
+    --admin-primary: #c19d38;
+    --admin-primary-dark: #9f7f25;
+    --admin-border: #e5e7eb;
+    --admin-muted-bg: #f8fafc;
+    --admin-text: #111827;
+}
+
+.app-body {
+    min-width: 0;
+}
+
+.app-body,
+.app-body .padding,
+.app-body .box,
+.app-body .box-body {
+    max-width: 100%;
+}
+
+.app-body img,
+.app-body video,
+.app-body canvas,
+.app-body iframe {
+    max-width: 100%;
+}
+
+.app-body img {
+    height: auto;
+}
+
+.app-body table {
+    width: 100%;
+}
+
+.app-body .table,
+.app-body .profx-admin-table,
+.app-body .profx-view-table {
+    min-width: 760px;
+}
+
+.app-body .table-responsive,
+.app-body .profx-admin-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.app-body .form-control,
+.app-body .form-select,
+.app-body select,
+.app-body textarea,
+.app-body input[type="text"],
+.app-body input[type="email"],
+.app-body input[type="password"],
+.app-body input[type="number"],
+.app-body input[type="search"],
+.app-body input[type="tel"],
+.app-body input[type="url"] {
+    max-width: 100%;
+}
+
+.app-body .btn,
+.app-body button,
+.app-body .input-group-btn {
+    white-space: nowrap;
+}
+
+.app-body .card,
+.app-body .box,
+.app-body .modal-content,
+.app-body .profx-admin-table,
+.app-body .profx-view-table {
+    border-radius: 8px;
+}
+
+.app-body .profx-admin-table thead,
+.app-body .profx-view-table th,
+.app-body .table thead th {
+    background: var(--admin-primary);
+}
+
+.app-body .btn-primary,
+.app-body .btn.info,
+.app-body .btn-info,
+.app-body .profx-view-back-btn,
+.app-body .profx-view-file-link {
+    background-color: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+
+.app-body .btn-primary:hover,
+.app-body .btn.info:hover,
+.app-body .btn-info:hover,
+.app-body .profx-view-back-btn:hover,
+.app-body .profx-view-file-link:hover {
+    background-color: var(--admin-primary-dark);
+    border-color: var(--admin-primary-dark);
+}
+
+.app-aside .navside .nav li.active > a,
+.app-aside .navside .nav li a:hover {
+    background-color: var(--admin-primary);
+}
+
+#switcher {
+    z-index: 1050;
+}
+
+#switcher .switcher {
+    max-width: calc(100vw - 24px);
+}
+
+@media (max-width: 991.98px) {
+    .navbar .navbar-form {
+        width: 100%;
+        margin: 8px 0;
+        padding: 0 12px;
+    }
+
+    .navbar .navbar-form .input-group {
+        width: 100%;
+    }
+
+    .navbar .nav.navbar-nav.pull-right {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .app-body {
+        padding-bottom: 24px;
+    }
+
+    .app-body .padding,
+    .app-body .p-a,
+    .app-body .profx-admin-table-wrapper,
+    .app-body .profx-view-wrapper {
+        padding: 16px;
+    }
+
+    .app-body .box-header,
+    .app-body .box-body {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .app-body .row {
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+
+    .app-body [class*="col-"] {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .app-body .profx-view-wrapper {
+        margin: 16px auto;
+        max-width: calc(100vw - 24px);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .navbar-md .navbar {
+        min-height: 64px;
+    }
+
+    .navbar .btn small,
+    .navbar .btn span {
+        display: none;
+    }
+
+    .navbar .navbar-form .form-control {
+        height: 42px;
+    }
+
+    .app-body h1,
+    .app-body h2,
+    .app-body h3,
+    .app-body h4 {
+        line-height: 1.3;
+    }
+
+    .app-body .form-group,
+    .app-body .input-group,
+    .app-body .profx-search-form {
+        width: 100%;
+    }
+
+    .app-body .profx-search-form {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .app-body .profx-search-form .btn,
+    .app-body .profx-search-form .form-control {
+        width: 100%;
+    }
+
+    .app-body .profx-admin-table,
+    .app-body .profx-view-table,
+    .app-body .table {
+        min-width: 680px;
+    }
+
+    .app-body .profx-admin-table thead th,
+    .app-body .profx-admin-table tbody td,
+    .app-body .profx-view-table th,
+    .app-body .profx-view-table td,
+    .app-body .table th,
+    .app-body .table td {
+        padding: 10px;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .app-body .modal-dialog {
+        margin: 10px;
+    }
+
+    #switcher .switcher {
+        right: 8px;
+        width: calc(100vw - 16px);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .app-body .padding,
+    .app-body .p-a,
+    .app-body .profx-admin-table-wrapper,
+    .app-body .profx-view-wrapper {
+        padding: 12px;
+    }
+
+    .app-body .box-header h1,
+    .app-body .box-header h2,
+    .app-body .profx-view-wrapper h4 {
+        font-size: 18px;
+    }
+
+    .app-body .btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .app-body .avatar,
+    .app-body .avatar img {
+        max-width: 72px;
+        max-height: 72px;
+    }
+}
+
+.grey {
+    --admin-border: rgba(148, 163, 184, 0.34);
+    --admin-muted-bg: rgba(255, 255, 255, 0.08);
+}
+
+.dark,
+.black {
+    --admin-border: rgba(255, 255, 255, 0.16);
+    --admin-muted-bg: rgba(255, 255, 255, 0.08);
+    --admin-text: #f8fafc;
+}
+
+.grey .app-body .box,
+.grey .app-body .card,
+.grey .app-body .profx-admin-table,
+.grey .app-body .profx-view-table,
+.dark .app-body .box,
+.dark .app-body .card,
+.dark .app-body .profx-admin-table,
+.dark .app-body .profx-view-table,
+.black .app-body .box,
+.black .app-body .card,
+.black .app-body .profx-admin-table,
+.black .app-body .profx-view-table {
+    border-color: var(--admin-border);
+}
+
+.dark .app-body,
+.black .app-body {
+    color: var(--admin-text);
+}
+
+.dark .app-body .form-control,
+.dark .app-body select,
+.dark .app-body textarea,
+.black .app-body .form-control,
+.black .app-body select,
+.black .app-body textarea {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: var(--admin-border);
+    color: #fff;
+}
+
+.dark .app-body .form-control::placeholder,
+.black .app-body .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.dark .app-body .profx-admin-table tbody td,
+.dark .app-body .profx-view-table td,
+.dark .app-body .table td,
+.black .app-body .profx-admin-table tbody td,
+.black .app-body .profx-view-table td,
+.black .app-body .table td {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: var(--admin-border);
+    color: #fff;
+}
+
+.dark .app-body .profx-admin-table tbody tr:hover,
+.black .app-body .profx-admin-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .app-body .ref-code-badge,
+.black .app-body .ref-code-badge {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--admin-border);
+    color: #fff;
+}
+
+@media (max-width: 991.98px) {
+    .app-body .box-body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .app-body .form-group.row > label,
+    .app-body .form-group.row > .form-control-label {
+        margin-bottom: 8px;
+    }
+
+    .app-body .form-group.row > [class*="col-sm-"] {
+        min-width: 0;
+    }
+
+    .app-body #user_photo,
+    .app-body [id$="_photo"] {
+        max-width: 360px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .app-body .form-group.row > [class*="col-sm-"],
+    .app-body .form-group.row > [class*="offset-sm-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-left: 0;
+    }
+
+    .app-body #user_photo,
+    .app-body [id$="_photo"] {
+        max-width: 100%;
+    }
+
+    .app-body .form-group.row .btn-lg {
+        width: 100%;
+        margin-right: 0;
+    }
+}
