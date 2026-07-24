@@ -215,9 +215,9 @@ class Helper
                         $visitor_ip_details = [];
                         try {
                             $visitor_ip_details = GeoIP($visitor_ip);
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
 
-                        }
+        }
 
                         $visitor_city = @$visitor_ip_details->city;
                         if ($visitor_city == "") {
@@ -720,7 +720,7 @@ class Helper
                     $section_url = url($slug);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
         }
         return $section_url;
@@ -805,7 +805,7 @@ class Helper
                 }
             }
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
         }
         return $category_url;
@@ -920,7 +920,7 @@ class Helper
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
         }
         return $topic_url;
@@ -944,7 +944,7 @@ class Helper
                 }
                 $tag_url = route("tag", $slug) . "?lang=" . $lang;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
         }
         return $tag_url;
@@ -1080,7 +1080,7 @@ class Helper
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
         }
     }
@@ -1097,7 +1097,7 @@ class Helper
                         ->save($file_path);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
         }
     }
@@ -1118,9 +1118,9 @@ class Helper
                     Newsletter::subscribeOrUpdate($email, ['FNAME' => $first_name, 'LNAME' => $last_name]);
                 }
                 return 1;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
 
-            }
+        }
         }
         return 0;
     }
@@ -1243,9 +1243,9 @@ class Helper
             $table_columns = [];
             try {
                 $table_columns = json_decode($User->table_columns, true);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
 
-            }
+        }
             if (!empty($table_columns)) {
                 if (!empty(@$table_columns["sec_" . $webmaster_id])) {
                     return @$table_columns["sec_" . $webmaster_id];

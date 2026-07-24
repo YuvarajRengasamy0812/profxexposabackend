@@ -31,12 +31,6 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'brevo' => [
-        'api_key' => env('BREVO_API_KEY'),
-        'sender_name' => env('BREVO_SENDER_NAME', env('MAIL_FROM_NAME', 'PROFX Summit')),
-        'sender_email' => env('BREVO_SENDER_EMAIL', 'info@profxmedia.com'),
-    ],
-
     'facebook' => [
         'client_id' => env('FACEBOOK_ID'),
         'client_secret' => env('FACEBOOK_SECRET'),

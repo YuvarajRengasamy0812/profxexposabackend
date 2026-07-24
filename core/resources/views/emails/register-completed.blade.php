@@ -13,8 +13,8 @@
                 <tr>
                     <td align="center" style="background:#101828; padding:28px 24px;">
                         <img src="{{ $logo ?? asset('assets/images/logo/profx-white.png') }}" alt="PROFX Expo Africa" width="160" style="display:block; max-width:160px; height:auto; margin:0 auto 14px;">
-                        <h1 style="margin:0; color:#ffffff; font-size:24px; line-height:1.3;">Registration Completed</h1>
-                        <p style="margin:8px 0 0; color:#d0d5dd; font-size:14px; line-height:1.5;">Welcome to PROFX Expo Africa 2026.</p>
+                        <h1 style="margin:0; color:#ffffff; font-size:24px; line-height:1.3;">Welcome to PROFX Expo Africa 2026</h1>
+                       
                     </td>
                 </tr>
 
@@ -65,13 +65,13 @@
                             Thank you for completing your registration. Please keep your login details safe and use them whenever you need to access your profile.
                         </p>
                         <p style="margin:0; color:#0f172a; font-size:14px; line-height:1.7; font-weight:bold;">
-                            Thanks,<br>PROFX Team
+                            Thanks,<br>PROFX EXPO Team
                         </p>
                     </td>
                 </tr>
                 <tr>
                     <td align="center" style="padding:20px; font-size:12px; color:#777;">
-                        &copy; {{ date('Y') }} PROFX Summit. All rights reserved.
+                        &copy; {{ date('Y') }} PROFX EXPO AFRICA . All rights reserved.
                     </td>
                 </tr>
             </table>

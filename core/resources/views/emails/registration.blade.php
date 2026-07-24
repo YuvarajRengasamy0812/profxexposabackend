@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ $title ?? 'PROFX Expo Africa' }}</title>
+    <title>{{ $title ?? 'PROFX EXPO AFRICA 2026' }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="margin:0; padding:0; background-color:#f2f2f2; font-family:Arial, sans-serif;">
@@ -16,7 +16,7 @@
                 <!-- Header -->
                 <tr>
                     <td align="center" style="padding:30px 20px; background-color:#0f172a;">
-                        <img src="{{ $logo ?? 'https://profxexpo.com/africa/assets/images/logo/profx-white.png?v=20260722-082125' }}" alt="PROFX Summit Logo" width="150" style="display:block; margin-bottom:10px;">
+                        <img src="{{ $logo ?? 'https://profxexpo.com/africa/adminpanel/uploads/settings/17791964093936.png' }}" alt="PROFX Summit Logo" width="150" style="display:block; margin-bottom:10px;">
                         <h1 style="color:#ffffff; font-size:24px; margin:0;">Your Ticket is Ready!</h1>
                         <p style="color:#cbd5e1; font-size:14px; margin:5px 0 0;">We're excited to see you at the summit</p>
                     </td>
@@ -26,7 +26,7 @@
                 <tr>
                     <td style="padding:30px 20px; text-align:center;">
                         <div style="background-color:#ecfeff; border-radius:12px; padding:20px; margin-bottom:20px;">
-                            <h2 style="margin:0; font-size:20px; color:#0f172a;">Welcome to PROFX Expo Africa 2026</h2>
+                            <h2 style="margin:0; font-size:20px; color:#0f172a;">Welcome to PROFX EXPO AFRICA 2026</h2>
                             <p style="color:#475569; font-size:14px; margin:8px 0 0;">
                                 Thank you for registering! Your visitor access ticket has been confirmed.
                             </p>
@@ -48,8 +48,8 @@
                         
                         <!-- QR Code -->
                         <div style="margin-bottom:10px;">
-                            <a href="https://profxsummit.com/login" target="_blank">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://profxsummit.com/login" alt="Scan to Login" width="180" style="display:block; margin:0 auto; border-radius:12px;">
+                            <a href="https://profxexpo.com/africa/login" target="_blank">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://profxexpo.com/africa/login" alt="Scan to Login" width="180" style="display:block; margin:0 auto; border-radius:12px;">
                             </a>
                             <p style="font-size:12px; color:#555; margin-top:5px;">Scan to Login</p>
                         </div>
@@ -78,7 +78,7 @@
                 <!-- Footer -->
                 <tr>
                     <td align="center" style="padding:20px; font-size:12px; color:#777;">
-                        &copy; {{ date('Y') }} PROFX Summit. All rights reserved.
+                        &copy; {{ date('Y') }} PROFX EXPO AFRICA 2026. All rights reserved.
                     </td>
                 </tr>
 

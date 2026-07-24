@@ -20,11 +20,10 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Response;
-
-use App\Models\Booking;
-use App\Models\Floorplan;
 use App\Services\MailService;
 use Illuminate\Support\Facades\Log;
+use App\Models\Booking;
+use App\Models\Floorplan;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FloorplanController extends Controller
@@ -32,11 +31,11 @@ class FloorplanController extends Controller
     private $uploadPath = "uploads/settings/";
     protected $mailService;
 
-    public function __construct(MailService $mailService)
+
+ public function __construct(MailService $mailService)
     {
         $this->mailService = $mailService;
     }
-
 
     public function bookingList(Request $request)
     {
@@ -110,7 +109,7 @@ class FloorplanController extends Controller
             $query->where('email', 'like', '%' . $request->email . '%');
         }
 
-        if ($request->filled('boothtitle')) {
+       if ($request->filled('boothtitle')) {
             $query->where('boothtitle', 'like', '%' . $request->boothtitle . '%');
         }
 
@@ -165,7 +164,7 @@ public function floorplansView($id)
 public function approve(Request $request, $id)
 {
     // ✅ Validate input
-    $request->validate([
+     $request->validate([
         'message' => 'nullable|string|max:1000',
         'profile_name' => 'nullable|string|max:255',
         'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:10028',
@@ -181,13 +180,15 @@ public function approve(Request $request, $id)
     // ✅ Update basic fields
     $floorplan->status = $request->status;
     $floorplan->approval_message = $request->message;
-    $floorplan->approved_by = $request->profile_name ?? auth()->user()->name ?? 'Admin';
+        $floorplan->approved_by = $request->profile_name ?? auth()->user()->name ?? 'Admin';
     if ($request->filled('company_url')) {
         $floorplan->company_url = $request->company_url;
     }
     if ($request->has('booth_design')) {
         $floorplan->booth_design = $request->booth_design;
     }
+    // $floorplan->approved_by = $request->profile_name ?? auth()->user()->name ?? 'Admin';
+    // $floorplan->company_url = $request->company_url;
 
     // ✅ Upload company logo (if exists)
     if ($request->hasFile('company_logo')) {
@@ -207,7 +208,7 @@ public function approve(Request $request, $id)
         $floorplan->company_logo = $fileFinalName;
     }
 
-    if ($request->hasFile('booth_design_image')) {
+  if ($request->hasFile('booth_design_image')) {
         $floorplan->booth_design_image = $this->storeSettingsImage($request->file('booth_design_image'));
     }
 
@@ -306,6 +307,7 @@ public function approve(Request $request, $id)
 
         return redirect()->back()->with('success', 'Floorplan deleted successfully');
     }
+
     public function profxusers(Request $request)
     {
 
@@ -321,6 +323,11 @@ public function approve(Request $request, $id)
             $query->where('email', 'like', '%' . $request->email . '%');
         }
 
+        // if ($request->filled('boothtitle')) {
+        //     $query->where('boothtitle', 'like', '%' . $request->location . '%');
+        // }
+
+
         if ($request->filled('full_name')) {
             $query->where('full_name', 'like', '%' . $request->full_name . '%');
         }
@@ -330,20 +337,18 @@ public function approve(Request $request, $id)
         }
 
 
-
         // 📄 Pagination
         $profxusers = $query
             ->orderBy('created_at', 'DESC')
             ->paginate(10)
             ->appends($request->query());
-
-        $userTypes = DB::table('users_registers')
+            
+             $userTypes = DB::table('users_registers')
             ->whereNotNull('user_type')
             ->where('user_type', '!=', '')
             ->distinct()
             ->orderBy('user_type')
             ->pluck('user_type');
-
 
         // 📊 Stats
         $stats = (object) [
@@ -352,7 +357,10 @@ public function approve(Request $request, $id)
 
         return view('dashboard.profxusers.listusers', compact('GeneralWebmasterSections', 'profxusers', 'stats', 'userTypes'));
     }
-    public function storeReferralAccount(Request $request)
+    
+   
+    
+      public function storeReferralAccount(Request $request)
     {
         $request->validate([
             'full_name' => 'required|string|max:255',
@@ -510,7 +518,8 @@ public function approve(Request $request, $id)
             ->route('profxusers')
             ->with('profxSwalSuccess', "{$sent} {$template['label']} email(s) sent successfully to {$scopeText}.");
     }
-          public function profxusersView($id)
+    
+      public function profxusersView($id)
     {
         $GeneralWebmasterSections = WebmasterSection::where('status', 1)
             ->orderby('row_no', 'asc')
@@ -614,17 +623,9 @@ public function approve(Request $request, $id)
     {
         return 'https://profxexpo.com/africa/LeagueEnroll?ref=' . urlencode($referralCode);
     }
+
+
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

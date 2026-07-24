@@ -9,8 +9,9 @@ use App\Http\Controllers\Dashboard\WebmasterSectionsController;
 use App\Http\Controllers\Dashboard\SettingsController;
 use App\Http\Controllers\Dashboard\BannersController;
 use App\Http\Controllers\Dashboard\EmailsController;
+use App\Http\Controllers\Dashboard\AwardNominationController;
 use App\Http\Controllers\Dashboard\EmailTemplateController;
-
+use App\Http\Controllers\Dashboard\ClientSpeakerController;
 use App\Http\Controllers\Dashboard\CategoriesController;
 use App\Http\Controllers\Dashboard\TopicsController;
 use App\Http\Controllers\Dashboard\ContactsController;
@@ -18,13 +19,11 @@ use App\Http\Controllers\Dashboard\WebmailsController;
 use App\Http\Controllers\Dashboard\EventsController;
 use App\Http\Controllers\Dashboard\AnalyticsController;
 use App\Http\Controllers\Dashboard\FloorplanController;
-use App\Http\Controllers\Dashboard\ClientSpeakerController;
 use App\Http\Controllers\Dashboard\MenusController;
 use App\Http\Controllers\Dashboard\FileManagerController;
 use App\Http\Controllers\Dashboard\TagController;
 use App\Http\Controllers\Dashboard\PopupController;
 use App\Http\Controllers\Dashboard\MarketingController;
-use App\Http\Controllers\Dashboard\AwardNominationController;
 use Illuminate\Support\Facades\Route;
 
 // Admin Home
@@ -103,29 +102,29 @@ Route::post('/floorplans/{id}/approve', [FloorplanController::class, 'approve'])
 Route::post('/floorplans/{id}/update', [FloorplanController::class, 'update'])->name('floorplans.update');
 Route::delete('/floorplans/{id}', [FloorplanController::class, 'destroy'])->name('floorplans.destroy');
 
-
 // Client speaker requests
 Route::get('/client-speakers', [ClientSpeakerController::class, 'index'])->name('clientSpeakers');
 Route::get('/client-speakers/{id}', [ClientSpeakerController::class, 'view'])->name('clientSpeakersView');
 Route::post('/client-speakers/{id}/approve', [ClientSpeakerController::class, 'approve'])->name('clientSpeakersApprove');
 Route::post('/client-speakers/{id}/order', [ClientSpeakerController::class, 'updateOrder'])->name('clientSpeakersOrder');
+
 // profxusers
 Route::get('/profxusers', [FloorplanController::class, 'profxusers'])->name('profxusers');
-Route::post('/profxusers/referral-account', [FloorplanController::class, 'storeReferralAccount'])->name('profxusersReferralAccountStore');
-Route::post('/profxusers/send-registration-emails', [FloorplanController::class, 'sendRegistrationEmails'])->name('profxusersSendRegistrationEmails');
 Route::get('/profxusersView/{id}', [FloorplanController::class, 'profxusersView'])->name('profxusersView');
+Route::post('/profxusers/send-registration-emails', [FloorplanController::class, 'sendRegistrationEmails'])->name('profxusersSendRegistrationEmails');
+Route::post('/profxusers/referral-account', [FloorplanController::class, 'storeReferralAccount'])->name('profxusersReferralAccountStore');
 
 // Leagueusers
 Route::get('/leagueusers', [FloorplanController::class, 'leagueusers'])->name('leagueusers');
 Route::get('/leagueusersView/{id}', [FloorplanController::class, 'leagueusersView'])->name('leagueusersView');
-Route::get('/award-nominations', [AwardNominationController::class, 'index'])->name('awardNominations');
-Route::post('/award-nominations/{id}/winner', [AwardNominationController::class, 'selectWinner'])->name('awardNominations.winner');
-Route::post('/award-nominations/{id}/status', [AwardNominationController::class, 'updateStatus'])->name('awardNominations.status');
-Route::post('/award-nominations/{id}/reset-winner', [AwardNominationController::class, 'resetWinner'])->name('awardNominations.resetWinner');
 
 
 // Sections
 Route::get('/{webmasterId}/categories', [CategoriesController::class, 'index'])->name('categories');
+Route::get('/award-nominations', [AwardNominationController::class, 'index'])->name('awardNominations');
+Route::post('/award-nominations/{id}/winner', [AwardNominationController::class, 'selectWinner'])->name('awardNominations.winner');
+Route::post('/award-nominations/{id}/status', [AwardNominationController::class, 'updateStatus'])->name('awardNominations.status');
+Route::post('/award-nominations/{id}/reset-winner', [AwardNominationController::class, 'resetWinner'])->name('awardNominations.resetWinner');
 Route::get('/{webmasterId}/categories/create', [CategoriesController::class, 'create'])->name('categoriesCreate');
 Route::post('/{webmasterId}/categories/store', [CategoriesController::class, 'store'])->name('categoriesStore');
 Route::get('/{webmasterId}/categories/{id}/edit', [CategoriesController::class, 'edit'])->name('categoriesEdit');
@@ -144,10 +143,10 @@ Route::post('/{webmasterId}/topics/store', [TopicsController::class, 'store'])->
 Route::get('/{webmasterId}/topics/{id}/edit', [TopicsController::class, 'edit'])->name('topicsEdit');
 Route::get('/{webmasterId}/topics/{id}/clone', [TopicsController::class, 'clone'])->name('topicsClone');
 Route::post('/{webmasterId}/topics/{id}/update', [TopicsController::class, 'update'])->name('topicsUpdate');
-Route::post('/{webmasterId}/topics/{id}/speaker-position', [TopicsController::class, 'updateSpeakerPosition'])->name('topicsSpeakerPosition');
 Route::get('/{webmasterId}/topics/destroy/{id?}', [TopicsController::class, 'destroy'])->name('topicsDestroy');
 Route::post('/{webmasterId}/topics/updateAll', [TopicsController::class, 'updateAll'])->name('topicsUpdateAll');
 Route::get('/{webmasterId}/print', [TopicsController::class, 'print'])->name('topicsPrint');
+Route::post('/{webmasterId}/topics/{id}/speaker-position', [TopicsController::class, 'updateSpeakerPosition'])->name('topicsSpeakerPosition');
 // Topics :SEO
 Route::post('/{webmasterId}/topics/{id}/seo', [TopicsController::class, 'seo'])->name('topicsSEOUpdate');
 // Topics :Photos
@@ -364,7 +363,3 @@ Route::get('/email-templates', [EmailTemplateController::class, 'index'])->name(
 Route::post('/email-templates/store', [EmailTemplateController::class, 'store'])->name('email-templates.store');
 Route::get('/email-templates/{id}', [EmailTemplateController::class, 'show'])->whereNumber('id')->name('email-templates.show');
 Route::delete('/delete-template/{id}', [EmailTemplateController::class, 'destroy'])->name('email-templates.destroy');
-
-
-
-

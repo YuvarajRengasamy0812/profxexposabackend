@@ -24,14 +24,7 @@
                         <p style="margin:0; color:#566677; font-size:15px; line-height:1.7;">Thank you for being part of PROFX EXPO AFRICA 2026. Please join our official Telegram and WhatsApp groups to receive daily updates and important event information.</p>
                     </td>
                 </tr>
-
-                <tr>
-                    <td align="center" style="padding:16px 28px 22px;">
-                        <img src="{{ $heroImage ?? 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/telgram.png' }}" alt="Join PROFX Expo Africa official Telegram and WhatsApp groups" width="624" style="display:block; width:100%; max-width:624px; height:auto; border-radius:16px; border:1px solid #dde7e0;">
-                    </td>
-                </tr>
-
-                <tr>
+                 <tr>
                     <td align="center" style="padding:0 28px 24px;">
                         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                             <tr>
@@ -62,6 +55,14 @@
                         </table>
                     </td>
                 </tr>
+
+                <tr>
+                    <td align="center" style="padding:16px 28px 22px;">
+                        <img src="{{ $heroImage ?? 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/telgram.png' }}" alt="Join PROFX Expo Africa official Telegram and WhatsApp groups" width="624" style="display:block; width:100%; max-width:624px; height:auto; border-radius:16px; border:1px solid #dde7e0;">
+                    </td>
+                </tr>
+
+               
 
                 <tr>
                     <td style="padding:0 28px 30px;">

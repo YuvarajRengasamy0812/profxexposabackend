@@ -12,7 +12,7 @@ class BookingLeague extends Model
     protected $table = 'booking_leagues';
 
   protected $fillable = [
-    'name',
+  'name',
     'email',
     'phone',
     'country',
@@ -29,5 +29,3 @@ class BookingLeague extends Model
 
 
 }
-
-

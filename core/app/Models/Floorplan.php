@@ -33,7 +33,5 @@ class Floorplan extends Model
         'approved_by',
         'booth_design',
         'booth_design_image'
-];
+    ];
 }
-
-

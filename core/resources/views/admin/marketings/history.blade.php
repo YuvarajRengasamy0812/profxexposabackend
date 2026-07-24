@@ -30,6 +30,7 @@
                     <a href="{{ route('marketingCampaignsCreate') }}" class="btn btn-sm" style="background:#fff;color:#0f766e;font-weight:600;border-radius:10px;border:none;">
                         <i class="fe fe-plus me-1"></i> New Campaign
                     </a>
+                    
                 </div>
             </div>
         </div>

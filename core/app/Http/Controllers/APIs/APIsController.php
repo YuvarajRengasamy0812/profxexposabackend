@@ -42,7 +42,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class APIsController extends Controller
 {
-    private function createReferralCodeForUser(UserRegister $user): string
+    
+        private function createReferralCodeForUser(UserRegister $user): string
     {
         return 'PFX' . str_pad((string) $user->id, 6, '0', STR_PAD_LEFT);
     }
@@ -50,14 +51,11 @@ class APIsController extends Controller
     private function createReferralLink(string $referralCode, ?string $frontendUrl = null): string
     {
         $baseUrl = $frontendUrl ?: 'https://profxexpo.com/africa/LeagueEnroll';
-        $separator = strpos($baseUrl, '?') !== false ? '&' : '?';
+        $separator = str_contains($baseUrl, '?') ? '&' : '?';
 
         return $baseUrl . $separator . 'ref=' . urlencode($referralCode);
     }
-    private function createLeagueReferralCode(BookingLeague $booking): string
-    {
-        return 'PFXL' . str_pad((string) $booking->id, 6, '0', STR_PAD_LEFT);
-    }
+    
     private function generateLeagueUserHeroImage(BookingLeague $booking): ?string
     {
         if (!extension_loaded('gd') || !function_exists('imagettftext')) {
@@ -131,7 +129,6 @@ class APIsController extends Controller
 
         imagettftext($image, $size, 0, $x, $y, $color, $font, $text);
     }
-
     
      protected $uploadPath = 'uploads/topics/';
     public function __construct()
@@ -197,7 +194,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
         exit();
     }
 
-
 public function BookingLeague(Request $request)
 {
     $validated = $request->validate([
@@ -260,7 +256,7 @@ public function BookingLeague(Request $request)
         'referrer_name' => $referrer?->full_name ?? $leagueReferrer?->name,
     ]);
 
-    $booking->own_referral_code = 'PFXL' . str_pad((string) $booking->id, 6, '0', STR_PAD_LEFT);
+   $booking->own_referral_code = 'PFXL' . str_pad((string) $booking->id, 6, '0', STR_PAD_LEFT);
 
     $baseReferralUrl = $request->frontend_url ?: 'https://profxexpo.com/africa/LeagueEnroll';
     $separator = strpos($baseReferralUrl, '?') !== false ? '&' : '?';
@@ -298,6 +294,7 @@ public function BookingLeague(Request $request)
         ],
     ], 201);
 }
+
     public function website_status()
     {
         // Get Site Settings
@@ -2816,13 +2813,12 @@ public function blog()
 //         'user_type' => 'required',
 //         'nationality' => 'required',
 //         'password' => 'required|min:6',
-//         'password_confirmation' => 'required|same:password',
-//         'frontend_url' => 'nullable|string|max:500'
+//         'password_confirmation' => 'required|same:password'
 //     ]);
 
 //     if ($request->api_key == Helper::GeneralWebmasterSettings("api_key")) {
 
-//         // ? Save user
+//         // ✅ Save user
 //         $user = new UserRegister();
 //         $user->full_name = $request->full_name;
 //         $user->email = $request->email;
@@ -2835,7 +2831,6 @@ public function blog()
 //         $user->sponsor_package = $request->sponsor_package;
 //         $user->products_services = $request->products_services;
 //         $user->save();
-
 
 //         return response()->json([
 //             'code' => '1',
@@ -2871,7 +2866,7 @@ public function downloadTicket(UserRegister $user)
 
 public function registerSubmit(Request $request)
 {
-    // ? Validation
+    // ✅ Validation
     $this->validate($request, [
         'api_key' => 'required',
         'full_name' => 'required',
@@ -2881,11 +2876,12 @@ public function registerSubmit(Request $request)
         'user_type' => 'required',
         'nationality' => 'required',
         'password' => 'required|min:6',
-        'password_confirmation' => 'required|same:password',
+    
+         'password_confirmation' => 'required|same:password',
         'frontend_url' => 'nullable|string|max:500'
     ]);
 
-    // ?? API KEY CHECK
+    // 🔐 API KEY CHECK
     if ($request->api_key != Helper::GeneralWebmasterSettings("api_key")) {
         return response()->json([
             'code' => '-1',
@@ -2893,7 +2889,7 @@ public function registerSubmit(Request $request)
         ], 500);
     }
 
-    // ? Save user
+    // ✅ Save user
     $user = new UserRegister();
     $user->full_name = $request->full_name;
     $user->email = $request->email;
@@ -2930,13 +2926,13 @@ try {
 }
 
 
-    // ? Send registration email via Brevo API
+    // ✅ Send registration email via Brevo API
     try {
         $mailService = new MailService();
 
         $mailData = [
-            'title'             => 'Welcome to PROFX Expo Africa 2026',
-            'details'           => "Hi {$user->full_name},<br><br>Thank you for registering for PROFX Expo Africa 2026.<br>You can now login with your email.<br><br>Regards,<br>PROFX Team",
+            'title'             => 'Welcome to PROFX EXPO AFRICA 2026',
+            'details'           => "Hi {$user->full_name},<br><br>Thank you for registering for PROFX EXPO AFRICA 2026.<br>You can now login with your email.<br><br>Regards,<br>PROFX Team",
             'logo'              => 'https://profxexpo.com/africa/adminpanel/uploads/settings/17791964093936.png',
             'ticket_header'     => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792010449837.png',
             'ticket_footer'     => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792011237810.png',
@@ -2946,7 +2942,7 @@ try {
 
         $result = $mailService->sendEmail(
             $user->email,
-            'Ticket - PROFX Expo Africa',
+            'Ticket - PROFX EXPO AFRICA 2026',
             'emails.registration', // Blade template
             $mailData
         );
@@ -2977,7 +2973,7 @@ try {
 
         $completedResult = $completedMailService->sendEmail(
             $user->email,
-            'Register Completed - PROFX Expo Africa',
+            'Registration Successfull - PROFX EXPO AFRICA 2026',
             'emails.register-completed',
             $completedMailData
         );
@@ -2990,8 +2986,6 @@ try {
     } catch (\Exception $e) {
         \Log::error('Exception sending register completed email: ' . $e->getMessage());
     }
-
-    // ? Response
     return response()->json([
         'code' => '1',
         'msg'  => 'Registration successful',
@@ -3002,91 +2996,21 @@ try {
         ]
     ], 201);
 }
-public function awardNominationSubmit(Request $request)
-{
-    $this->validate($request, [
-        'api_key' => 'required',
-        'user_id' => 'nullable|integer',
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'company' => 'required|string|max:255',
-        'phone' => 'required|string|max:80',
-        'website' => 'nullable|string|max:255',
-        'category' => 'required|string|max:255',
-        'award_title' => 'required|string|max:255',
-        'reason' => 'required|string|max:3000',
-    ]);
 
-    if ($request->api_key != Helper::GeneralWebmasterSettings("api_key")) {
-        return response()->json([
-            'code' => '-1',
-            'msg' => 'Authentication failed'
-        ], 500);
-    }
-
-    $registeredUser = null;
-    if ($request->filled('user_id')) {
-        $registeredUser = UserRegister::find($request->user_id);
-    }
-
-    if (!$registeredUser) {
-        $registeredUser = UserRegister::where('email', $request->email)->first();
-    }
-
-    if (!$registeredUser) {
-        return response()->json([
-            'code' => '-1',
-            'msg' => 'Please register before submitting an award nomination.'
-        ], 403);
-    }
-
-    $exists = DB::table('award_nominations')
-        ->where('email', $request->email)
-        ->where('award_title', $request->award_title)
-        ->exists();
-
-    if ($exists) {
-        return response()->json([
-            'code' => '-1',
-            'msg' => 'You have already submitted a nomination for this award category.'
-        ], 422);
-    }
-
-    $id = DB::table('award_nominations')->insertGetId([
-        'user_id' => $registeredUser->id,
-        'name' => $request->name,
-        'email' => $request->email,
-        'company' => $request->company,
-        'phone' => $request->phone,
-        'website' => $request->website,
-        'category' => $request->category,
-        'award_title' => $request->award_title,
-        'reason' => $request->reason,
-        'status' => 'pending',
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-
-    return response()->json([
-        'code' => '1',
-        'msg' => 'Award nomination submitted successfully',
-        'data' => ['id' => $id],
-    ], 201);
-}
 
  public function loginSubmit(Request $request)
     {
-        // ? Validation
+        // ✅ Validation
         $this->validate($request, [
             'api_key' => 'required',
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        // ?? API KEY CHECK (BODY)
+        // 🔐 API KEY CHECK (BODY)
         if ($request->api_key == Helper::GeneralWebmasterSettings("api_key")) {
 
-            // ? Check user
+            // ✅ Check user
             $user = UserRegister::where('email', $request->email)->first();
 
             if (!$user) {
@@ -3096,7 +3020,7 @@ public function awardNominationSubmit(Request $request)
                 ], 404);
             }
 
-            // ? Password check
+            // ✅ Password check
             if (!Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'code' => '0',
@@ -3104,7 +3028,7 @@ public function awardNominationSubmit(Request $request)
                 ], 401);
             }
 
-            // ? Login success
+            // ✅ Login success
             return response()->json([
                 'code' => '1',
                 'msg' => 'Login successful',
@@ -3116,13 +3040,16 @@ public function awardNominationSubmit(Request $request)
                      'company_name'=>$user->company_name,
                       'phone' => $user->phone,
                     'nationality'=>$user->nationality,
+                   
+                    'sponsor_package'=>$user->sponsor_package,
                     'special_requirements'=>$user->special_requirements,
                     'sponsor_package'=>$user->sponsor_package,
                     'products_services'=>$user->products_services,
                     'profile_photo'=>$user->profile_photo ?? null,
                     'profile_photo_url'=>!empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
-                    'referral_code'=>$user->referral_code ?? null,
+                     'referral_code'=>$user->referral_code ?? null,
                     'referral_link'=>$user->referral_link ?? null
+
                 ]
             ], 200);
 
@@ -3133,7 +3060,6 @@ public function awardNominationSubmit(Request $request)
             ], 500);
         }
     }
-
 
 public function updateClientProfile(Request $request)
 {
@@ -3150,6 +3076,8 @@ public function updateClientProfile(Request $request)
         'products_services' => 'nullable|string|max:1000',
         'special_requirements' => 'nullable|string|max:5000',
         'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
+         'referral_code' => $user->referral_code ?? null,
+            'referral_link' => $user->referral_link ?? null,
     ]);
 
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
@@ -3219,8 +3147,6 @@ public function updateClientProfile(Request $request)
             'products_services' => $user->products_services,
             'profile_photo' => $user->profile_photo,
             'profile_photo_url' => !empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
-            'referral_code' => $user->referral_code ?? null,
-            'referral_link' => $user->referral_link ?? null,
         ],
     ], 200);
 }
@@ -3256,6 +3182,7 @@ public function updateClientPassword(Request $request)
         'msg' => 'Password updated successfully',
     ], 200);
 }
+
 public function TicketPage(Request $request)
 {
     // Validate request
@@ -3336,7 +3263,7 @@ public function TicketPage(Request $request)
 
 public function TicketList(Request $request)
 {
-    // ? API key check
+    // ✅ API key check
     $apiKey = $request->query('api_key');
     $correctApiKey = Helper::GeneralWebmasterSettings("api_key");
 
@@ -3377,18 +3304,18 @@ public function TicketList(Request $request)
 
 public function BookingPageSubmit(Request $request)
 {
-    // ? Validate request data
+    // ✅ Validate request data
     $validated = $request->validate([
         'name'    => 'required|string|max:255',
         'email'   => 'required|email|max:255',
         'phone'   => 'required|string|max:20',
         'address' => 'required|string',
         'role'    => 'required|string|max:100',
-        'referral_code' => 'nullable|string|max:50',
+         'referral_code' => 'nullable|string|max:50',
         'api_key' => 'required|string',
     ]);
 
-    // ? API Key check
+    // ✅ API Key check
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
         return response()->json([
             'code' => -1,
@@ -3396,7 +3323,7 @@ public function BookingPageSubmit(Request $request)
         ], 401);
     }
 
-    // ? Save booking
+    // ✅ Save booking
     $booking = Booking::create([
         'name'    => $validated['name'],
         'email'   => $validated['email'],
@@ -3405,7 +3332,7 @@ public function BookingPageSubmit(Request $request)
         'role'    => $validated['role'],
     ]);
 
-    // ? Success response
+    // ✅ Success response
     return response()->json([
         'code' => 1,
         'msg'  => 'Registration successful',
@@ -3418,7 +3345,7 @@ public function BookingPageSubmit(Request $request)
 
 public function exhibitorsSubmit(Request $request)
 {
-    // ? Validation (same style as subscribe)
+    // ✅ Validation (same style as subscribe)
     $this->validate($request, [
         'api_key' => 'required',
         'full_name' => 'required',
@@ -3429,13 +3356,13 @@ public function exhibitorsSubmit(Request $request)
         'nationality' => 'required',
         'password' => 'required|min:6',
         'password_confirmation' => 'required|same:password',
-        'frontend_url' => 'nullable|string|max:500'
+         'frontend_url' => 'nullable|string|max:500'
     ]);
 
-    // ?? API KEY CHECK (BODY la irundhu)
+    // 🔐 API KEY CHECK (BODY la irundhu)
     if ($request->api_key == Helper::GeneralWebmasterSettings("api_key")) {
 
-        // ? Save user
+        // ✅ Save user
         $user = new Exhibitors();
         $user->full_name = $request->full_name;
         $user->email = $request->email;
@@ -3446,7 +3373,7 @@ public function exhibitorsSubmit(Request $request)
         $user->password = \Hash::make($request->password);
         $user->special_requirements = $request->special_requirements;
         $user->sponsor_package = $request->sponsor_package;
-    $user->products_services = $request->products_services;
+      $user->products_services = $request->products_services;
     $user->save();
 
 
@@ -3460,7 +3387,7 @@ public function exhibitorsSubmit(Request $request)
     ], 201);
 
     } else {
-        // ? API KEY FAILED
+        // ❌ API KEY FAILED
         return response()->json([
             'code' => '-1',
             'msg' => 'Authentication failed'
@@ -3470,7 +3397,7 @@ public function exhibitorsSubmit(Request $request)
 
 public function FloorplanSubmit(Request $request)
 {
-    // ? Validate request
+    // ✅ Validate request
     $validated = $request->validate([
         'name'         => 'required|string|max:255',
         'email'        => 'required|email|max:255',
@@ -3487,7 +3414,7 @@ public function FloorplanSubmit(Request $request)
         'api_key'      => 'required|string',
     ]);
 
-    // ? API key check
+    // ✅ API key check
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
         return response()->json([
             'code' => -1,
@@ -3495,12 +3422,12 @@ public function FloorplanSubmit(Request $request)
         ], 401);
     }
 
-    // ? remove api_key before DB save
+    // ❌ remove api_key before DB save
     unset($validated['api_key']);
 
     $filePath = null;
 
-    // ? File upload
+    // ✅ File upload
     if ($request->hasFile('file')) {
 
         $file = $request->file('file');
@@ -3509,18 +3436,18 @@ public function FloorplanSubmit(Request $request)
         $path = $this->uploadPath; // example: uploads/topics/
         $file->move($path, $fileFinalName);
 
-        // ? Resize only for images
+        // ✅ Resize only for images
         if (in_array($file->getClientOriginalExtension(), ['jpg','jpeg','png'])) {
             Helper::imageResize($path . $fileFinalName);
             Helper::imageOptimize($path . $fileFinalName);
         }
 
-        // ? Save filename into validated data
+        // ✅ Save filename into validated data
         $validated['file'] = $fileFinalName;
         $filePath = url($path . $fileFinalName);
     }
 
-    // ? Save to DB
+    // ✅ Save to DB
     $floorplan = Floorplan::create($validated);
 
     return response()->json([
@@ -3533,6 +3460,46 @@ public function FloorplanSubmit(Request $request)
     ], 201);
 }
 
+
+// public function floorplanList(Request $request)
+// {
+//     $GeneralWebmasterSections = WebmasterSection::where('status', 1)
+//         ->orderBy('row_no', 'asc')
+//         ->get();
+
+//     $query = DB::table('floorplans');
+
+//     // 🔍 Search filters
+//     if ($request->filled('email')) {
+//         $query->where('email', 'like', '%' . $request->email . '%');
+//     }
+
+//     if ($request->filled('boothtitle')) {
+//         $query->where('boothtitle', 'like', '%' . $request->boothtitle . '%');
+//     }
+
+//     // 📄 Pagination
+//     $floorplans = $query
+//         ->orderBy('created_at', 'DESC')
+//         ->paginate(10)
+//         ->appends($request->query());
+
+//     // ✅ Add full image path
+//     $floorplans->getCollection()->transform(function ($item) {
+//         $item->company_logo = $item->company_logo
+//             ? url('uploads/settings/' . $item->company_logo)
+//             : null;
+//         return $item;
+//     });
+
+//     return response()->json([
+//         'msg' => 'All Floorplans fetched successfully',
+//         'details' => [
+//             'tickets' => $floorplans,
+//             'general_webmaster_sections' => $GeneralWebmasterSections,
+//         ]
+//     ], 200);
+// }
 
 public function floorplanList(Request $request)
 {
@@ -3843,120 +3810,35 @@ public function deleteClientSpeaker(Request $request, $id)
     return response()->json(['code' => 1, 'msg' => 'Speaker profile deleted successfully'], 200);
 }
 
-public function clientAwardNominationList(Request $request)
-{
-    $validated = $request->validate([
-        'api_key' => 'required|string',
-        'email' => 'nullable|email|max:255',
-        'user_id' => 'nullable|integer',
-    ]);
 
-    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
-        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
-    }
 
-    $query = DB::table('award_nominations');
-
-    if ($request->filled('user_id')) {
-        $query->where('user_id', $request->user_id);
-    } elseif ($request->filled('email')) {
-        $query->where('email', $request->email);
-    } else {
-        return response()->json(['code' => -1, 'msg' => 'Email or user id is required'], 422);
-    }
-
-    $awards = $query->orderBy('created_at', 'desc')
-        ->get()
-        ->map(function ($award) {
-            $award->status_label = ucfirst((string) ($award->status ?: 'pending'));
-            $award->submitted_at = $award->created_at;
-            return $award;
-        });
-
-    return response()->json([
-        'code' => 1,
-        'msg' => 'Client award nominations fetched successfully',
-        'details' => $awards,
-    ], 200);
-}
-
-public function clientLeagueReferralList(Request $request)
-{
-    $validated = $request->validate([
-        'api_key' => 'required|string',
-        'email' => 'nullable|email|max:255',
-        'user_id' => 'nullable|integer',
-    ]);
-
-    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
-        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
-    }
-
-    $user = null;
-    if ($request->filled('user_id')) {
-        $user = UserRegister::find($request->user_id);
-    }
-
-    if (!$user && $request->filled('email')) {
-        $user = UserRegister::where('email', $request->email)->first();
-    }
-
-    if (!$user) {
-        return response()->json(['code' => -1, 'msg' => 'User not found'], 404);
-    }
-
-    $referralCode = $user->referral_code;
-
-    $referrals = DB::table('booking_leagues')
-        ->where(function ($query) use ($user, $referralCode) {
-            $query->where('referred_by_user_id', $user->id);
-            if (!empty($referralCode)) {
-                $query->orWhere('referral_code', $referralCode);
-            }
-        })
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->map(function ($booking) {
-            $booking->league_id = 'PFXL-' . str_pad((string) $booking->id, 5, '0', STR_PAD_LEFT);
-            return $booking;
-        });
-
-    return response()->json([
-        'code' => 1,
-        'msg' => 'Client league referrals fetched successfully',
-        'details' => $referrals,
-        'data' => [
-            'referral_code' => $user->referral_code,
-            'referral_link' => $user->referral_link,
-        ],
-    ], 200);
-}
 public function Sponsors()
 {
     $lang = Helper::currentLanguage()->code;
 
-    // 1?? Get the "Sponsors" section
+    // 1️⃣ Get the "Sponsors" section
     $sportsSection = WebmasterSection::where('title_en', 'Sponsors')
         ->where('status', 1)
         ->firstOrFail();
 
-    // 2?? Get Categories under Sponsors
+    // 2️⃣ Get Categories under Sponsors
     $categories = Section::where('webmaster_id', $sportsSection->id)
         ->where('status', 1)
         ->orderBy('row_no')
         ->get();
 
-    // 3?? Get Topics under Sponsors
+    // 3️⃣ Get Topics under Sponsors
     $topics = Topic::where('webmaster_id', $sportsSection->id)
         ->where('status', 1)
+        
         ->get();
 
-    // 4?? Get Topic ? Category mapping
+    // 4️⃣ Get Topic → Category mapping
     $topicCategories = TopicCategory::whereIn('topic_id', $topics->pluck('id'))
         ->get()
         ->groupBy('topic_id');
 
-    // 5?? Build categories array with their topics
+    // 5️⃣ Build categories array with their topics
     $categoriesWithTopics = [];
     $filter = []; // Optional: list of category names for filtering
 
@@ -3989,7 +3871,7 @@ public function Sponsors()
         $filter[] = strtoupper(trim($cat->title_en));
     }
 
-    // 6?? Return JSON
+    // 6️⃣ Return JSON
     return response()->json([
         'success' => true,
         'categories' => $categoriesWithTopics,
@@ -4002,41 +3884,48 @@ public function speakers()
 {
     $lang = Helper::currentLanguage()->code;
 
+    // 1️⃣ Get the "Speakers" section
     $speakersSection = WebmasterSection::where('title_en', 'speakers')
         ->where('status', 1)
         ->firstOrFail();
 
+    // 2️⃣ Get all fields defined for this section (field definitions)
     $sectionFields = DB::table('webmaster_section_fields')
         ->where('webmaster_id', $speakersSection->id)
         ->where('status', 1)
         ->orderBy('row_no')
         ->get();
 
+    // 3️⃣ Get all topics under this section
     $topics = Topic::where('webmaster_id', $speakersSection->id)
         ->where('status', 1)
-        ->orderByRaw('CASE WHEN row_no IS NULL OR row_no = 0 THEN 999999 ELSE row_no END ASC')
+         ->orderByRaw('CASE WHEN row_no IS NULL OR row_no = 0 THEN 999999 ELSE row_no END ASC')
         ->orderBy('id', 'ASC')
         ->get();
 
     $topicIds = $topics->pluck('id');
 
+    // 4️⃣ Get all topic field values for these topics
     $topicFields = DB::table('topic_fields')
         ->whereIn('topic_id', $topicIds)
         ->get()
         ->groupBy('topic_id');
 
-    $topicsList = $topics->map(function ($topic) use ($topicFields, $sectionFields) {
+    // 5️⃣ Build topics list with all extra fields
+    $topicsList = $topics->map(function($topic) use ($topicFields, $sectionFields) {
         $fields = [];
 
+        // Check if this topic has fields
         if (isset($topicFields[$topic->id])) {
             foreach ($topicFields[$topic->id] as $tf) {
+                // Get field definition (title/type)
                 $fieldDef = $sectionFields->firstWhere('id', $tf->field_id);
 
                 $fields[] = [
                     'field_id' => $tf->field_id,
-                    'field_title' => $fieldDef->title_en ?? '',
-                    'value' => $tf->field_value,
-                    'type' => $fieldDef->type ?? 'text',
+                    'field_title' => $fieldDef->title_en ?? '', // show label
+                    'value' => $tf->field_value, // the actual stored value
+                    'type' => $fieldDef->type ?? 'text', // field type
                 ];
             }
         }
@@ -4045,15 +3934,17 @@ public function speakers()
             'id' => $topic->id,
             'title' => $topic->title_en,
             'description' => $topic->details_en ?? '',
-            'image' => $topic->photo_file ? url('uploads/topics/' . $topic->photo_file) : null,
-            'fields' => $fields,
-            'speaker_order' => ($topic->row_no && $topic->row_no > 0) ? (int) $topic->row_no : 999999,
+            'image' => $topic->photo_file 
+                ? url('uploads/topics/' . $topic->photo_file) 
+                : null,
+            'fields' => $fields, // all extra fields included here
+              'speaker_order' => ($topic->row_no && $topic->row_no > 0) ? (int) $topic->row_no : 999999,
             'speaker_source' => 'admin',
         ];
     });
 
     $approvedClientSpeakers = ClientSpeaker::where('status', 'approved')
-        ->orderByRaw('CASE WHEN display_order IS NULL OR display_order = 0 THEN 999999 ELSE display_order END ASC')
+      ->orderByRaw('CASE WHEN display_order IS NULL OR display_order = 0 THEN 999999 ELSE display_order END ASC')
         ->orderBy('approved_at', 'DESC')
         ->orderBy('updated_at', 'DESC')
         ->get();
@@ -4094,21 +3985,22 @@ public function speakers()
             ],
         ]);
     }
-
-    $topicsList = $topicsList->sortBy([
+       $topicsList = $topicsList->sortBy([
         ['speaker_order', 'asc'],
         ['id', 'asc'],
     ])->values();
-
+    // 6️⃣ Return JSON
     return response()->json([
         'success' => true,
-        'section_fields' => $sectionFields,
-        'topics' => $topicsList,
+        'section_fields' => $sectionFields, // optional: all field definitions
+        'topics' => $topicsList,            // topics with extra labels
         'count' => $topicsList->count(),
     ]);
 }
 
-public function influencer()
+
+
+     public function influencer()
 {
     $lang = Helper::currentLanguage()->code;
 
@@ -4215,32 +4107,32 @@ public function influencers()
 {
     $lang = Helper::currentLanguage()->code;
 
-    // 1?? Get influencers section
+    // 1️⃣ Get influencers section
     $influencersSection = WebmasterSection::where('title_en', 'influencers')
         ->where('status', 1)
         ->firstOrFail();
 
-    // 2?? Get section fields
+    // 2️⃣ Get section fields
     $sectionFields = DB::table('webmaster_section_fields')
         ->where('webmaster_id', $influencersSection->id)
         ->where('status', 1)
         ->orderBy('row_no')
         ->get();
 
-    // 3?? Get topics
+    // 3️⃣ Get topics
     $topics = Topic::where('webmaster_id', $influencersSection->id)
         ->where('status', 1)
         ->get();
 
     $topicIds = $topics->pluck('id');
 
-    // 4?? Get topic fields
+    // 4️⃣ Get topic fields
     $topicFields = DB::table('topic_fields')
         ->whereIn('topic_id', $topicIds)
         ->get()
         ->groupBy('topic_id');
 
-    // 5?? Get topic tags
+    // 5️⃣ Get topic tags
     $topicTags = DB::table('topic_tags')
         ->join('tags', 'topic_tags.tag_id', '=', 'tags.id')
         ->whereIn('topic_tags.topic_id', $topicIds)
@@ -4254,7 +4146,7 @@ public function influencers()
         ->get()
         ->groupBy('topic_id');
 
-    // 6?? Build response
+    // 6️⃣ Build response
     $topicsList = $topics->map(function ($topic) use ($topicFields, $sectionFields, $topicTags) {
 
         $fields = [];
@@ -4306,7 +4198,7 @@ public function influencers()
         ];
     });
 
-    // 7?? Return JSON
+    // 7️⃣ Return JSON
     return response()->json([
         'success' => true,
         'section_fields' => $sectionFields,
@@ -4315,24 +4207,164 @@ public function influencers()
     ]);
 }
 
+public function awardNominationSubmit(Request $request)
+{
+    $this->validate($request, [
+        'api_key' => 'required',
+        'user_id' => 'nullable|integer',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'company' => 'required|string|max:255',
+        'phone' => 'required|string|max:80',
+        'website' => 'nullable|string|max:255',
+        'category' => 'required|string|max:255',
+        'award_title' => 'required|string|max:255',
+        'reason' => 'required|string|max:3000',
+    ]);
 
+    if ($request->api_key != Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json([
+            'code' => '-1',
+            'msg' => 'Authentication failed'
+        ], 500);
+    }
+
+    $registeredUser = null;
+    if ($request->filled('user_id')) {
+        $registeredUser = UserRegister::find($request->user_id);
+    }
+
+    if (!$registeredUser) {
+        $registeredUser = UserRegister::where('email', $request->email)->first();
+    }
+
+    if (!$registeredUser) {
+        return response()->json([
+            'code' => '-1',
+            'msg' => 'Please register before submitting an award nomination.'
+        ], 403);
+    }
+
+    $exists = DB::table('award_nominations')
+        ->where('email', $request->email)
+        ->where('award_title', $request->award_title)
+        ->exists();
+
+    if ($exists) {
+        return response()->json([
+            'code' => '-1',
+            'msg' => 'You have already submitted a nomination for this award category.'
+        ], 422);
+    }
+
+    $id = DB::table('award_nominations')->insertGetId([
+        'user_id' => $registeredUser->id,
+        'name' => $request->name,
+        'email' => $request->email,
+        'company' => $request->company,
+        'phone' => $request->phone,
+        'website' => $request->website,
+        'category' => $request->category,
+        'award_title' => $request->award_title,
+        'reason' => $request->reason,
+        'status' => 'pending',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return response()->json([
+        'code' => '1',
+        'msg' => 'Award nomination submitted successfully',
+        'data' => ['id' => $id],
+    ], 201);
+}
+public function clientAwardNominationList(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'nullable|email|max:255',
+        'user_id' => 'nullable|integer',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $query = DB::table('award_nominations');
+
+    if ($request->filled('user_id')) {
+        $query->where('user_id', $request->user_id);
+    } elseif ($request->filled('email')) {
+        $query->where('email', $request->email);
+    } else {
+        return response()->json(['code' => -1, 'msg' => 'Email or user id is required'], 422);
+    }
+
+    $awards = $query->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($award) {
+            $award->status_label = ucfirst((string) ($award->status ?: 'pending'));
+            $award->submitted_at = $award->created_at;
+            return $award;
+        });
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Client award nominations fetched successfully',
+        'details' => $awards,
+    ], 200);
 }
 
+public function clientLeagueReferralList(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'nullable|email|max:255',
+        'user_id' => 'nullable|integer',
+    ]);
 
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
 
+    $user = null;
+    if ($request->filled('user_id')) {
+        $user = UserRegister::find($request->user_id);
+    }
 
+    if (!$user && $request->filled('email')) {
+        $user = UserRegister::where('email', $request->email)->first();
+    }
 
+    if (!$user) {
+        return response()->json(['code' => -1, 'msg' => 'User not found'], 404);
+    }
 
+    $referralCode = $user->referral_code;
 
+    $referrals = DB::table('booking_leagues')
+        ->where(function ($query) use ($user, $referralCode) {
+            $query->where('referred_by_user_id', $user->id);
+            if (!empty($referralCode)) {
+                $query->orWhere('referral_code', $referralCode);
+            }
+        })
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($booking) {
+            $booking->league_id = 'PFXL-' . str_pad((string) $booking->id, 5, '0', STR_PAD_LEFT);
+            return $booking;
+        });
 
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Client league referrals fetched successfully',
+        'details' => $referrals,
+        'data' => [
+            'referral_code' => $user->referral_code,
+            'referral_link' => $user->referral_link,
+        ],
+    ], 200);
+}
 
-
-
-
-
-
-
-
-
-
-
+}

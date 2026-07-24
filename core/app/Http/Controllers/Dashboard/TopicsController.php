@@ -1416,6 +1416,7 @@ class TopicsController extends Controller
             return json_encode(array("stat" => "error", "id" => $id));
         }
     }
+
     public function updateSpeakerPosition(Request $request, $webmasterId, $id)
     {
         $request->validate([
@@ -2783,6 +2784,3 @@ class TopicsController extends Controller
         return redirect()->back();
     }
 }
-
-
-

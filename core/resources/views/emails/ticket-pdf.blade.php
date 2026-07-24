@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PROFX Summit Ticket</title>
+    <title>PROFX EXPO AFRICA 2026 TICKETS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,7 +38,7 @@
 <body>
     <div class="ticket">
         <!-- Ticket Header -->
-        <img src="{{'https://profxsummit.com/assets/images/ticket-header.png' }}" alt="Ticket Header">
+        <img src="{{'https://profxexpo.com/africa/adminpanel/uploads/topics/17792010449837.png' }}" alt="Ticket Header">
         {{-- <img src="{{ $ticket_header ?? 'https://profxsummit.com/assets/images/ticket-header.png' }}" alt="Ticket Header"> --}}
 
         <!-- Barcode + Name -->
@@ -48,7 +48,7 @@
         </div>
 
         <!-- Ticket Footer -->
-        <img src="{{'https://profxsummit.com/assets/images/ticket-footer.png' }}" alt="Ticket Footer">
+        <img src="{{'https://profxexpo.com/africa/adminpanel/uploads/topics/17792011237810.png' }}" alt="Ticket Footer">
         {{-- <img src="{{ $ticket_footer ?? 'https://profxsummit.com/assets/images/ticket-footer.png' }}" alt="Ticket Footer"> --}}
     </div>
 </body>

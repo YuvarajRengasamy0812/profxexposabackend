@@ -19,8 +19,8 @@ class MailService
             'timeout' => 20.0,
         ]);
 
-        $this->apiKey = config('services.brevo.api_key') ?: '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';
-        $this->senderName = config('services.brevo.sender_name') ?: 'PROFX Summit';
+        $this->apiKey = config('services.brevo.api_key') ?: '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';
+        $this->senderName = config('services.brevo.sender_name') ?: 'PROFX EXPO';
         $this->senderEmail = config('services.brevo.sender_email') ?: 'info@profxmedia.com';
     }
 
