@@ -31,6 +31,29 @@
 
 
 <script src="{{ asset('assets/dashboard/js/scripts/app.js') }}?v={{ Helper::system_version() }}" defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.profx-admin-table').forEach(function (table) {
+            table.classList.add('profx-card-table');
+            var headers = Array.from(table.querySelectorAll('thead th')).map(function (th, index) {
+                var label = th.textContent.replace(/\s+/g, ' ').trim();
+                if (!label && index === 0) {
+                    label = 'Select';
+                }
+                return label || 'Details';
+            });
+
+            table.querySelectorAll('tbody tr').forEach(function (row) {
+                Array.from(row.children).forEach(function (cell, index) {
+                    if (!cell.hasAttribute('data-label') && headers[index]) {
+                        cell.setAttribute('data-label', headers[index]);
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 {!! Helper::SaveVisitorInfo("Dashboard &raquo; ".trim($__env->yieldContent('title'))) !!}
 @stack('after-scripts')
+

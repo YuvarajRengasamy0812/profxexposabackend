@@ -393,7 +393,7 @@
                 </div>
             </div>
 
-            <table class="profx-admin-table">
+            <table class="profx-admin-table profx-card-table">
                 <thead>
                     <tr>
                         <th><input type="checkbox" class="profx-select-checkbox" id="selectAllUsers" title="Select all users on this page"></th>
@@ -413,26 +413,26 @@
                 <tbody>
                     @forelse($profxusers as $f)
                         <tr>
-                            <td><input type="checkbox" class="profx-select-checkbox user-select-checkbox" name="user_ids[]" value="{{ $f->id }}"></td>
-                            <td>{{ $f->id }}</td>
-                            <td>
+                            <td data-label="Select"><input type="checkbox" class="profx-select-checkbox user-select-checkbox" name="user_ids[]" value="{{ $f->id }}"></td>
+                            <td data-label="ID">{{ $f->id }}</td>
+                            <td data-label="Action">
                                 <a href="{{ route('profxusersView', $f->id) }}" class="btn btn-info" title="View"><i class="bi bi-eye"></i></a>
                             </td>
-                            <td>{{ $f->full_name }}</td>
-                            <td>{{ $f->user_type }}</td>
-                            <td>{{ $f->email }}</td>
-                            <td><span class="profx-ref-code">{{ $f->referral_code ?? '-' }}</span></td>
-                            <td>
+                            <td data-label="Name">{{ $f->full_name }}</td>
+                            <td data-label="Role">{{ $f->user_type }}</td>
+                            <td data-label="Email">{{ $f->email }}</td>
+                            <td data-label="Referral Code"><span class="profx-ref-code">{{ $f->referral_code ?? '-' }}</span></td>
+                            <td data-label="Referral Link">
                                 @if(!empty($f->referral_link))
                                     <a href="{{ $f->referral_link }}" target="_blank" class="profx-ref-link" title="{{ $f->referral_link }}">{{ $f->referral_link }}</a>
                                 @else
                                     -
                                 @endif
                             </td>
-                            <td>{{ $f->company_name }}</td>
-                            <td>{{ $f->phone }}</td>
-                            <td>{{ $f->nationality }}</td>
-                            <td>{{ $f->created_at }}</td>
+                            <td data-label="Company">{{ $f->company_name }}</td>
+                            <td data-label="Phone">{{ $f->phone }}</td>
+                            <td data-label="Country">{{ $f->nationality }}</td>
+                            <td data-label="Created At">{{ $f->created_at }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -621,5 +621,6 @@
     @endpush
 
 @endsection
+
 
 

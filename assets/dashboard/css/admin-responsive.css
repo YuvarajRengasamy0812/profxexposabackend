@@ -1,10 +1,31 @@
-/* Admin-only responsive and theme-safe fixes. */
+/* Admin-only responsive and theme-safe fixes.
+   Keep SmartEnd base theme intact; only normalize custom/new admin modules. */
 :root {
-    --admin-primary: #c19d38;
-    --admin-primary-dark: #9f7f25;
-    --admin-border: #e5e7eb;
-    --admin-muted-bg: #f8fafc;
-    --admin-text: #111827;
+    --profx-primary: #c19d38;
+    --profx-primary-dark: #9f7f25;
+    --profx-primary-soft: #fff7df;
+    --profx-surface: #ffffff;
+    --profx-surface-soft: #f8fafc;
+    --profx-border: #e2e8f0;
+    --profx-text: #0f172a;
+    --profx-muted: #64748b;
+    --profx-row-hover: #fffaf0;
+}
+
+.grey {
+    --profx-surface: rgba(255, 255, 255, 0.08);
+    --profx-surface-soft: rgba(255, 255, 255, 0.06);
+    --profx-border: rgba(148, 163, 184, 0.34);
+}
+
+.dark,
+.black {
+    --profx-surface: rgba(255, 255, 255, 0.08);
+    --profx-surface-soft: rgba(255, 255, 255, 0.06);
+    --profx-border: rgba(255, 255, 255, 0.16);
+    --profx-text: #f8fafc;
+    --profx-muted: rgba(255, 255, 255, 0.68);
+    --profx-row-hover: rgba(255, 255, 255, 0.1);
 }
 
 .app-body {
@@ -33,14 +54,9 @@
     width: 100%;
 }
 
-.app-body .table,
-.app-body .profx-admin-table,
-.app-body .profx-view-table {
-    min-width: 760px;
-}
-
 .app-body .table-responsive,
-.app-body .profx-admin-table-wrapper {
+.app-body .profx-admin-table-wrapper,
+.app-body .profx-table-scroll {
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
@@ -67,45 +83,145 @@
     white-space: nowrap;
 }
 
-.app-body .card,
-.app-body .box,
-.app-body .modal-content,
-.app-body .profx-admin-table,
-.app-body .profx-view-table {
-    border-radius: 8px;
+.profx-admin-table-wrapper,
+.profx-view-wrapper,
+.profx-view-shell {
+    background: var(--profx-surface) !important;
+    color: var(--profx-text) !important;
+    border: 1px solid var(--profx-border);
 }
 
-.app-body .profx-admin-table thead,
-.app-body .profx-view-table th,
-.app-body .table thead th {
-    background: var(--admin-primary);
+.profx-page-title,
+.profx-selected-count,
+.profx-bulk-field label,
+.profx-filter-field label,
+.profx-view-wrapper h4,
+.profx-view-shell h4,
+.profx-view-title {
+    color: var(--profx-text) !important;
 }
 
-.app-body .btn-primary,
-.app-body .btn.info,
-.app-body .btn-info,
-.app-body .profx-view-back-btn,
-.app-body .profx-view-file-link {
-    background-color: var(--admin-primary);
-    border-color: var(--admin-primary);
+.profx-page-count,
+.profx-help-text {
+    color: var(--profx-muted) !important;
 }
 
-.app-body .btn-primary:hover,
-.app-body .btn.info:hover,
-.app-body .btn-info:hover,
-.app-body .profx-view-back-btn:hover,
-.app-body .profx-view-file-link:hover {
-    background-color: var(--admin-primary-dark);
-    border-color: var(--admin-primary-dark);
+.profx-search-form,
+.profx-bulk-actions,
+.profx-admin-table,
+.profx-view-table {
+    border-color: var(--profx-border) !important;
 }
 
-.app-aside .navside .nav li.active > a,
-.app-aside .navside .nav li a:hover {
-    background-color: var(--admin-primary);
+.profx-search-form {
+    background: var(--profx-surface-soft) !important;
+}
+
+.profx-admin-table,
+.profx-view-table {
+    background: var(--profx-surface) !important;
+}
+
+.profx-admin-table thead,
+.profx-view-table th,
+.ref-table thead {
+    background: linear-gradient(90deg, var(--profx-primary), #d4b452) !important;
+}
+
+.profx-admin-table tbody td,
+.profx-view-table td,
+.dark .ref-table td,
+.black .ref-table td {
+    background: var(--profx-surface) !important;
+    border-color: var(--profx-border) !important;
+    color: var(--profx-text) !important;
+}
+
+.profx-admin-table tbody tr:hover td {
+    background: var(--profx-row-hover) !important;
+}
+
+.profx-ref-code,
+.ref-code-badge {
+    background: var(--profx-primary-soft) !important;
+    border: 1px solid rgba(193, 157, 56, 0.28);
+    color: #8a6815 !important;
+}
+
+.dark .profx-ref-code,
+.dark .ref-code-badge,
+.black .profx-ref-code,
+.black .ref-code-badge {
+    background: rgba(193, 157, 56, 0.18) !important;
+    color: #f8e7a1 !important;
+}
+
+.profx-ref-link,
+.current-file-preview a {
+    color: #2563eb !important;
+    overflow-wrap: anywhere;
+}
+
+.dark .profx-ref-link,
+.black .profx-ref-link,
+.dark .current-file-preview a,
+.black .current-file-preview a {
+    color: #93c5fd !important;
+}
+
+.profx-admin-table-wrapper .btn-primary,
+.profx-view-wrapper .btn-primary,
+.profx-view-shell .btn-primary,
+.profx-view-back-btn,
+.profx-view-file-link,
+.btn-gold {
+    background: linear-gradient(90deg, var(--profx-primary), #d4b452) !important;
+    border-color: var(--profx-primary) !important;
+    color: #fff !important;
+}
+
+.profx-admin-table-wrapper .btn-primary:hover,
+.profx-view-wrapper .btn-primary:hover,
+.profx-view-shell .btn-primary:hover,
+.profx-view-back-btn:hover,
+.profx-view-file-link:hover,
+.btn-gold:hover {
+    background: linear-gradient(90deg, #d4b452, var(--profx-primary-dark)) !important;
+    color: #fff !important;
+}
+
+.profx-admin-table-wrapper .btn-light,
+.profx-view-wrapper .btn-light,
+.profx-view-shell .btn-light {
+    background: var(--profx-surface) !important;
+    border-color: var(--profx-border) !important;
+    color: var(--profx-text) !important;
+}
+
+.dark .profx-admin-table-wrapper .form-control,
+.dark .profx-admin-table-wrapper .form-select,
+.dark .profx-view-wrapper .form-control,
+.dark .profx-view-wrapper .form-select,
+.black .profx-admin-table-wrapper .form-control,
+.black .profx-admin-table-wrapper .form-select,
+.black .profx-view-wrapper .form-control,
+.black .profx-view-wrapper .form-select {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--profx-border) !important;
+    color: #fff !important;
+}
+
+.dark .profx-admin-table-wrapper .form-control::placeholder,
+.black .profx-admin-table-wrapper .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.62) !important;
+}
+
+.profx-select-checkbox {
+    accent-color: var(--profx-primary);
 }
 
 #switcher {
-    z-index: 1050;
+    z-index: 1060;
 }
 
 #switcher .switcher {
@@ -136,8 +252,14 @@
     .app-body .padding,
     .app-body .p-a,
     .app-body .profx-admin-table-wrapper,
-    .app-body .profx-view-wrapper {
+    .app-body .profx-view-wrapper,
+    .app-body .profx-view-shell {
         padding: 16px;
+    }
+
+    .app-body .box-body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .app-body .box-header,
@@ -156,9 +278,24 @@
         padding-right: 8px;
     }
 
-    .app-body .profx-view-wrapper {
+    .app-body .profx-view-wrapper,
+    .app-body .profx-view-shell {
         margin: 16px auto;
         max-width: calc(100vw - 24px);
+    }
+
+    .app-body .form-group.row > label,
+    .app-body .form-group.row > .form-control-label {
+        margin-bottom: 8px;
+    }
+
+    .app-body .form-group.row > [class*="col-sm-"] {
+        min-width: 0;
+    }
+
+    .app-body #user_photo,
+    .app-body [id$="_photo"] {
+        max-width: 360px;
     }
 }
 
@@ -189,32 +326,20 @@
         width: 100%;
     }
 
-    .app-body .profx-search-form {
-        display: grid;
-        grid-template-columns: 1fr;
+    .app-body .profx-search-form,
+    .app-body .profx-bulk-controls,
+    .app-body .profx-modal-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
         gap: 10px;
     }
 
     .app-body .profx-search-form .btn,
-    .app-body .profx-search-form .form-control {
+    .app-body .profx-search-form .form-control,
+    .app-body .profx-search-form .form-select,
+    .app-body .profx-bulk-controls .btn,
+    .app-body .profx-bulk-controls .form-select {
         width: 100%;
-    }
-
-    .app-body .profx-admin-table,
-    .app-body .profx-view-table,
-    .app-body .table {
-        min-width: 680px;
-    }
-
-    .app-body .profx-admin-table thead th,
-    .app-body .profx-admin-table tbody td,
-    .app-body .profx-view-table th,
-    .app-body .profx-view-table td,
-    .app-body .table th,
-    .app-body .table td {
-        padding: 10px;
-        font-size: 13px;
-        vertical-align: middle;
     }
 
     .app-body .modal-dialog {
@@ -222,8 +347,87 @@
     }
 
     #switcher .switcher {
-        right: 8px;
-        width: calc(100vw - 16px);
+        position: fixed;
+        top: 64px;
+        right: -320px;
+        width: min(320px, calc(100vw - 28px));
+        max-height: calc(100vh - 76px);
+        overflow-y: auto;
+        border-radius: 8px 0 0 8px;
+    }
+
+    #switcher .switcher.active {
+        right: 0;
+    }
+
+    #switcher .switcher .sw-btn {
+        top: 8px;
+        left: -38px;
+    }
+
+    .app-body .profx-admin-table.profx-card-table,
+    .app-body .profx-admin-table.profx-card-table thead,
+    .app-body .profx-admin-table.profx-card-table tbody,
+    .app-body .profx-admin-table.profx-card-table tr,
+    .app-body .profx-admin-table.profx-card-table th,
+    .app-body .profx-admin-table.profx-card-table td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .app-body .profx-admin-table.profx-card-table {
+        min-width: 0 !important;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .app-body .profx-admin-table.profx-card-table thead {
+        display: none;
+    }
+
+    .app-body .profx-admin-table.profx-card-table tbody tr {
+        border: 1px solid var(--profx-border);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--profx-surface);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .app-body .profx-admin-table.profx-card-table tbody td {
+        display: grid;
+        grid-template-columns: 118px minmax(0, 1fr);
+        gap: 10px;
+        padding: 11px 12px;
+        border-bottom: 1px solid var(--profx-border);
+        text-align: left;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .app-body .profx-admin-table.profx-card-table tbody td:last-child {
+        border-bottom: 0;
+    }
+
+    .app-body .profx-admin-table.profx-card-table tbody td::before {
+        content: attr(data-label);
+        color: var(--profx-muted);
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0;
+    }
+
+    .app-body .profx-admin-table.profx-card-table tbody td[data-label="Select"] {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .app-body .profx-admin-table.profx-card-table tbody td[data-label="Select"]::before {
+        content: "Select";
     }
 }
 
@@ -231,13 +435,15 @@
     .app-body .padding,
     .app-body .p-a,
     .app-body .profx-admin-table-wrapper,
-    .app-body .profx-view-wrapper {
+    .app-body .profx-view-wrapper,
+    .app-body .profx-view-shell {
         padding: 12px;
     }
 
     .app-body .box-header h1,
     .app-body .box-header h2,
-    .app-body .profx-view-wrapper h4 {
+    .app-body .profx-view-wrapper h4,
+    .app-body .profx-view-shell h4 {
         font-size: 18px;
     }
 
@@ -251,101 +457,7 @@
         max-width: 72px;
         max-height: 72px;
     }
-}
 
-.grey {
-    --admin-border: rgba(148, 163, 184, 0.34);
-    --admin-muted-bg: rgba(255, 255, 255, 0.08);
-}
-
-.dark,
-.black {
-    --admin-border: rgba(255, 255, 255, 0.16);
-    --admin-muted-bg: rgba(255, 255, 255, 0.08);
-    --admin-text: #f8fafc;
-}
-
-.grey .app-body .box,
-.grey .app-body .card,
-.grey .app-body .profx-admin-table,
-.grey .app-body .profx-view-table,
-.dark .app-body .box,
-.dark .app-body .card,
-.dark .app-body .profx-admin-table,
-.dark .app-body .profx-view-table,
-.black .app-body .box,
-.black .app-body .card,
-.black .app-body .profx-admin-table,
-.black .app-body .profx-view-table {
-    border-color: var(--admin-border);
-}
-
-.dark .app-body,
-.black .app-body {
-    color: var(--admin-text);
-}
-
-.dark .app-body .form-control,
-.dark .app-body select,
-.dark .app-body textarea,
-.black .app-body .form-control,
-.black .app-body select,
-.black .app-body textarea {
-    background-color: rgba(255, 255, 255, 0.08);
-    border-color: var(--admin-border);
-    color: #fff;
-}
-
-.dark .app-body .form-control::placeholder,
-.black .app-body .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.62);
-}
-
-.dark .app-body .profx-admin-table tbody td,
-.dark .app-body .profx-view-table td,
-.dark .app-body .table td,
-.black .app-body .profx-admin-table tbody td,
-.black .app-body .profx-view-table td,
-.black .app-body .table td {
-    background-color: rgba(255, 255, 255, 0.06);
-    border-color: var(--admin-border);
-    color: #fff;
-}
-
-.dark .app-body .profx-admin-table tbody tr:hover,
-.black .app-body .profx-admin-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.dark .app-body .ref-code-badge,
-.black .app-body .ref-code-badge {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--admin-border);
-    color: #fff;
-}
-
-@media (max-width: 991.98px) {
-    .app-body .box-body {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .app-body .form-group.row > label,
-    .app-body .form-group.row > .form-control-label {
-        margin-bottom: 8px;
-    }
-
-    .app-body .form-group.row > [class*="col-sm-"] {
-        min-width: 0;
-    }
-
-    .app-body #user_photo,
-    .app-body [id$="_photo"] {
-        max-width: 360px;
-    }
-}
-
-@media (max-width: 575.98px) {
     .app-body .form-group.row > [class*="col-sm-"],
     .app-body .form-group.row > [class*="offset-sm-"] {
         flex: 0 0 100%;
@@ -361,5 +473,17 @@
     .app-body .form-group.row .btn-lg {
         width: 100%;
         margin-right: 0;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .app-body .profx-admin-table.profx-card-table tbody td[colspan] {
+        display: block;
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .app-body .profx-admin-table.profx-card-table tbody td[colspan]::before {
+        content: none;
     }
 }
