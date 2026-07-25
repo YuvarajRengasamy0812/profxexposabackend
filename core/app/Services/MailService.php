@@ -19,7 +19,7 @@ class MailService
             'timeout' => 20.0,
         ]);
 
-        $this->apiKey = config('services.brevo.api_key') ?: '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';
+        $this->apiKey = config('services.brevo.api_key');
         $this->senderName = config('services.brevo.sender_name') ?: 'PROFX EXPO';
         $this->senderEmail = config('services.brevo.sender_email') ?: 'info@profxmedia.com';
     }
@@ -32,6 +32,18 @@ class MailService
             return [
                 'error' => true,
                 'message' => 'Invalid recipient email',
+            ];
+        }
+
+        if (empty($this->apiKey)) {
+            Log::error('Brevo API key missing', [
+                'email' => $email,
+                'subject' => $subject,
+            ]);
+
+            return [
+                'error' => true,
+                'message' => 'Brevo API key is missing',
             ];
         }
 
@@ -92,6 +104,18 @@ class MailService
             return [
                 'error' => true,
                 'message' => 'No valid recipient emails found',
+            ];
+        }
+
+        if (empty($this->apiKey)) {
+            Log::error('Brevo API key missing for bulk email', [
+                'subject' => $subject,
+                'recipient_count' => count($emails),
+            ]);
+
+            return [
+                'error' => true,
+                'message' => 'Brevo API key is missing',
             ];
         }
 
