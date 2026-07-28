@@ -252,9 +252,14 @@ class MarketingController extends Controller
             });
         }
 
-        $clients = $query->orderBy('full_name')->limit(200)->get();
+        $limit = $request->input('limit', 200);
+        $query->orderBy('full_name');
 
-        return response()->json(['data' => $clients]);
+        if ($limit !== 'all') {
+            $query->limit(max(1, min((int) $limit, 500)));
+        }
+
+        return response()->json(['data' => $query->get()]);
     }
 
     // ── Private helpers ──────────────────────────────────────────────────────

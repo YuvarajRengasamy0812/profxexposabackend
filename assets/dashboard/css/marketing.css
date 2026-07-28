@@ -2,8 +2,8 @@
    Marketing Module Styles - prefix: mkt-
    ============================================================ */
 :root {
-    --mkt-cyan:#c19d38;
-    --mkt-cyan-dark: #008fa3;
+    --mkt-cyan: #c19d38;
+    --mkt-cyan-dark: #0f766e;
     --mkt-purple: #8b5cf6;
     --mkt-ink: #001b3f;
     --mkt-muted: #667899;
@@ -284,7 +284,9 @@
 }
 
 .mkt-hero {
-    /*background: linear-gradient(135deg, #b8c906 0%, #f0ad4e 48%, #93f65c 100%) !important;*/
+    background:
+        radial-gradient(circle at 88% 18%, rgba(255, 255, 255, .22), transparent 28%),
+        linear-gradient(135deg, #0f172a 0%, #0f766e 54%, #c19d38 100%) !important;
     border-radius: 16px;
     color: #fff;
     margin-bottom: 1.75rem;
@@ -397,6 +399,24 @@
     overflow: hidden;
 }
 
+
+.mkt-table-card .dataTables_wrapper {
+    padding: 1rem;
+}
+
+.mkt-table-card .dataTables_filter input,
+.mkt-table-card .dataTables_length select {
+    border: 1px solid #d8e0ef;
+    border-radius: 8px;
+    min-height: 34px;
+    padding: 4px 10px;
+}
+
+.mkt-table-card table.dataTable {
+    border-collapse: collapse !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
 .mkt-table-card .card-header {
     background: #fff;
     border-bottom: 1px solid var(--mkt-border);

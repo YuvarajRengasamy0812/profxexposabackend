@@ -4,204 +4,33 @@
 
 @push('after-styles')
     <link rel="stylesheet" href="{{ asset('assets/dashboard/js/datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css') }}">
-    <style>
-        .template-page .template-hero,
-        .template-page .template-stat-row,
-        .template-page .template-table-card > .card-header,
-        .template-page .template-id-line {
-            display: none !important;
-        }
-
-        .template-page .template-top-action {
-            display: flex;
-            justify-content: flex-end;
-            margin: 1.5rem 0 1rem;
-        }
-
-        .template-page .template-table-card {
-            border: 1px solid #e8eef8;
-            border-radius: 8px;
-        }
-
-        .template-page .dataTables_wrapper {
-            padding: 1rem;
-        }
-
-        .template-page table.dataTable {
-            border-collapse: collapse !important;
-            margin: 0 !important;
-            width: 100% !important;
-        }
-
-        .template-page .dataTables_filter input,
-        .template-page .dataTables_length select {
-            border: 1px solid #d8e0ef;
-            border-radius: 4px;
-            height: 34px;
-            padding: 4px 10px;
-        }
-    </style>
-@endpush
-
-@push('after-styles')
     <link href="{{ asset('assets/dashboard/js/summernote/dist/summernote.css') }}" rel="stylesheet">
     <style>
-        .template-hero {
-            background: linear-gradient(135deg, #1f2937 0%, #ffbe00 100%);
-            border-radius: 8px;
-            color: #fff;
-            padding: 22px;
-            margin-bottom: 18px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .template-page .gap-2,
-        .template-modal .gap-2 {
-            gap: .5rem;
-        }
-
-        .template-page .gap-3,
-        .template-modal .gap-3 {
-            gap: .75rem;
-        }
-
-        .template-page .me-1,
-        .template-modal .me-1 {
-            margin-right: .25rem;
-        }
-
-        .template-page .me-2,
-        .template-modal .me-2 {
-            margin-right: .5rem;
-        }
-
-        .template-page .ps-4 {
-            padding-left: 1.5rem;
-        }
-
-        .template-page .fw-semibold,
-        .template-modal .fw-semibold {
-            font-weight: 600;
-        }
-
-        .template-page .fs-12 {
-            font-size: .75rem;
-        }
-
-        .template-page .fs-13 {
-            font-size: .8125rem;
-        }
-
-        .template-hero:after {
-            content: "";
-            position: absolute;
-            right: -80px;
-            top: -90px;
-            width: 230px;
-            height: 230px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .16);
-        }
-
-        .template-hero-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .template-hero-sub {
-            opacity: .86;
-            font-size: .88rem;
-        }
-
-        .template-stat {
-            background: #fff;
-            border: 1px solid #edf0f4;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, .05);
-        }
-
-        .template-stat-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #fff7dc;
-            color: #b77900;
-            font-size: 1.05rem;
-        }
-
-        .template-table-card {
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .template-table th {
-            font-size: .78rem;
-            color: #475569;
-            border-top: 0;
-        }
-
-        .template-table td {
-            vertical-align: middle;
-        }
-
-        .template-actions .btn {
-            width: 34px;
-            height: 32px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 7px;
-        }
-
-        .template-status {
-            border-radius: 999px;
-            padding: 5px 10px;
-            font-size: .72rem;
-            font-weight: 700;
-        }
-
-        .template-status.active {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .template-status.inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .template-modal .modal-content {
-            border-radius: 8px;
-            border: 0;
-            overflow: hidden;
-        }
-
-        .template-modal .modal-header {
-            background: #f8fafc;
-            border-bottom: 1px solid #edf0f4;
-        }
-
-        .template-modal .note-editor.note-frame {
-            border-radius: 8px;
-            border-color: #d8dde6;
-        }
-
-        .template-modal .note-editable {
-            min-height: 320px;
-            font-size: 14px;
-        }
-
-        .template-preview-frame {
-            width: 100%;
-            height: 560px;
-            border: 0;
-            background: #fff;
+        .template-page .template-hero-actions { position: relative; z-index: 1; }
+        .template-page .template-hero-actions .btn { border-radius: 10px; font-weight: 600; }
+        .template-page .template-table th { color: #334155; font-size: .78rem; }
+        .template-page .template-table td { vertical-align: middle; }
+        .template-page .template-actions { display: inline-flex; justify-content: center; gap: .35rem; }
+        .template-page .template-actions .btn { align-items: center; border-radius: 8px; display: inline-flex; height: 34px; justify-content: center; padding: 0; width: 36px; }
+        .template-page .template-status { border-radius: 999px; display: inline-flex; font-size: .72rem; font-weight: 700; padding: 5px 10px; }
+        .template-page .template-status.active { background: #dcfce7; color: #166534; }
+        .template-page .template-status.inactive { background: #fee2e2; color: #991b1b; }
+        .template-page .template-empty { align-items: center; color: #94a3b8; display: flex; flex-direction: column; min-height: 230px; justify-content: center; padding: 2rem 1rem; text-align: center; }
+        .template-page .template-empty i { color: #cbd5e1; font-size: 2.8rem; margin-bottom: .8rem; }
+        .template-page .template-empty-title { color: #0f172a; font-size: 1rem; font-weight: 700; margin-bottom: .35rem; }
+        .template-modal .modal-content { border: 0; border-radius: 14px; box-shadow: 0 24px 60px rgba(15, 23, 42, .22); overflow: hidden; }
+        .template-modal .modal-header { background: #f8fafc; border-bottom: 1px solid #e8eef8; }
+        .template-modal .modal-footer { border-top: 1px solid #e8eef8; }
+        .template-modal .form-control { border-color: #d8e0ef; border-radius: 9px; min-height: 38px; }
+        .template-modal .form-control:focus { border-color: #c19d38; box-shadow: 0 0 0 2px rgba(193, 157, 56, .14); }
+        .template-modal .note-editor.note-frame { border-color: #d8e0ef; border-radius: 10px; overflow: hidden; }
+        .template-modal .note-editable { font-size: 14px; min-height: 320px; }
+        .template-preview-frame { background: #fff; border: 0; height: 560px; width: 100%; }
+        .template-page .mkt-stat-card .card-body { min-height: 74px; }
+        @media (max-width: 767px) {
+            .template-page .mkt-hero { padding: 1.4rem; }
+            .template-page .template-hero-actions { width: 100%; }
+            .template-page .template-hero-actions .btn { width: 100%; }
         }
     </style>
 @endpush
@@ -217,127 +46,137 @@
             </ol>
         </div>
 
-        <div class="template-top-action">
-            <button type="button" class="btn btn-primary js-create-template" style="border-radius:4px;">
-                Add Template
-            </button>
-        </div>
-
-        <div class="template-hero">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3" style="position:relative;z-index:1;">
-                <div>
-                    <div class="template-hero-title"><i class="fe fe-file-text me-2"></i>Email Template Builder</div>
-                    <div class="template-hero-sub">Create reusable HTML templates for mail campaigns.</div>
+        <div class="mkt-hero">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div style="position:relative;z-index:1;">
+                    <div class="mkt-hero-title"><i class="fe fe-file-text me-2"></i>Email Template Builder</div>
+                    <div class="mkt-hero-sub">Create reusable HTML templates for campaigns and bulk email sends.</div>
+                    <div class="mkt-hero-stats">
+                        <div>
+                            <div class="mkt-hero-stat-val">{{ $stats['total'] ?? 0 }}</div>
+                            <div class="mkt-hero-stat-lbl">Total</div>
+                        </div>
+                        <div>
+                            <div class="mkt-hero-stat-val">{{ $stats['active'] ?? 0 }}</div>
+                            <div class="mkt-hero-stat-lbl">Active</div>
+                        </div>
+                        <div>
+                            <div class="mkt-hero-stat-val">{{ $stats['inactive'] ?? 0 }}</div>
+                            <div class="mkt-hero-stat-lbl">Inactive</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('marketingCampaigns') }}" class="btn btn-sm" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:7px;">
+                <div class="d-flex gap-2 align-items-center flex-wrap template-hero-actions">
+                    <a href="{{ route('marketingCampaigns') }}" class="btn btn-sm" style="background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35);">
                         <i class="fe fe-send me-1"></i> Campaigns
                     </a>
-                    <button type="button" class="btn btn-sm js-create-template" style="background:#fff;color:#b77900;font-weight:700;border-radius:7px;">
+                    <button type="button" class="btn btn-sm js-create-template" style="background:#fff;color:#0f766e;border:none;">
                         <i class="fe fe-plus me-1"></i> New Template
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="row mb-4 template-stat-row">
-            <div class="col-md-4 mb-3">
-                <div class="template-stat">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <span class="template-stat-icon"><i class="fe fe-layers"></i></span>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-4">
+                <div class="card mkt-stat-card border-0">
+                    <div class="card-body d-flex align-items-center gap-3 py-3">
+                        <div class="mkt-stat-icon mkt-stat-icon-primary"><i class="fe fe-layers"></i></div>
                         <div>
-                            <div class="h5 mb-0">{{ $stats['total'] ?? 0 }}</div>
-                            <div class="text-muted fs-12">Total Templates</div>
+                            <div class="mkt-stat-val">{{ $stats['total'] ?? 0 }}</div>
+                            <div class="mkt-stat-lbl">Total Templates</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="template-stat">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <span class="template-stat-icon"><i class="fe fe-check-circle"></i></span>
+            <div class="col-6 col-lg-4">
+                <div class="card mkt-stat-card border-0">
+                    <div class="card-body d-flex align-items-center gap-3 py-3">
+                        <div class="mkt-stat-icon mkt-stat-icon-success"><i class="fe fe-check-circle"></i></div>
                         <div>
-                            <div class="h5 mb-0">{{ $stats['active'] ?? 0 }}</div>
-                            <div class="text-muted fs-12">Active</div>
+                            <div class="mkt-stat-val">{{ $stats['active'] ?? 0 }}</div>
+                            <div class="mkt-stat-lbl">Active</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="template-stat">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <span class="template-stat-icon"><i class="fe fe-slash"></i></span>
+            <div class="col-12 col-lg-4">
+                <div class="card mkt-stat-card border-0">
+                    <div class="card-body d-flex align-items-center gap-3 py-3">
+                        <div class="mkt-stat-icon mkt-stat-icon-danger"><i class="fe fe-slash"></i></div>
                         <div>
-                            <div class="h5 mb-0">{{ $stats['inactive'] ?? 0 }}</div>
-                            <div class="text-muted fs-12">Inactive</div>
+                            <div class="mkt-stat-val">{{ $stats['inactive'] ?? 0 }}</div>
+                            <div class="mkt-stat-lbl">Inactive</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card template-table-card border-0 shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="card mkt-table-card border-0 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h6 class="mb-0 fw-semibold"><i class="fe fe-list me-2 text-primary"></i>Templates</h6>
-                <button type="button" class="btn btn-primary btn-sm js-create-template" style="border-radius:7px;">
+                <button type="button" class="btn btn-primary btn-sm js-create-template" style="border-radius:8px;">
                     <i class="fe fe-plus me-1"></i> Add Template
                 </button>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table id="templatesTable" class="table template-table table-hover mb-0 text-nowrap">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-4">ID</th>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($templates as $template)
+                @if($templates->isNotEmpty())
+                    <div class="table-responsive">
+                        <table id="templatesTable" class="table mkt-table template-table table-hover mb-0 text-nowrap">
+                            <thead class="table-light">
                                 <tr>
-                                    <td class="ps-4 text-muted fs-12">{{ $template->id }}</td>
-                                    <td>
-                                        <div class="fw-semibold">{{ $template->name }}</div>
-                                        <div class="text-muted fs-12 template-id-line">Template ID: {{ $template->id }}</div>
-                                    </td>
-                                    <td>
-                                        <span class="template-status {{ $template->is_active ? 'active' : 'inactive' }}">
-                                            {{ $template->is_active ? 'Active' : 'Inactive' }}
-                                        </span>
-                                    </td>
-                                    <td class="text-muted fs-12">
-                                        {{ $template->created_at ? date('d M Y, H:i', strtotime($template->created_at)) : '-' }}
-                                    </td>
-                                    <td class="text-center template-actions">
-                                        <button type="button" class="btn btn-sm btn-outline-primary js-view-template" data-id="{{ $template->id }}" title="Preview">
-                                            <i class="fe fe-eye"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary js-edit-template" data-id="{{ $template->id }}" title="Edit">
-                                            <i class="fe fe-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger js-delete-template" data-id="{{ $template->id }}" title="Delete">
-                                            <i class="fe fe-trash"></i>
-                                        </button>
-                                    </td>
+                                    <th class="ps-4">ID</th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-5">
-                                        <i class="fe fe-file-text text-muted" style="font-size:2.4rem;opacity:.4;"></i>
-                                        <div class="fw-semibold mt-2 mb-1">No email templates yet</div>
-                                        <div class="text-muted fs-13 mb-3">Create your first template to use it in campaigns.</div>
-                                        <button type="button" class="btn btn-primary btn-sm js-create-template" style="border-radius:7px;">
-                                            <i class="fe fe-plus me-1"></i> Create Template
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                @foreach($templates as $template)
+                                    <tr>
+                                        <td class="ps-4 text-muted fs-12">{{ $template->id }}</td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $template->name }}</div>
+                                            <div class="text-muted fs-12">Template ID: {{ $template->id }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="template-status {{ $template->is_active ? 'active' : 'inactive' }}">
+                                                {{ $template->is_active ? 'Active' : 'Inactive' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-muted fs-12">
+                                            {{ $template->created_at ? date('d M Y, H:i', strtotime($template->created_at)) : '-' }}
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="template-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary js-view-template" data-id="{{ $template->id }}" title="Preview">
+                                                    <i class="fe fe-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary js-edit-template" data-id="{{ $template->id }}" title="Edit">
+                                                    <i class="fe fe-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger js-delete-template" data-id="{{ $template->id }}" title="Delete">
+                                                    <i class="fe fe-trash"></i>
+                                                </button>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="template-empty">
+                        <i class="fe fe-file-text"></i>
+                        <div class="template-empty-title">No email templates yet</div>
+                        <div class="fs-13 mb-3">Create your first template to use it in campaigns.</div>
+                        <button type="button" class="btn btn-primary btn-sm js-create-template" style="border-radius:8px;">
+                            <i class="fe fe-plus me-1"></i> Create Template
+                        </button>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -356,10 +195,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-md-8 mb-3">
                             <label class="form-label fw-semibold">Template Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="template_name" name="name" required>
+                            <input type="text" class="form-control" id="template_name" name="name" required maxlength="255">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
@@ -371,7 +210,7 @@
                     </div>
                     <div class="mb-2">
                         <label class="form-label fw-semibold">Template HTML <span class="text-danger">*</span></label>
-                        <textarea id="template_editor" name="template"></textarea>
+                        <textarea id="template_editor" name="template" class="form-control" rows="14"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
@@ -408,91 +247,50 @@
     <script src="{{ asset('assets/dashboard/js/summernote/dist/summernote.js') }}"></script>
     <script>
         (function ($) {
+            const hasTemplates = @json($templates->isNotEmpty());
             const storeUrl = @json(route('email-templates.store'));
             const showUrl = @json(route('email-templates.show', ['id' => '__ID__']));
             const deleteUrl = @json(route('email-templates.destroy', ['id' => '__ID__']));
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            const csrfToken = $('meta[name="csrf-token"]').attr('content') || @json(csrf_token());
 
             function notify(type, title, text) {
                 if (window.Swal && Swal.fire) {
-                    Swal.fire({ icon: type, title: title, text: text || '' });
+                    Swal.fire({ icon: type, title: title, text: text || '', confirmButtonColor: '#c19d38' });
                     return;
                 }
-
                 if (window.swal) {
                     swal(title, text || '', type);
                     return;
                 }
-
                 alert(title + (text ? '\n' + text : ''));
             }
 
-            function confirmDelete(callback) {
-                if (window.Swal && Swal.fire) {
-                    Swal.fire({
-                        title: 'Delete template?',
-                        text: 'This template will be removed permanently.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        confirmButtonText: 'Delete'
-                    }).then(function (result) {
-                        if (result.isConfirmed) {
-                            callback();
-                        }
-                    });
+            function showModal(selector) {
+                const modal = $(selector);
+                if ($.fn.modal) {
+                    modal.modal('show');
                     return;
                 }
+                modal.show().addClass('show in').attr('aria-hidden', 'false');
+                $('body').addClass('modal-open').append('<div class="modal-backdrop fade show in template-fallback-backdrop"></div>');
+            }
 
-                if (confirm('Delete this template?')) {
-                    callback();
+            function hideModal(selector) {
+                const modal = $(selector);
+                if ($.fn.modal) {
+                    modal.modal('hide');
+                    return;
                 }
+                modal.hide().removeClass('show in').attr('aria-hidden', 'true');
+                $('.template-fallback-backdrop').remove();
+                $('body').removeClass('modal-open');
             }
 
-            function resetForm() {
-                $('#templateForm')[0].reset();
-                $('#template_id').val('');
-                $('#template_status').val('1');
-                $('#template_editor').summernote('code', '');
-                $('#templateModalTitle').text('Add Template');
-                $('#templateSubmitBtn').html('<i class="fe fe-save me-1"></i> Save Template');
-            }
-
-            function openEditor(template) {
-                resetForm();
-
-                if (template) {
-                    $('#template_id').val(template.id);
-                    $('#template_name').val(template.name);
-                    $('#template_status').val(String(template.is_active));
-                    $('#template_editor').summernote('code', template.template || '');
-                    $('#templateModalTitle').text('Edit Template');
-                    $('#templateSubmitBtn').html('<i class="fe fe-save me-1"></i> Update Template');
-                }
-
-                $('#templateModal').modal('show');
-            }
-
-            function writePreview(html) {
-                const iframe = document.getElementById('templatePreviewFrame');
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                doc.open();
-                doc.write(html || '');
-                doc.close();
-                $('#templatePreviewModal').modal('show');
-            }
-
-            $(function () {
-                $('#templatesTable').DataTable({
-                    order: [[0, 'asc']],
-                    pageLength: 10,
-                    columnDefs: [
-                        { visible: false, targets: [3] },
-                        { orderable: false, targets: [4] }
-                    ]
-                });
-
-                $('#template_editor').summernote({
+            function initEditor() {
+                if (!$.fn.summernote) return;
+                const editor = $('#template_editor');
+                if (editor.next('.note-editor').length) return;
+                editor.summernote({
                     height: 360,
                     dialogsInBody: true,
                     toolbar: [
@@ -506,41 +304,114 @@
                         ['view', ['fullscreen', 'codeview']]
                     ]
                 });
+            }
 
-                $('.js-create-template').on('click', function () {
+            function setEditorCode(html) {
+                if ($.fn.summernote && $('#template_editor').next('.note-editor').length) {
+                    $('#template_editor').summernote('code', html || '');
+                } else {
+                    $('#template_editor').val(html || '');
+                }
+            }
+
+            function getEditorCode() {
+                if ($.fn.summernote && $('#template_editor').next('.note-editor').length) {
+                    return $('#template_editor').summernote('code');
+                }
+                return $('#template_editor').val();
+            }
+
+            function resetForm() {
+                const form = $('#templateForm')[0];
+                if (form) form.reset();
+                $('#template_id').val('');
+                $('#template_status').val('1');
+                setEditorCode('');
+                $('#templateModalTitle').text('Add Template');
+                $('#templateSubmitBtn').prop('disabled', false).html('<i class="fe fe-save me-1"></i> Save Template');
+            }
+
+            function openEditor(template) {
+                initEditor();
+                resetForm();
+                if (template) {
+                    $('#template_id').val(template.id);
+                    $('#template_name').val(template.name || '');
+                    $('#template_status').val(String(template.is_active ? 1 : 0));
+                    setEditorCode(template.template || '');
+                    $('#templateModalTitle').text('Edit Template');
+                    $('#templateSubmitBtn').html('<i class="fe fe-save me-1"></i> Update Template');
+                }
+                showModal('#templateModal');
+                setTimeout(function () { $('#template_name').trigger('focus'); }, 150);
+            }
+
+            function writePreview(html) {
+                const iframe = document.getElementById('templatePreviewFrame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(html || '<div style="font-family:Arial;padding:32px;color:#64748b;">No preview content.</div>');
+                doc.close();
+                showModal('#templatePreviewModal');
+            }
+
+            function validationMessage(xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    const firstKey = Object.keys(errors)[0];
+                    if (firstKey && errors[firstKey] && errors[firstKey][0]) return errors[firstKey][0];
+                }
+                return xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Please try again.';
+            }
+
+            $(function () {
+                initEditor();
+
+                if (hasTemplates && $.fn.DataTable) {
+                    $('#templatesTable').DataTable({
+                        order: [[0, 'desc']],
+                        pageLength: 10,
+                        columnDefs: [{ orderable: false, targets: [4] }],
+                        language: { search: '', searchPlaceholder: 'Search templates...' }
+                    });
+                }
+
+                $(document).on('click', '.js-create-template', function () {
                     openEditor(null);
                 });
 
-                $('.js-edit-template, .js-view-template').on('click', function () {
+                $(document).on('click', '.js-edit-template, .js-view-template', function () {
                     const id = $(this).data('id');
                     const isPreview = $(this).hasClass('js-view-template');
 
                     $.get(showUrl.replace('__ID__', id))
                         .done(function (template) {
-                            if (isPreview) {
-                                writePreview(template.template);
-                            } else {
-                                openEditor(template);
-                            }
+                            if (isPreview) writePreview(template.template);
+                            else openEditor(template);
                         })
                         .fail(function (xhr) {
-                            notify('error', 'Unable to load template', xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Please try again.');
+                            notify('error', 'Unable to load template', validationMessage(xhr));
                         });
                 });
 
                 $('#templateForm').on('submit', function (e) {
                     e.preventDefault();
 
-                    const html = $('#template_editor').summernote('code');
-                    const clean = html.replace(/<p>(\s|&nbsp;|<br>)*<\/p>/gi, '').trim();
+                    const html = getEditorCode();
+                    const clean = (html || '').replace(/<p>(\s|&nbsp;|<br>)*<\/p>/gi, '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
 
-                    if (!clean) {
+                    if (!$('#template_name').val().trim()) {
+                        notify('warning', 'Template name required', 'Please enter a template name.');
+                        return;
+                    }
+
+                    if (!clean && !(html || '').trim()) {
                         notify('warning', 'Template content required', 'Please add email template HTML before saving.');
                         return;
                     }
 
                     $('#template_editor').val(html);
-                    $('#templateSubmitBtn').prop('disabled', true).text('Saving...');
+                    $('#templateSubmitBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
 
                     $.ajax({
                         url: storeUrl,
@@ -549,36 +420,46 @@
                         headers: { 'X-CSRF-TOKEN': csrfToken }
                     }).done(function (response) {
                         notify('success', response.message || 'Email template saved');
-                        setTimeout(function () {
-                            window.location.reload();
-                        }, 700);
+                        setTimeout(function () { window.location.reload(); }, 650);
                     }).fail(function (xhr) {
-                        const message = xhr.responseJSON && xhr.responseJSON.message
-                            ? xhr.responseJSON.message
-                            : 'Unable to save template.';
-                        notify('error', 'Save failed', message);
+                        notify('error', 'Save failed', validationMessage(xhr));
                     }).always(function () {
                         $('#templateSubmitBtn').prop('disabled', false).html('<i class="fe fe-save me-1"></i> Save Template');
                     });
                 });
 
-                $('.js-delete-template').on('click', function () {
+                $(document).on('click', '.js-delete-template', function () {
                     const id = $(this).data('id');
-
-                    confirmDelete(function () {
+                    const runDelete = function () {
                         $.ajax({
                             url: deleteUrl.replace('__ID__', id),
                             type: 'DELETE',
                             data: { _token: csrfToken }
                         }).done(function (response) {
                             notify('success', response.message || 'Email template deleted');
-                            setTimeout(function () {
-                                window.location.reload();
-                            }, 700);
+                            setTimeout(function () { window.location.reload(); }, 650);
                         }).fail(function (xhr) {
-                            notify('error', 'Delete failed', xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Unable to delete template.');
+                            notify('error', 'Delete failed', validationMessage(xhr));
                         });
-                    });
+                    };
+
+                    if (window.Swal && Swal.fire) {
+                        Swal.fire({
+                            title: 'Delete template?',
+                            text: 'This template will be removed permanently.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'Delete'
+                        }).then(function (result) { if (result.isConfirmed) runDelete(); });
+                        return;
+                    }
+
+                    if (confirm('Delete this template?')) runDelete();
+                });
+
+                $(document).on('click', '.template-modal [data-dismiss="modal"], .template-modal .close', function () {
+                    hideModal('#' + $(this).closest('.modal').attr('id'));
                 });
 
                 $('#templateModal').on('hidden.bs.modal', resetForm);

@@ -141,7 +141,7 @@
                             <i class="fe fe-zap me-1"></i> Send Now
                         </button>
                         @endif
-                        <a href="{{ route('marketingCampaigns') }}"" class="btn btn-outline-secondary btn-sm" style="border-radius:9px;">
+                        <a href="{{ route('marketingCampaigns') }}" class="btn btn-outline-secondary btn-sm" style="border-radius:9px;">
                             <i class="fe fe-arrow-left me-1"></i> Back to Campaigns
                         </a>
                         <a href="{{ route('marketingCampaignsHistory') }}" class="btn btn-outline-primary btn-sm" style="border-radius:9px;">
