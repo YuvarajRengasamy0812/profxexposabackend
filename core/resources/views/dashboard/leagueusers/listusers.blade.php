@@ -120,6 +120,44 @@
             outline: none;
         }
 
+        .profx-page-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .profx-export-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-success {
+            background: #15803d;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: #166534;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #b91c1c;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: #991b1b;
+            color: #fff;
+        }
+
         /* ---------------- Search Form ---------------- */
         .profx-search-form {
             display: flex;
@@ -219,7 +257,17 @@
     </style>
 
     <div class="profx-admin-table-wrapper">
-        <h4 class="mb-3">Total User: {{ $stats->total }}</h4>
+        <div class="profx-page-head">
+            <h4 class="mb-0">Total User: {{ $stats->total }}</h4>
+            <div class="profx-export-actions">
+                <a href="{{ route('leagueusersExport', array_merge(request()->query(), ['format' => 'excel'])) }}" class="btn btn-success">
+                    <i class="bi bi-file-earmark-excel"></i> Excel Download
+                </a>
+                <a href="{{ route('leagueusersExport', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="btn btn-danger">
+                    <i class="bi bi-file-earmark-pdf"></i> PDF Download
+                </a>
+            </div>
+        </div>
 
         <!-- Search Form -->
         <form method="GET" class="profx-search-form">

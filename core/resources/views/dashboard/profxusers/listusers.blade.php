@@ -189,6 +189,26 @@
             box-shadow: none;
         }
 
+        .btn-success {
+            background: #15803d;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #166534;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #b91c1c;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #991b1b;
+            color: #fff;
+        }
+
         .profx-bulk-actions {
             display: flex;
             align-items: center;
@@ -340,6 +360,12 @@
                 <div class="profx-page-count">Total User: {{ $stats->total }}</div>
             </div>
             <div class="profx-page-actions">
+                <a href="{{ route('profxusersExport', array_merge(request()->query(), ['format' => 'excel'])) }}" class="btn btn-success">
+                    <i class="bi bi-file-earmark-excel"></i> Excel Download
+                </a>
+                <a href="{{ route('profxusersExport', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="btn btn-danger">
+                    <i class="bi bi-file-earmark-pdf"></i> PDF Download
+                </a>
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#referralAccountModal">
                     <i class="bi bi-person-plus"></i> Add Referral Account
                 </button>
@@ -514,6 +540,8 @@
                 const checkboxes = Array.from(document.querySelectorAll('.user-select-checkbox'));
                 const sendBtn = document.getElementById('sendRegistrationEmailBtn');
                 const countLabel = document.getElementById('selectedUsersCount');
+                const templateSelect = document.getElementById('emailTemplateSelect');
+                const sendScopeSelect = document.getElementById('sendScopeSelect');
                 const generateReferralCodeBtn = document.getElementById('generateReferralCodeBtn');
                 const newReferralCode = document.getElementById('newReferralCode');
 

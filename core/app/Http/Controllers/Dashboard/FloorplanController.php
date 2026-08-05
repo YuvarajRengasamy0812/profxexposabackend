@@ -25,6 +25,12 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Booking;
 use App\Models\Floorplan;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Facades\Excel;
 
 class FloorplanController extends Controller
 {
@@ -316,28 +322,9 @@ public function approve(Request $request, $id)
             ->get();
 
         $exporttitle = 'All';
-        $query = DB::table('users_registers');
+        $query = $this->profxUsersQuery($request);
 
-        // 🔍 Search filters
-        if ($request->filled('email')) {
-            $query->where('email', 'like', '%' . $request->email . '%');
-        }
-
-        // if ($request->filled('boothtitle')) {
-        //     $query->where('boothtitle', 'like', '%' . $request->location . '%');
-        // }
-
-
-        if ($request->filled('full_name')) {
-            $query->where('full_name', 'like', '%' . $request->full_name . '%');
-        }
-
-        if ($request->filled('user_type')) {
-            $query->where('user_type', $request->user_type);
-        }
-
-
-        // 📄 Pagination
+        // Pagination
         $profxusers = $query
             ->orderBy('created_at', 'DESC')
             ->paginate(10)
@@ -350,17 +337,57 @@ public function approve(Request $request, $id)
             ->orderBy('user_type')
             ->pluck('user_type');
 
-        // 📊 Stats
+        // Stats
         $stats = (object) [
             'total' => DB::table('users_registers')->count(),
         ];
 
         return view('dashboard.profxusers.listusers', compact('GeneralWebmasterSections', 'profxusers', 'stats', 'userTypes'));
     }
-    
-   
-    
-      public function storeReferralAccount(Request $request)
+
+    public function profxusersExport(Request $request, string $format)
+    {
+        $format = strtolower($format);
+        abort_unless(in_array($format, ['excel', 'pdf'], true), 404);
+
+        $rows = $this->profxUsersQuery($request)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        $headings = [
+            'ID',
+            'Name',
+            'Role',
+            'Email',
+            'Referral Code',
+            'Referral Link',
+            'Company Name',
+            'Phone',
+            'Country',
+            'Created At',
+            'Updated At',
+        ];
+
+        $data = $rows->map(function ($user) {
+            return [
+                $user->id,
+                $user->full_name,
+                $user->user_type,
+                $user->email,
+                $user->referral_code,
+                $user->referral_link,
+                $user->company_name,
+                $user->phone,
+                $user->nationality,
+                $user->created_at,
+                $user->updated_at,
+            ];
+        });
+
+        return $this->downloadUserExport($format, 'profx-users', 'PROFX Users', $headings, $data);
+    }
+
+    public function storeReferralAccount(Request $request)
     {
         $request->validate([
             'full_name' => 'required|string|max:255',
@@ -553,37 +580,67 @@ public function approve(Request $request, $id)
             ->get();
 
         $exporttitle = 'All';
-        $query = DB::table('booking_leagues as bl')
-            ->leftJoin('users_registers as ur', 'bl.referred_by_user_id', '=', 'ur.id')
-            ->leftJoin('booking_leagues as rbl', 'bl.referred_by_league_id', '=', 'rbl.id')
-            ->select('bl.*', DB::raw('COALESCE(' . DB::getTablePrefix() . 'ur.full_name, ' . DB::getTablePrefix() . 'rbl.name, ' . DB::getTablePrefix() . 'bl.referrer_name) as referral_user_name'));
+        $query = $this->leagueUsersQuery($request);
 
-        // 🔍 Search filters
-        if ($request->filled('email')) {
-            $query->where('bl.email', 'like', '%' . $request->email . '%');
-        }
-
-        if ($request->filled('name')) {
-            $query->where('bl.name', 'like', '%' . $request->name . '%');
-        }
-
-
-
-
-        // 📄 Pagination
+        // Pagination
         $leagueusers = $query
             ->orderBy('bl.created_at', 'DESC')
             ->paginate(10)
             ->appends($request->query());
 
-        // 📊 Stats
+        // Stats
         $stats = (object) [
             'total' => DB::table('booking_leagues')->count(),
         ];
 
         return view('dashboard.leagueusers.listusers', compact('GeneralWebmasterSections', 'leagueusers', 'stats'));
     }
-    
+
+    public function leagueusersExport(Request $request, string $format)
+    {
+        $format = strtolower($format);
+        abort_unless(in_array($format, ['excel', 'pdf'], true), 404);
+
+        $rows = $this->leagueUsersQuery($request)
+            ->orderBy('bl.created_at', 'DESC')
+            ->get();
+
+        $headings = [
+            'ID',
+            'Name',
+            'Role',
+            'Email',
+            'Company',
+            'Phone',
+            'Country',
+            'Referral User',
+            'Used Referral Code',
+            'Own Referral Code',
+            'Own Referral Link',
+            'Created At',
+            'Updated At',
+        ];
+
+        $data = $rows->map(function ($user) {
+            return [
+                $user->id,
+                $user->name,
+                $user->role,
+                $user->email,
+                $user->company,
+                $user->phone,
+                $user->country,
+                $user->referral_user_name,
+                $user->referral_code,
+                $user->own_referral_code,
+                $user->own_referral_link,
+                $user->created_at,
+                $user->updated_at,
+            ];
+        });
+
+        return $this->downloadUserExport($format, 'league-users', 'League Users', $headings, $data);
+    }
       public function leagueusersView($id)
     {
         $GeneralWebmasterSections = WebmasterSection::where('status', 1)
@@ -625,7 +682,78 @@ public function approve(Request $request, $id)
     }
 
 
+    private function profxUsersQuery(Request $request)
+    {
+        $query = DB::table('users_registers');
+
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('full_name')) {
+            $query->where('full_name', 'like', '%' . $request->full_name . '%');
+        }
+
+        if ($request->filled('user_type')) {
+            $query->where('user_type', $request->user_type);
+        }
+
+        return $query;
+    }
+
+    private function leagueUsersQuery(Request $request)
+    {
+        $query = DB::table('booking_leagues as bl')
+            ->leftJoin('users_registers as ur', 'bl.referred_by_user_id', '=', 'ur.id')
+            ->leftJoin('booking_leagues as rbl', 'bl.referred_by_league_id', '=', 'rbl.id')
+            ->select('bl.*', DB::raw('COALESCE(' . DB::getTablePrefix() . 'ur.full_name, ' . DB::getTablePrefix() . 'rbl.name, ' . DB::getTablePrefix() . 'bl.referrer_name) as referral_user_name'));
+
+        if ($request->filled('email')) {
+            $query->where('bl.email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('name')) {
+            $query->where('bl.name', 'like', '%' . $request->name . '%');
+        }
+
+        return $query;
+    }
+
+    private function downloadUserExport(string $format, string $filePrefix, string $title, array $headings, Collection $data)
+    {
+        $fileName = $filePrefix . '-' . now()->format('Y-m-d-His');
+
+        if ($format === 'excel') {
+            $export = new class($headings, $data) implements FromCollection, WithHeadings, ShouldAutoSize {
+                private array $headings;
+                private Collection $data;
+
+                public function __construct(array $headings, Collection $data)
+                {
+                    $this->headings = $headings;
+                    $this->data = $data;
+                }
+
+                public function headings(): array
+                {
+                    return $this->headings;
+                }
+
+                public function collection(): Collection
+                {
+                    return $this->data;
+                }
+            };
+
+            return Excel::download($export, $fileName . '.xlsx');
+        }
+
+        $pdf = Pdf::loadView('dashboard.exports.users-table', [
+            'title' => $title,
+            'headings' => $headings,
+            'rows' => $data,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download($fileName . '.pdf');
+    }
 }
-
-
-

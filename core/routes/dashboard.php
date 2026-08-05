@@ -110,12 +110,14 @@ Route::post('/client-speakers/{id}/order', [ClientSpeakerController::class, 'upd
 // profxusers
 Route::get('/profxusers', [FloorplanController::class, 'profxusers'])->name('profxusers');
 Route::get('/profxusersView/{id}', [FloorplanController::class, 'profxusersView'])->name('profxusersView');
+Route::get('/profxusers/export/{format}', [FloorplanController::class, 'profxusersExport'])->name('profxusersExport');
 Route::post('/profxusers/send-registration-emails', [FloorplanController::class, 'sendRegistrationEmails'])->name('profxusersSendRegistrationEmails');
 Route::post('/profxusers/referral-account', [FloorplanController::class, 'storeReferralAccount'])->name('profxusersReferralAccountStore');
 
 // Leagueusers
 Route::get('/leagueusers', [FloorplanController::class, 'leagueusers'])->name('leagueusers');
 Route::get('/leagueusersView/{id}', [FloorplanController::class, 'leagueusersView'])->name('leagueusersView');
+Route::get('/leagueusers/export/{format}', [FloorplanController::class, 'leagueusersExport'])->name('leagueusersExport');
 
 
 // Sections
