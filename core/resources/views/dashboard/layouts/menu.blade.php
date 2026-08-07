@@ -14,6 +14,9 @@ $GeneralWebmasterSections = $GeneralWebmasterSections ?? collect();
     <div class="left navside dk" layout="column">
 
         <div class="navbar navbar-md no-radius">
+            <button type="button" class="aside-close visible-tablet-mobile" data-dismiss="modal" aria-label="Close sidebar">
+                <i class="material-icons">&#xe5cd;</i>
+            </button>
             <a class="hidden-folded inline folded-toggle m-t p-t-xs pull-right">
                 <i class="material-icons md-24 opacity">&#xe5d2;</i>
             </a>

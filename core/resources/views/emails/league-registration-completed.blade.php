@@ -38,15 +38,39 @@
                         <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
                             <tr>
                                 <td style="padding:18px 20px;">
-                                    <p style="margin:0 0 8px; color:#0b2d24; font-size:15px; line-height:1.5; font-weight:bold;">Your Referral Details</p>
-                                    <p style="margin:0 0 6px; color:#506174; font-size:14px; line-height:1.6;">
-                                        Referral Code: <strong style="color:#0b2d24;">{{ $booking->own_referral_code ?? '-' }}</strong>
-                                    </p>
+                                    <p style="margin:0 0 12px; color:#0b2d24; font-size:15px; line-height:1.5; font-weight:bold;">Your Referral Details</p>
+                                    <p style="margin:0 0 6px; color:#506174; font-size:13px; line-height:1.5;">Referral Code</p>
+                                    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;">
+                                        <tr>
+                                            <td style="background:#ffffff; border:1px solid #d7e3df; border-right:0; border-radius:10px 0 0 10px; padding:13px 14px;">
+                                                <span style="display:block; color:#0b2d24; font-size:18px; line-height:1.4; font-weight:bold; letter-spacing:0.5px; font-family:Arial, sans-serif; word-break:break-word; -webkit-user-select:all; user-select:all;">{{ $booking->own_referral_code ?? '-' }}</span>
+                                            </td>
+                                            <td width="104" align="center" style="background:#ffffff; border:1px solid #d7e3df; border-radius:0 10px 10px 0; padding:10px;">
+                                                <button type="button" data-copy="{{ $booking->own_referral_code ?? '-' }}" onclick="copyLeagueReferralValue(this)" style="display:inline-block; width:84px; padding:10px 0; border:0; border-radius:999px; background:#0f766e; color:#ffffff; font-size:13px; line-height:1.2; font-weight:bold; font-family:Arial, sans-serif; cursor:pointer;">Copy</button>
+                                            </td>
+                                        </tr>
+                                    </table>
                                     @if(!empty($booking->own_referral_link))
-                                        <p style="margin:0; color:#506174; font-size:14px; line-height:1.6;">
-                                            Referral Link: <a href="{{ $booking->own_referral_link }}" style="color:#0f766e; font-weight:bold; text-decoration:none;">{{ $booking->own_referral_link }}</a>
-                                        </p>
+                                        <p style="margin:0 0 6px; color:#506174; font-size:13px; line-height:1.5;">Referral Link</p>
+                                        <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+                                            <tr>
+                                                <td style="background:#ffffff; border:1px solid #d7e3df; border-right:0; border-radius:10px 0 0 10px; padding:13px 14px;">
+                                                    <a href="{{ $booking->own_referral_link }}" style="display:block; color:#0f766e; font-size:15px; line-height:1.6; font-weight:bold; text-decoration:none; word-break:break-all; overflow-wrap:anywhere; -webkit-user-select:all; user-select:all;">{{ $booking->own_referral_link }}</a>
+                                                </td>
+                                                <td width="104" align="center" style="background:#ffffff; border:1px solid #d7e3df; border-radius:0 10px 10px 0; padding:10px;">
+                                                    <button type="button" data-copy="{{ $booking->own_referral_link }}" onclick="copyLeagueReferralValue(this)" style="display:inline-block; width:84px; padding:10px 0; border:0; border-radius:999px; background:#0f766e; color:#ffffff; font-size:13px; line-height:1.2; font-weight:bold; font-family:Arial, sans-serif; cursor:pointer;">Copy</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;">
+                                            <tr>
+                                                <td align="center" style="background:#0f766e; border-radius:999px;">
+                                                    <a href="{{ $booking->own_referral_link }}" target="_blank" style="display:inline-block; padding:11px 20px; color:#ffffff; font-size:14px; line-height:1.2; font-weight:bold; text-decoration:none;">Open Referral Link</a>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     @endif
+                                    <p style="margin:14px 0 0; color:#64748b; font-size:12px; line-height:1.6; text-align:center;">Click Copy where supported, or tap and hold the code/link to copy it.</p>
                                 </td>
                             </tr>
                         </table>
@@ -73,5 +97,40 @@
         </td>
     </tr>
 </table>
-</body>
+<script>
+    function copyLeagueReferralValue(button) {
+        var value = button.getAttribute('data-copy') || '';
+        var originalText = button.innerText || button.textContent || 'Copy';
+        var setCopied = function () {
+            button.innerText = 'Copied';
+            setTimeout(function () {
+                button.innerText = originalText;
+            }, 1800);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(value).then(setCopied).catch(function () {
+                fallbackCopyLeagueReferralValue(value, setCopied);
+            });
+            return;
+        }
+
+        fallbackCopyLeagueReferralValue(value, setCopied);
+    }
+
+    function fallbackCopyLeagueReferralValue(value, done) {
+        var field = document.createElement('textarea');
+        field.value = value;
+        field.setAttribute('readonly', 'readonly');
+        field.style.position = 'fixed';
+        field.style.left = '-9999px';
+        document.body.appendChild(field);
+        field.select();
+        try {
+            document.execCommand('copy');
+            done();
+        } catch (error) {}
+        document.body.removeChild(field);
+    }
+</script></body>
 </html>

@@ -487,3 +487,374 @@
         content: none;
     }
 }
+
+/* Tablet/mobile dashboard layout fixes for PROFX admin. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .app-header .navbar-item.hidden-lg-up {
+        display: block !important;
+    }
+
+    .app-aside.modal {
+        position: fixed !important;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        z-index: 1050 !important;
+    }
+
+    .app-aside.modal:not(.in) {
+        display: none !important;
+    }
+
+    .app-aside.modal.in {
+        display: block !important;
+    }
+
+    .app-aside.modal .left,
+    .app-aside.modal .scroll {
+        width: 304px !important;
+        max-width: min(304px, calc(100vw - 56px));
+    }
+
+    .app-aside.modal .left {
+        position: fixed !important;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: auto;
+        height: 100vh;
+    }
+
+    .app-aside.folded,
+    .app-aside.folded.md,
+    .app-aside.folded.nav-expand:hover,
+    .app-aside.folded.nav-expand:focus,
+    .app-aside.folded.nav-expand.active {
+        width: 100% !important;
+    }
+
+    .app-aside:not(.hide) ~ .app-content,
+    .app-aside.folded:not(.hide) ~ .app-content,
+    .app-aside.folded.md:not(.hide) ~ .app-content,
+    .app-aside.lg:not(.hide) ~ .app-content,
+    .app-aside.sm:not(.hide) ~ .app-content {
+        margin-left: 0 !important;
+    }
+
+    .app-content,
+    .app-header,
+    .app-footer {
+        margin-left: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+    }
+
+    body.modal-open,
+    body.modal-open-aside {
+        overflow: hidden !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .app-aside.modal {
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 100vh;
+        overflow: hidden !important;
+    }
+
+    .app-aside.modal .left,
+    .app-aside.modal .scroll {
+        width: 304px !important;
+        max-width: min(304px, calc(100vw - 48px));
+    }
+
+    .app-aside:not(.hide) ~ .app-content,
+    .app-content,
+    .app-header,
+    .app-footer {
+        margin-left: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+    }
+
+    body.modal-open,
+    body.modal-open-aside {
+        overflow: hidden !important;
+    }
+
+    .app-body .row-col:not(.row-col-xs),
+    .app-body .row-col:not(.row-col-xs) > [class*="col-"],
+    .app-body .row-col:not(.row-col-xs) > [class*=" col-"],
+    .app-body .row-cell {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .app-body .row-col:not(.row-col-xs) > [class*="col-"],
+    .app-body .row-col:not(.row-col-xs) > [class*=" col-"] {
+        float: none;
+    }
+
+    .app-body .select2-container,
+    .app-body .select2-container--bootstrap,
+    .app-body .note-editor,
+    .app-body .note-toolbar,
+    .app-body .note-editing-area,
+    .app-body .dropzone,
+    .app-body .dataTables_wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .app-body .note-toolbar {
+        white-space: normal;
+    }
+
+    .app-body .note-toolbar .btn-group,
+    .app-body .dataTables_wrapper .dataTables_length,
+    .app-body .dataTables_wrapper .dataTables_filter,
+    .app-body .dataTables_wrapper .dataTables_info,
+    .app-body .dataTables_wrapper .dataTables_paginate {
+        float: none !important;
+        text-align: left;
+        width: 100%;
+        margin: 0 0 10px;
+    }
+
+    .app-body .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        margin: 6px 0 0;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .app-header .navbar {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .app-header .navbar > .navbar-item.pull-left:first-child {
+        flex: 0 0 48px;
+        text-align: center;
+    }
+
+    .app-header #pageTitle {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: calc(100vw - 132px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .app-header .nav.navbar-nav.pull-right {
+        flex: 0 0 auto;
+        margin-left: auto;
+    }
+
+    .app-body .margin {
+        margin: 0 0 12px;
+    }
+
+    .app-body .box {
+        margin-bottom: 12px;
+    }
+
+    .app-body .box-tool {
+        position: static;
+        margin: -4px 12px 12px;
+    }
+
+    .app-body .box-tool .nav,
+    .app-body .box-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .app-body .box-footer .pull-right {
+        float: none !important;
+    }
+
+    .app-body .modal-content {
+        max-height: calc(100vh - 20px);
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .app-header .navbar-brand img,
+    .app-header .navbar-brand svg,
+    .navside .navbar-brand img,
+    .navside .navbar-brand svg {
+        max-height: 42px;
+        vertical-align: middle;
+    }
+
+    .app-aside.modal .left,
+    .app-aside.modal .scroll {
+        width: min(286px, calc(100vw - 42px)) !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .app-body .col-xs-6,
+    .app-body .col-xs-4,
+    .app-body .col-xs-3 {
+        width: 100%;
+    }
+
+    .app-body .box-header,
+    .app-body .box-body {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+/* Sidebar and modal overlay polish. */
+.modal-backdrop.in,
+.modal-backdrop.show,
+.modal-backdrop.aside-backdrop {
+    background-color: #06110f !important;
+    opacity: 0.72 !important;
+}
+
+body.aside-open .modal-backdrop.aside-backdrop {
+    background: rgba(6, 17, 15, 0.76) !important;
+}
+
+.visible-tablet-mobile {
+    display: none;
+}
+
+.aside-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    background: rgba(193, 157, 56, 0.96);
+    color: #fff;
+    line-height: 38px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+.aside-close:hover,
+.aside-close:focus {
+    background: #d4b452;
+    color: #fff;
+    outline: 0;
+}
+
+.aside-close .material-icons {
+    font-size: 22px;
+    line-height: 38px;
+}
+
+@media (max-width: 1199.98px) {
+    .visible-tablet-mobile {
+        display: inline-block;
+    }
+
+    #aside .navbar.navbar-md {
+        position: relative;
+        padding-right: 58px;
+    }
+
+    #aside.modal.in {
+        background: transparent !important;
+    }
+
+    #aside.modal.in::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: -1;
+        background: rgba(6, 17, 15, 0.76);
+    }
+
+    #aside .left.navside {
+        box-shadow: 16px 0 40px rgba(0, 0, 0, 0.32);
+    }
+}
+
+/* Make mobile/tablet sidebar readable over the page overlay. */
+@media (max-width: 1199.98px) {
+    #aside .left.navside,
+    #aside .left.navside.dk,
+    #aside .hide-scroll,
+    #aside .scroll {
+        background: #0b1713 !important;
+        color: #f8fafc !important;
+    }
+
+    #aside .navbar.navbar-md {
+        background: #0b1713 !important;
+        border-bottom: 1px solid rgba(193, 157, 56, 0.22);
+    }
+
+    #aside .navside .nav li a {
+        color: rgba(248, 250, 252, 0.88) !important;
+        background: transparent !important;
+    }
+
+    #aside .navside .nav li a:hover,
+    #aside .navside .nav li a:focus {
+        color: #ffffff !important;
+        background: rgba(193, 157, 56, 0.18) !important;
+    }
+
+    #aside .navside .nav li.active > a,
+    #aside .navside .nav li.active > a:hover,
+    #aside .navside .nav li.active > a:focus {
+        color: #ffffff !important;
+        background: #c19d38 !important;
+    }
+
+    #aside .navside .nav-text,
+    #aside .navside .nav-icon,
+    #aside .navside .nav-caret,
+    #aside .navside .material-icons,
+    #aside .navside .fa {
+        color: inherit !important;
+    }
+
+    #aside .navside .nav-header small,
+    #aside .navside .text-muted {
+        color: rgba(248, 250, 252, 0.64) !important;
+    }
+
+    #aside .navside .nav li.active > a .nav-text,
+    #aside .navside .nav li.active > a .nav-icon,
+    #aside .navside .nav li.active > a .material-icons,
+    #aside .navside .nav li.active > a .fa {
+        color: #ffffff !important;
+    }
+
+    #aside .navside .nav-sub {
+        background: rgba(0, 0, 0, 0.16) !important;
+    }
+
+    #aside .navside .nav-sub a {
+        color: rgba(248, 250, 252, 0.82) !important;
+    }
+}

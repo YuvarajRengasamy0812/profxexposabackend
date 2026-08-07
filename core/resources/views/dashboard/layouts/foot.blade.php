@@ -30,7 +30,7 @@
 <script src="{{ asset('assets/dashboard/js/sweetalert/sweetalert.min.js') }}"></script>
 
 
-<script src="{{ asset('assets/dashboard/js/scripts/app.js') }}?v={{ Helper::system_version() }}" defer></script>
+<script src="{{ asset('assets/dashboard/js/scripts/app.js') }}?v={{ filemtime(base_path('../assets/dashboard/js/scripts/app.js')) }}" defer></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.profx-admin-table').forEach(function (table) {
