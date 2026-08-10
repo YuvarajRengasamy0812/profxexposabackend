@@ -25,6 +25,7 @@ use App\Models\Ticket;
 use App\Models\TicketUser;
 use App\Models\Floorplan;
 use App\Models\UserRegister;
+use App\Models\InfluencerRegister;
 use App\Models\Exhibitors;
 use App\Models\Payment;
 use App\Models\Booking;
@@ -48,12 +49,62 @@ class APIsController extends Controller
         return 'PFX' . str_pad((string) $user->id, 6, '0', STR_PAD_LEFT);
     }
 
+    private function createReferralCodeForInfluencer(InfluencerRegister $influencer): string
+    {
+        return 'IFX' . str_pad((string) $influencer->id, 6, '0', STR_PAD_LEFT);
+    }
+
     private function createReferralLink(string $referralCode, ?string $frontendUrl = null): string
     {
         $baseUrl = $frontendUrl ?: 'https://profxexpo.com/africa/LeagueEnroll';
         $separator = str_contains($baseUrl, '?') ? '&' : '?';
 
         return $baseUrl . $separator . 'ref=' . urlencode($referralCode);
+    }
+
+    private function registeredUserPayload(UserRegister $user): array
+    {
+        return [
+            'id' => $user->id,
+            'user_id' => $user->id,
+            'full_name' => $user->full_name,
+            'email' => $user->email,
+            'user_type' => $user->user_type,
+            'company_name' => $user->company_name,
+            'phone' => $user->phone,
+            'nationality' => $user->nationality,
+            'special_requirements' => $user->special_requirements,
+            'sponsor_package' => $user->sponsor_package,
+            'products_services' => $user->products_services,
+            'profile_photo' => $user->profile_photo,
+            'profile_photo_url' => !empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
+            'referral_code' => $user->referral_code,
+            'referral_link' => $user->referral_link,
+        ];
+    }
+
+    private function influencerPayload(InfluencerRegister $influencer): array
+    {
+        return [
+            'id' => $influencer->id,
+            'influencer_id' => $influencer->id,
+            'full_name' => $influencer->full_name,
+            'email' => $influencer->email,
+            'phone' => $influencer->phone,
+            'nationality' => $influencer->nationality,
+            'company_name' => $influencer->company_name,
+            'position_role' => $influencer->position_role,
+            'profile_photo' => $influencer->profile_photo,
+            'profile_photo_url' => !empty($influencer->profile_photo) ? url('uploads/settings/' . $influencer->profile_photo) : null,
+            'referral_code' => $influencer->referral_code,
+            'referral_link' => $influencer->referral_link,
+            'submitted_referral_code' => $influencer->submitted_referral_code,
+            'referred_by_influencer_id' => $influencer->referred_by_influencer_id,
+            'status' => $influencer->status ?? 'pending',
+            'approval_message' => $influencer->approval_message,
+            'created_at' => $influencer->created_at,
+            'updated_at' => $influencer->updated_at,
+        ];
     }
     
     private function generateLeagueUserHeroImage(BookingLeague $booking): ?string
@@ -3007,8 +3058,10 @@ public function influencerRegisterSubmit(Request $request)
         'nationality' => 'required|string|max:255',
         'company_name' => 'required|string|max:255',
         'position_role' => 'required|string|max:255',
+        'password' => 'required|string|min:6|max:100',
         'referral_code' => 'nullable|string|max:255',
         'frontend_url' => 'nullable|string|max:500',
+        'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
     ]);
 
     if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
@@ -3019,44 +3072,105 @@ public function influencerRegisterSubmit(Request $request)
     }
 
     $frontendUrl = $request->frontend_url ?: 'https://profxexpo.com/africa/Influencers';
-    $temporaryPassword = bin2hex(random_bytes(5));
+    $submittedReferralCode = strtoupper(trim((string) ($validated['referral_code'] ?? '')));
+    $referrer = null;
 
-    $user = UserRegister::where('email', $validated['email'])->first();
+    if ($submittedReferralCode !== '') {
+        if (filter_var($submittedReferralCode, FILTER_VALIDATE_URL)) {
+            $query = parse_url($submittedReferralCode, PHP_URL_QUERY);
+            parse_str((string) $query, $params);
+            $submittedReferralCode = strtoupper(trim((string) ($params['ref'] ?? $params['referral_code'] ?? $submittedReferralCode)));
+        }
 
-    if (!$user) {
-        $user = new UserRegister();
-        $user->email = $validated['email'];
-        $user->password = Hash::make($temporaryPassword);
+        $referrer = InfluencerRegister::where('referral_code', $submittedReferralCode)->first();
+
+        if (!$referrer) {
+            return response()->json([
+                'code' => '-1',
+                'msg' => 'Invalid referral code',
+            ], 422);
+        }
     }
 
-    $user->full_name = $validated['full_name'];
-    $user->company_name = $validated['company_name'];
-    $user->phone = $validated['phone'];
-    $user->user_type = 'influencer';
-    $user->nationality = $validated['nationality'];
-    $user->special_requirements = $validated['position_role'];
-    $user->sponsor_package = 'Influencer';
+    $influencer = InfluencerRegister::where('email', $validated['email'])->first();
 
-    if (!empty($validated['referral_code'])) {
-        $user->products_services = $validated['referral_code'];
+    if (!$influencer) {
+        $influencer = new InfluencerRegister();
+        $influencer->email = strtolower(trim($validated['email']));
+        $influencer->status = 'pending';
     }
 
-    $user->save();
+    $influencer->full_name = $validated['full_name'];
+    $influencer->company_name = $validated['company_name'];
+    $influencer->phone = $validated['phone'];
+    $influencer->nationality = $validated['nationality'];
+    $influencer->position_role = $validated['position_role'];
+    $influencer->password = Hash::make($validated['password']);
+    $influencer->status = $influencer->status ?: 'pending';
+    $influencer->approval_message = $influencer->approval_message ?: null;
 
-    if (empty($user->referral_code)) {
-        $user->referral_code = $this->createReferralCodeForUser($user);
+    if ($submittedReferralCode !== '') {
+        $influencer->submitted_referral_code = $submittedReferralCode;
+        $influencer->referred_by_influencer_id = $referrer?->id;
     }
 
-    $user->referral_link = $this->createReferralLink($user->referral_code, $frontendUrl);
-    $user->save();
+    if ($request->hasFile('profile_photo')) {
+        $file = $request->file('profile_photo');
+        $fileFinalName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
+        $path = 'uploads/settings/';
+        $file->move($path, $fileFinalName);
+
+        if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            Helper::imageResize($path . $fileFinalName);
+            Helper::imageOptimize($path . $fileFinalName);
+        }
+
+        $influencer->profile_photo = $fileFinalName;
+    }
+
+    $influencer->save();
+
+    if (empty($influencer->referral_code)) {
+        $influencer->referral_code = $this->createReferralCodeForInfluencer($influencer);
+    }
+
+    $influencer->referral_link = $this->createReferralLink($influencer->referral_code, $frontendUrl);
+    $influencer->save();
+
+    try {
+        $mailService = new MailService();
+        $mailService->sendEmail(
+            $influencer->email,
+            'Influencer Registration Successful - PROFX EXPO AFRICA 2026',
+            'emails.register-completed',
+            [
+                'title' => 'Influencer Registration Successful - PROFX Expo Africa',
+                'user' => (object) [
+                    'full_name' => $influencer->full_name,
+                    'email' => $influencer->email,
+                ],
+                'logo' => 'https://profxexpo.com/africa/adminpanel/uploads/settings/17791964093936.png',
+                'heroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/1.png',
+                'loginUrl' => $influencer->referral_link,
+                'loginEmail' => $influencer->email,
+                'loginPassword' => $validated['password'],
+            ]
+        );
+    } catch (\Exception $e) {
+        \Log::error('Influencer registration email failed: ' . $e->getMessage());
+    }
+
+    $influencerPayload = $this->influencerPayload($influencer);
 
     return response()->json([
         'code' => '1',
         'msg' => 'Influencer registration successful',
         'data' => [
-            'user_id' => $user->id,
-            'referral_code' => $user->referral_code,
-            'referral_link' => $user->referral_link,
+            'influencer_id' => $influencer->id,
+            'referral_code' => $influencer->referral_code,
+            'referral_link' => $influencer->referral_link,
+            'influencer' => $influencerPayload,
+            'profile' => $influencerPayload,
         ],
     ], 201);
 }
@@ -3111,8 +3225,8 @@ public function influencerRegisterSubmit(Request $request)
                     'products_services'=>$user->products_services,
                     'profile_photo'=>$user->profile_photo ?? null,
                     'profile_photo_url'=>!empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
-        'referral_code' => 'nullable|string|max:255',
-        'referral_link' => 'nullable|string|max:500',
+                    'referral_code' => $user->referral_code,
+                    'referral_link' => $user->referral_link,
 
                 ]
             ], 200);
@@ -3211,7 +3325,135 @@ public function updateClientProfile(Request $request)
             'products_services' => $user->products_services,
             'profile_photo' => $user->profile_photo,
             'profile_photo_url' => !empty($user->profile_photo) ? url('uploads/settings/' . $user->profile_photo) : null,
+            'referral_code' => $user->referral_code,
+            'referral_link' => $user->referral_link,
         ],
+    ], 200);
+}
+
+public function clientInfluencerProfile(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'user_id' => 'nullable|integer',
+        'influencer_id' => 'nullable|integer',
+        'email' => 'nullable|email|max:255',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $user = null;
+
+    if ($request->filled('influencer_id') || $request->filled('user_id')) {
+        $user = InfluencerRegister::find($request->input('influencer_id') ?: $request->input('user_id'));
+    }
+
+    if (!$user && $request->filled('email')) {
+        $user = InfluencerRegister::where('email', $request->email)->first();
+    }
+
+    if (!$user) {
+        return response()->json(['code' => -1, 'msg' => 'Influencer profile not found'], 404);
+    }
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Influencer profile fetched successfully',
+        'data' => $this->influencerPayload($user),
+    ], 200);
+}
+
+public function clientInfluencerReferralList(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'user_id' => 'nullable|integer',
+        'influencer_id' => 'nullable|integer',
+        'email' => 'nullable|email|max:255',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $user = null;
+
+    if ($request->filled('influencer_id') || $request->filled('user_id')) {
+        $user = InfluencerRegister::find($request->input('influencer_id') ?: $request->input('user_id'));
+    }
+
+    if (!$user && $request->filled('email')) {
+        $user = InfluencerRegister::where('email', $request->email)->first();
+    }
+
+    if (!$user) {
+        return response()->json(['code' => -1, 'msg' => 'Influencer profile not found'], 404);
+    }
+
+    $referralCode = $user->referral_code;
+
+    $referrals = InfluencerRegister::query()
+        ->where('id', '!=', $user->id)
+        ->where(function ($query) use ($user, $referralCode) {
+            $query->where('referred_by_influencer_id', $user->id);
+
+            if (!empty($referralCode)) {
+                $query->orWhere('submitted_referral_code', $referralCode);
+            }
+        })
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function (InfluencerRegister $referralUser) {
+            return $this->influencerPayload($referralUser);
+        });
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Influencer referrals fetched successfully',
+        'details' => $referrals,
+    ], 200);
+}
+
+public function updateInfluencerPassword(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'influencer_id' => 'nullable|integer',
+        'email' => 'nullable|email|max:255',
+        'current_password' => 'required|string',
+        'password' => 'required|string|min:6|confirmed',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $influencer = null;
+
+    if ($request->filled('influencer_id')) {
+        $influencer = InfluencerRegister::find($request->influencer_id);
+    }
+
+    if (!$influencer && $request->filled('email')) {
+        $influencer = InfluencerRegister::where('email', $request->email)->first();
+    }
+
+    if (!$influencer) {
+        return response()->json(['code' => -1, 'msg' => 'Influencer profile not found'], 404);
+    }
+
+    if (!Hash::check($request->current_password, $influencer->password)) {
+        return response()->json(['code' => -1, 'msg' => 'Current password is incorrect'], 422);
+    }
+
+    $influencer->password = Hash::make($request->password);
+    $influencer->save();
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Password updated successfully',
     ], 200);
 }
 

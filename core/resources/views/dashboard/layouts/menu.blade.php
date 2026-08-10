@@ -295,6 +295,11 @@ $GeneralWebmasterSections = $GeneralWebmasterSections ?? collect();
 							<span class="nav-text">Users </span>
 						</a>
 					</li>
+                    <li class="{{ request()->routeIs('influencerRegisters') || request()->routeIs('influencerRegistersView') ? 'active' : '' }}">
+						<a href="{{ route('influencerRegisters') }}" ><span class="nav-icon"><i class="material-icons">&#xe7fd;</i></span>
+							<span class="nav-text">Influencer Registers </span>
+						</a>
+					</li>
                     <li class="nav-header hidden-folded m-t-sm">
                         <small class="text-muted">{{ __('backend.siteData') }}</small>
                     </li>

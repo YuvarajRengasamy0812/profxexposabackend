@@ -24,6 +24,7 @@ use App\Http\Controllers\Dashboard\FileManagerController;
 use App\Http\Controllers\Dashboard\TagController;
 use App\Http\Controllers\Dashboard\PopupController;
 use App\Http\Controllers\Dashboard\MarketingController;
+use App\Http\Controllers\Dashboard\InfluencerRegisterController;
 use Illuminate\Support\Facades\Route;
 
 // Admin Home
@@ -113,6 +114,11 @@ Route::get('/profxusersView/{id}', [FloorplanController::class, 'profxusersView'
 Route::get('/profxusers/export/{format}', [FloorplanController::class, 'profxusersExport'])->name('profxusersExport');
 Route::post('/profxusers/send-registration-emails', [FloorplanController::class, 'sendRegistrationEmails'])->name('profxusersSendRegistrationEmails');
 Route::post('/profxusers/referral-account', [FloorplanController::class, 'storeReferralAccount'])->name('profxusersReferralAccountStore');
+
+// Influencer registrations
+Route::get('/influencer-registers', [InfluencerRegisterController::class, 'index'])->name('influencerRegisters');
+Route::get('/influencer-registers/{id}', [InfluencerRegisterController::class, 'view'])->name('influencerRegistersView');
+Route::post('/influencer-registers/{id}/status', [InfluencerRegisterController::class, 'updateStatus'])->name('influencerRegistersStatus');
 
 // Leagueusers
 Route::get('/leagueusers', [FloorplanController::class, 'leagueusers'])->name('leagueusers');
