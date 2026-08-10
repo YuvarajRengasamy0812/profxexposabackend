@@ -3092,13 +3092,18 @@ public function influencerRegisterSubmit(Request $request)
         }
     }
 
-    $influencer = InfluencerRegister::where('email', $validated['email'])->first();
+    $email = strtolower(trim($validated['email']));
 
-    if (!$influencer) {
-        $influencer = new InfluencerRegister();
-        $influencer->email = strtolower(trim($validated['email']));
-        $influencer->status = 'pending';
+    if (InfluencerRegister::where('email', $email)->exists()) {
+        return response()->json([
+            'code' => '0',
+            'msg' => 'This email is already registered as an influencer. Please register with a new email address.',
+        ], 409);
     }
+
+    $influencer = new InfluencerRegister();
+    $influencer->email = $email;
+    $influencer->status = 'pending';
 
     $influencer->full_name = $validated['full_name'];
     $influencer->company_name = $validated['company_name'];
@@ -3106,8 +3111,7 @@ public function influencerRegisterSubmit(Request $request)
     $influencer->nationality = $validated['nationality'];
     $influencer->position_role = $validated['position_role'];
     $influencer->password = Hash::make($validated['password']);
-    $influencer->status = $influencer->status ?: 'pending';
-    $influencer->approval_message = $influencer->approval_message ?: null;
+    $influencer->approval_message = null;
 
     if ($submittedReferralCode !== '') {
         $influencer->submitted_referral_code = $submittedReferralCode;
@@ -3173,6 +3177,67 @@ public function influencerRegisterSubmit(Request $request)
             'profile' => $influencerPayload,
         ],
     ], 201);
+}
+
+public function approvedInfluencers()
+{
+    $influencers = InfluencerRegister::where('status', 'approved')
+        ->orderBy('created_at', 'DESC')
+        ->get()
+        ->map(function (InfluencerRegister $influencer) {
+            return [
+                'id' => $influencer->id,
+                'full_name' => $influencer->full_name,
+                'company_name' => $influencer->company_name,
+                'position_role' => $influencer->position_role,
+                'nationality' => $influencer->nationality,
+                'profile_photo_url' => !empty($influencer->profile_photo) ? url('uploads/settings/' . $influencer->profile_photo) : null,
+            ];
+        });
+
+    return response()->json([
+        'code' => 1,
+        'success' => true,
+        'msg' => 'Approved influencers fetched successfully',
+        'details' => $influencers,
+    ], 200);
+}
+
+public function influencerLoginSubmit(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'email' => 'required|email|max:255',
+        'password' => 'required|string',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json(['code' => -1, 'msg' => 'Authentication failed'], 401);
+    }
+
+    $influencer = InfluencerRegister::where('email', strtolower(trim($validated['email'])))->first();
+
+    if (!$influencer) {
+        return response()->json(['code' => -1, 'msg' => 'Influencer not found'], 404);
+    }
+
+    if (!Hash::check($validated['password'], $influencer->password)) {
+        return response()->json(['code' => -1, 'msg' => 'Invalid password'], 401);
+    }
+
+    $profile = $this->influencerPayload($influencer);
+
+    return response()->json([
+        'code' => 1,
+        'msg' => 'Influencer login successful',
+        'data' => [
+            'influencer_id' => $influencer->id,
+            'referral_code' => $influencer->referral_code,
+            'referral_link' => $influencer->referral_link,
+            'influencer' => $profile,
+            'profile' => $profile,
+        ],
+    ], 200);
 }
 
 
@@ -3351,7 +3416,9 @@ public function clientInfluencerProfile(Request $request)
     }
 
     if (!$user && $request->filled('email')) {
-        $user = InfluencerRegister::where('email', $request->email)->first();
+        $user = InfluencerRegister::where('email', strtolower(trim($request->email)))
+            ->orderBy('created_at', 'DESC')
+            ->first();
     }
 
     if (!$user) {
@@ -3385,7 +3452,9 @@ public function clientInfluencerReferralList(Request $request)
     }
 
     if (!$user && $request->filled('email')) {
-        $user = InfluencerRegister::where('email', $request->email)->first();
+        $user = InfluencerRegister::where('email', strtolower(trim($request->email)))
+            ->orderBy('created_at', 'DESC')
+            ->first();
     }
 
     if (!$user) {
@@ -3437,7 +3506,9 @@ public function updateInfluencerPassword(Request $request)
     }
 
     if (!$influencer && $request->filled('email')) {
-        $influencer = InfluencerRegister::where('email', $request->email)->first();
+        $influencer = InfluencerRegister::where('email', strtolower(trim($request->email)))
+            ->orderBy('created_at', 'DESC')
+            ->first();
     }
 
     if (!$influencer) {
