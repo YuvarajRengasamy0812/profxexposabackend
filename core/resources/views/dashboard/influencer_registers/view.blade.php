@@ -88,7 +88,7 @@
     </div>
 
     <div class="ifx-card">
-        <h4>Referred Influencer Users</h4>
+        <h4>Referred Registered Users</h4>
         <div class="table-responsive mt-3">
             <table class="ifx-table">
                 <thead>
@@ -111,12 +111,12 @@
                             <td>{{ $referralUser->email }}</td>
                             <td>{{ $referralUser->phone }}</td>
                             <td>{{ $referralUser->company_name }}</td>
-                            <td><span class="ifx-status {{ $referralUser->status ?? 'pending' }}">{{ ucfirst($referralUser->status ?? 'pending') }}</span></td>
+                            <td><span class="ifx-status approved">Registered</span></td>
                             <td>{{ $referralUser->nationality }}</td>
                             <td>{{ $referralUser->created_at }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="ifx-empty">No referred influencer users found.</td></tr>
+                        <tr><td colspan="8" class="ifx-empty">No referred registered users found.</td></tr>
                     @endforelse
                 </tbody>
             </table>

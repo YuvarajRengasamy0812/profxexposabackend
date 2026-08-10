@@ -2929,6 +2929,7 @@ public function registerSubmit(Request $request)
         'password' => 'required|min:6',
     
          'password_confirmation' => 'required|same:password',
+        'referral_code' => 'nullable|string|max:500',
         'frontend_url' => 'nullable|string|max:500'
     ]);
 
@@ -2941,6 +2942,26 @@ public function registerSubmit(Request $request)
     }
 
     // ✅ Save user
+    $influencerReferrer = null;
+    $influencerReferralCode = strtoupper(trim((string) ($request->input('referral_code') ?: $request->input('ref', ''))));
+
+    if ($influencerReferralCode !== '') {
+        if (filter_var($influencerReferralCode, FILTER_VALIDATE_URL)) {
+            $query = parse_url($influencerReferralCode, PHP_URL_QUERY);
+            parse_str((string) $query, $params);
+            $influencerReferralCode = strtoupper(trim((string) ($params['ref'] ?? $params['referral_code'] ?? $influencerReferralCode)));
+        }
+
+        $influencerReferrer = InfluencerRegister::where('referral_code', $influencerReferralCode)->first();
+
+        if (!$influencerReferrer && str_starts_with($influencerReferralCode, 'IFX')) {
+            return response()->json([
+                'code' => '-1',
+                'msg' => 'Invalid influencer referral code',
+            ], 422);
+        }
+    }
+
     $user = new UserRegister();
     $user->full_name = $request->full_name;
     $user->email = $request->email;
@@ -2952,6 +2973,8 @@ public function registerSubmit(Request $request)
     $user->special_requirements = $request->special_requirements;
     $user->sponsor_package = $request->sponsor_package;
     $user->products_services = $request->products_services;
+    $user->influencer_referral_code = $influencerReferrer ? $influencerReferrer->referral_code : null;
+    $user->referred_by_influencer_id = $influencerReferrer ? $influencerReferrer->id : null;
     $user->save();
 
     if (empty($user->referral_code)) {
@@ -3461,21 +3484,35 @@ public function clientInfluencerReferralList(Request $request)
         return response()->json(['code' => -1, 'msg' => 'Influencer profile not found'], 404);
     }
 
-    $referralCode = $user->referral_code;
-
-    $referrals = InfluencerRegister::query()
-        ->where('id', '!=', $user->id)
-        ->where(function ($query) use ($user, $referralCode) {
-            $query->where('referred_by_influencer_id', $user->id);
-
-            if (!empty($referralCode)) {
-                $query->orWhere('submitted_referral_code', $referralCode);
-            }
-        })
-        ->orderBy('created_at', 'desc')
+    $referrals = DB::table('users_registers as ur')
+        ->where('ur.referred_by_influencer_id', $user->id)
+        ->orderBy('ur.created_at', 'desc')
+        ->select([
+            'ur.id',
+            'ur.full_name',
+            'ur.email',
+            'ur.phone',
+            'ur.company_name',
+            'ur.user_type',
+            'ur.nationality',
+            'ur.created_at',
+            'ur.influencer_referral_code',
+        ])
         ->get()
-        ->map(function (InfluencerRegister $referralUser) {
-            return $this->influencerPayload($referralUser);
+        ->map(function ($referralUser) {
+            return [
+                'id' => $referralUser->id,
+                'user_id' => $referralUser->id,
+                'full_name' => $referralUser->full_name,
+                'email' => $referralUser->email,
+                'phone' => $referralUser->phone,
+                'company_name' => $referralUser->company_name,
+                'user_type' => $referralUser->user_type,
+                'nationality' => $referralUser->nationality,
+                'status' => 'registered',
+                'influencer_referral_code' => $referralUser->influencer_referral_code,
+                'created_at' => $referralUser->created_at,
+            ];
         });
 
     return response()->json([

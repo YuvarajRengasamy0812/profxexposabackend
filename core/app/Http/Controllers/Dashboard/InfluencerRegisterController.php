@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\InfluencerRegister;
 use App\Models\WebmasterSection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InfluencerRegisterController extends Controller
 {
@@ -51,16 +52,20 @@ class InfluencerRegisterController extends Controller
 
         $influencer = InfluencerRegister::findOrFail($id);
 
-        $referralUsers = InfluencerRegister::query()
-            ->where('id', '!=', $influencer->id)
-            ->where(function ($query) use ($influencer) {
-                $query->where('referred_by_influencer_id', $influencer->id);
-
-                if (!empty($influencer->referral_code)) {
-                    $query->orWhere('submitted_referral_code', $influencer->referral_code);
-                }
-            })
-            ->orderBy('created_at', 'DESC')
+        $referralUsers = DB::table('users_registers as ur')
+            ->where('ur.referred_by_influencer_id', $influencer->id)
+            ->orderBy('ur.created_at', 'DESC')
+            ->select([
+                'ur.id',
+                'ur.full_name',
+                'ur.email',
+                'ur.phone',
+                'ur.company_name',
+                'ur.user_type',
+                'ur.nationality',
+                'ur.created_at',
+                'ur.influencer_referral_code',
+            ])
             ->get();
 
         return view('dashboard.influencer_registers.view', compact('GeneralWebmasterSections', 'influencer', 'referralUsers'));
