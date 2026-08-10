@@ -42,6 +42,7 @@ Route::post('/comment', 'APIsController@commentSubmit');
 Route::post('/order', 'APIsController@orderSubmit');
 Route::post('/contact', 'APIsController@ContactPageSubmit');
 Route::post('/leaguebooking', 'APIsController@BookingLeague');
+Route::post('/influencer-register', 'APIsController@influencerRegisterSubmit');
 Route::post('/clientbooking', 'APIsController@BookingPageSubmit');
 Route::post('/floorplansubmit', 'APIsController@FloorplanSubmit');
 Route::get('/website/influencer', 'APIsController@influencer');

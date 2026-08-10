@@ -2991,9 +2991,73 @@ try {
         'msg'  => 'Registration successful',
         'data' => [
             'user_id' => $user->id,
-        'referral_code' => 'nullable|string|max:255',
-        'referral_link' => 'nullable|string|max:500',
+            'referral_code' => $user->referral_code,
+            'referral_link' => $user->referral_link,
         ]
+    ], 201);
+}
+
+public function influencerRegisterSubmit(Request $request)
+{
+    $validated = $request->validate([
+        'api_key' => 'required|string',
+        'full_name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'phone' => 'required|string|max:30',
+        'nationality' => 'required|string|max:255',
+        'company_name' => 'required|string|max:255',
+        'position_role' => 'required|string|max:255',
+        'referral_code' => 'nullable|string|max:255',
+        'frontend_url' => 'nullable|string|max:500',
+    ]);
+
+    if ($validated['api_key'] !== Helper::GeneralWebmasterSettings("api_key")) {
+        return response()->json([
+            'code' => '-1',
+            'msg' => 'Authentication failed',
+        ], 401);
+    }
+
+    $frontendUrl = $request->frontend_url ?: 'https://profxexpo.com/africa/Influencers';
+    $temporaryPassword = bin2hex(random_bytes(5));
+
+    $user = UserRegister::where('email', $validated['email'])->first();
+
+    if (!$user) {
+        $user = new UserRegister();
+        $user->email = $validated['email'];
+        $user->password = Hash::make($temporaryPassword);
+    }
+
+    $user->full_name = $validated['full_name'];
+    $user->company_name = $validated['company_name'];
+    $user->phone = $validated['phone'];
+    $user->user_type = 'influencer';
+    $user->nationality = $validated['nationality'];
+    $user->special_requirements = $validated['position_role'];
+    $user->sponsor_package = 'Influencer';
+
+    if (!empty($validated['referral_code'])) {
+        $user->products_services = $validated['referral_code'];
+    }
+
+    $user->save();
+
+    if (empty($user->referral_code)) {
+        $user->referral_code = $this->createReferralCodeForUser($user);
+    }
+
+    $user->referral_link = $this->createReferralLink($user->referral_code, $frontendUrl);
+    $user->save();
+
+    return response()->json([
+        'code' => '1',
+        'msg' => 'Influencer registration successful',
+        'data' => [
+            'user_id' => $user->id,
+            'referral_code' => $user->referral_code,
+            'referral_link' => $user->referral_link,
+        ],
     ], 201);
 }
 
