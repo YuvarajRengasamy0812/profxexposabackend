@@ -412,6 +412,7 @@
                         <select name="send_scope" id="sendScopeSelect" class="form-select">
                             <option value="selected">Selected Users</option>
                             <option value="all">All Users</option>
+                            <option value="league_users">League Users</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-community" id="sendRegistrationEmailBtn" disabled>
@@ -602,7 +603,9 @@
                         const selectedCount = checkboxes.filter(function (checkbox) { return checkbox.checked; }).length;
                         const sendScope = sendScopeSelect ? sendScopeSelect.value : 'selected';
                         const templateName = templateSelect ? templateSelect.options[templateSelect.selectedIndex].text : 'email';
-                        const recipientText = sendScope === 'all' ? 'all users' : selectedCount + ' selected user(s)';
+                        const recipientText = sendScope === 'all'
+                            ? 'all users'
+                            : (sendScope === 'league_users' ? 'all league users' : selectedCount + ' selected user(s)');
 
                         if (form.dataset.confirmed === '1') {
                             return;

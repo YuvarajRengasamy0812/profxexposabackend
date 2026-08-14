@@ -104,6 +104,10 @@ Route::delete('/floorplans/{id}', [FloorplanController::class, 'destroy'])->name
 
 // Client speaker requests
 Route::get('/client-speakers', [ClientSpeakerController::class, 'index'])->name('clientSpeakers');
+Route::get('/client-speakers/create', [ClientSpeakerController::class, 'create'])->name('clientSpeakersCreate');
+Route::post('/client-speakers/store', [ClientSpeakerController::class, 'store'])->name('clientSpeakersStore');
+Route::get('/client-speakers/{id}/edit', [ClientSpeakerController::class, 'edit'])->name('clientSpeakersEdit');
+Route::post('/client-speakers/{id}/update', [ClientSpeakerController::class, 'update'])->name('clientSpeakersUpdate');
 Route::get('/client-speakers/{id}', [ClientSpeakerController::class, 'view'])->name('clientSpeakersView');
 Route::post('/client-speakers/{id}/approve', [ClientSpeakerController::class, 'approve'])->name('clientSpeakersApprove');
 Route::post('/client-speakers/{id}/order', [ClientSpeakerController::class, 'updateOrder'])->name('clientSpeakersOrder');

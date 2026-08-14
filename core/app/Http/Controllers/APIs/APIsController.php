@@ -267,6 +267,17 @@ public function BookingLeague(Request $request)
         ], 401);
     }
 
+    $validated['email'] = strtolower(trim($validated['email']));
+
+    $emailAlreadyRegistered = BookingLeague::whereRaw('LOWER(email) = ?', [$validated['email']])->exists();
+
+    if ($emailAlreadyRegistered) {
+        return response()->json([
+            'code' => -1,
+            'msg' => 'This email is already registered for PROFX League. Please use a different email address.',
+        ], 409);
+    }
+
     $rawReferralCode = trim((string) ($request->input('referral_code') ?: $request->input('ref', '')));
 
     if (filter_var($rawReferralCode, FILTER_VALIDATE_URL)) {

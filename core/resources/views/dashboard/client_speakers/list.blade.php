@@ -18,11 +18,20 @@
     .position-form { display:flex; gap:8px; align-items:center; }
     .position-input { width:82px; padding:7px 8px; border:1px solid #d9d9d9; border-radius:8px; }
     .btn-order { background:#173a30; color:#fff; border:0; border-radius:8px; padding:8px 12px; }
+    .speaker-list-header { display:flex; justify-content:space-between; gap:15px; align-items:flex-start; flex-wrap:wrap; margin-bottom:18px; }
+    .speaker-list-header h4 { margin-bottom:8px; }
+    .speaker-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn-green { background:#173a30; color:#fff; border:0; border-radius:8px; padding:8px 14px; text-decoration:none; display:inline-block; }
 </style>
 
 <div class="profx-admin-table-wrapper">
-    <h4 class="mb-3">Client Speakers</h4>
-    <p>Total: {{ $stats->total }} | Pending: {{ $stats->pending }} | Approved: {{ $stats->approved }} | Rejected: {{ $stats->rejected }}</p>
+    <div class="speaker-list-header">
+        <div>
+            <h4>Client Speakers</h4>
+            <p>Total: {{ $stats->total }} | Pending: {{ $stats->pending }} | Approved: {{ $stats->approved }} | Rejected: {{ $stats->rejected }}</p>
+        </div>
+        <a href="{{ route('clientSpeakersCreate') }}" class="btn-gold">Add Client Speaker</a>
+    </div>
 
     <form method="GET" class="profx-search-form">
         <input type="text" name="email" placeholder="Search by email" value="{{ request('email') }}" class="form-control">
@@ -74,7 +83,12 @@
                             <button type="submit" class="btn-order">Save</button>
                         </form>
                     </td>
-                    <td><a class="btn-gold" href="{{ route('clientSpeakersView', $speaker->id) }}">View</a></td>
+                    <td>
+                        <div class="speaker-actions">
+                            <a class="btn-gold" href="{{ route('clientSpeakersView', $speaker->id) }}">View</a>
+                            <a class="btn-green" href="{{ route('clientSpeakersEdit', $speaker->id) }}">Edit</a>
+                        </div>
+                    </td>
                 </tr>
             @empty
                 <tr><td colspan="8" class="text-center">No speaker requests found.</td></tr>

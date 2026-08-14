@@ -468,7 +468,7 @@ public function approve(Request $request, $id)
                 ->with('profxSwalError', 'Please select a valid email template.');
         }
 
-        if (!in_array($sendScope, ['selected', 'all'], true)) {
+        if (!in_array($sendScope, ['selected', 'all', 'league_users'], true)) {
             $sendScope = 'selected';
         }
 
@@ -478,12 +478,30 @@ public function approve(Request $request, $id)
                 ->with('profxSwalError', 'Please select at least one user.');
         }
 
-        $usersQuery = DB::table('users_registers')
-            ->whereNotNull('email')
-            ->where('email', '!=', '');
+        if ($sendScope === 'league_users') {
+            $usersQuery = DB::table('booking_leagues')
+                ->select(
+                    'id',
+                    'name as full_name',
+                    'email',
+                    'company as company_name',
+                    'phone',
+                    'country as nationality',
+                    'role as user_type',
+                    'own_referral_code as referral_code',
+                    'own_referral_link as referral_link',
+                    'created_at'
+                )
+                ->whereNotNull('email')
+                ->where('email', '!=', '');
+        } else {
+            $usersQuery = DB::table('users_registers')
+                ->whereNotNull('email')
+                ->where('email', '!=', '');
 
-        if ($sendScope === 'selected') {
-            $usersQuery->whereIn('id', $selectedUserIds);
+            if ($sendScope === 'selected') {
+                $usersQuery->whereIn('id', $selectedUserIds);
+            }
         }
 
         $users = $usersQuery->orderBy('created_at', 'DESC')->get();
@@ -540,7 +558,13 @@ public function approve(Request $request, $id)
             }
         }
 
-        $scopeText = $sendScope === 'all' ? 'all users' : 'selected users';
+        if ($sendScope === 'all') {
+            $scopeText = 'all users';
+        } elseif ($sendScope === 'league_users') {
+            $scopeText = 'league users';
+        } else {
+            $scopeText = 'selected users';
+        }
 
         if (!empty($failed)) {
             return redirect()

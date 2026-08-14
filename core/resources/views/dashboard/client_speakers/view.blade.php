@@ -56,6 +56,7 @@
             <textarea name="admin_message" class="form-control" rows="4">{{ $speaker->admin_message }}</textarea>
         </div>
         <button type="submit" class="btn-gold">Update Status</button>
+        <a href="{{ route('clientSpeakersEdit', $speaker->id) }}" class="btn-gold">Edit</a>
         <a href="{{ route('clientSpeakers') }}" class="btn-gold">Back</a>
     </form>
 </div>
