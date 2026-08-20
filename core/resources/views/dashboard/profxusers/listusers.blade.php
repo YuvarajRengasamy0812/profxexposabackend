@@ -404,7 +404,7 @@
                         <select name="email_template" id="emailTemplateSelect" class="form-select">
                             <option value="registration_ticket">Registration Ticket Email</option>
                             <option value="community_groups">Telegram / WhatsApp Group Email</option>
-                            <option value="expo_countdown">15 Days Countdown Email</option>
+                            <option value="expo_countdown">Expo Day Email</option>
                         </select>
                     </div>
                     <div class="profx-bulk-field">

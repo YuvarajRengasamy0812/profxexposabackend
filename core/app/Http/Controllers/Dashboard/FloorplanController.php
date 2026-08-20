@@ -456,8 +456,8 @@ public function approve(Request $request, $id)
                 'view' => 'emails.community-groups',
             ],
             'expo_countdown' => [
-                'label' => '15 Days Countdown',
-                'subject' => 'Only 15 Days to Go - PROFX Expo Africa 2026',
+                'label' => 'Expo Day',
+                'subject' => 'TODAY IS THE DAY! - PROFX Expo Africa 2026',
                 'view' => 'emails.expo-countdown',
             ],
         ];
@@ -526,7 +526,7 @@ public function approve(Request $request, $id)
                 'ticket_footer' => 'https://profxexpo.com/africa/adminpanel/uploads/topics/17792011237810.png',
                 'downloadTicketUrl' => route('ticket.download', $user->id),
                 'heroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/telgram.png',
-                'countdownHeroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/profx-15-days-countdown.jpeg',
+                'countdownHeroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/profx-expo-day.jpeg',
                 'eventUrl' => 'https://profxexpo.com/africa',
                 'telegramUrl' => 'https://t.me/profxexpoafrica',
                 'whatsappUrl' => 'https://chat.whatsapp.com/Er7vSpSmGoK68nFbGrxAQk',
