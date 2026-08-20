@@ -460,6 +460,11 @@ public function approve(Request $request, $id)
                 'subject' => 'TODAY IS THE DAY! - PROFX Expo Africa 2026',
                 'view' => 'emails.expo-countdown',
             ],
+            'profx_league_reminder' => [
+                'label' => 'PROFX League Reminder',
+                'subject' => 'JOIN THE PROFX LEAGUE TODAY! - PROFX Expo Africa 2026',
+                'view' => 'emails.profx-league-reminder',
+            ],
         ];
 
         if (!array_key_exists($templateKey, $allowedTemplates)) {
@@ -527,6 +532,7 @@ public function approve(Request $request, $id)
                 'downloadTicketUrl' => route('ticket.download', $user->id),
                 'heroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/telgram.png',
                 'countdownHeroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/profx-expo-day.jpeg',
+                'leagueHeroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/profx-league-reminder.jpeg',
                 'eventUrl' => 'https://profxexpo.com/africa',
                 'telegramUrl' => 'https://t.me/profxexpoafrica',
                 'whatsappUrl' => 'https://chat.whatsapp.com/Er7vSpSmGoK68nFbGrxAQk',

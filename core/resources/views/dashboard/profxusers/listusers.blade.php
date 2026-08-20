@@ -405,6 +405,7 @@
                             <option value="registration_ticket">Registration Ticket Email</option>
                             <option value="community_groups">Telegram / WhatsApp Group Email</option>
                             <option value="expo_countdown">Expo Day Email</option>
+                            <option value="profx_league_reminder">PROFX League Reminder Email</option>
                         </select>
                     </div>
                     <div class="profx-bulk-field">
