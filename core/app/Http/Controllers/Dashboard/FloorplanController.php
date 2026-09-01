@@ -465,6 +465,11 @@ public function approve(Request $request, $id)
                 'subject' => 'JOIN THE PROFX LEAGUE TODAY! - PROFX Expo Africa 2026',
                 'view' => 'emails.profx-league-reminder',
             ],
+            'profx_africa_thank_you' => [
+                'label' => 'PROFX Africa Thank You',
+                'subject' => 'Thank You Cape Town - PROFX Expo Africa 2026',
+                'view' => 'emails.profx-africa-thank-you',
+            ],
         ];
 
         if (!array_key_exists($templateKey, $allowedTemplates)) {
@@ -533,6 +538,7 @@ public function approve(Request $request, $id)
                 'heroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/telgram.png',
                 'countdownHeroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/profx-expo-day-2.jpeg',
                 'leagueHeroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/profx-league-reminder.jpeg',
+                'thankYouHeroImage' => 'https://profxexpo.com/africa/adminpanel/assets/dashboard/images/email/profx-africa-2026-thank-you-cape-town.jpeg',
                 'eventUrl' => 'https://profxexpo.com/africa',
                 'telegramUrl' => 'https://t.me/profxexpoafrica',
                 'whatsappUrl' => 'https://chat.whatsapp.com/Er7vSpSmGoK68nFbGrxAQk',

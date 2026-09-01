@@ -406,6 +406,7 @@
                             <option value="community_groups">Telegram / WhatsApp Group Email</option>
                             <option value="expo_countdown">Expo Day Email</option>
                             <option value="profx_league_reminder">PROFX League Reminder Email</option>
+                            <option value="profx_africa_thank_you">PROFX Africa Thank You Email</option>
                         </select>
                     </div>
                     <div class="profx-bulk-field">
